@@ -1,0 +1,163 @@
+---
+title: "PackageDevelopment"
+author: "Gabe Winter"
+format: html
+editor: source
+---
+
+### Install the `{fusen}` package
+
+```{r, eval = FALSE}
+install.packages("fusen")
+library(fusen)
+```
+
+### Quickstart folder setup (or reuse a template folder)
+
+Run this function to create the folder and documentation for your package
+
+```{r, eval = FALSE}
+#fusen::create_fusen(path = "PakcageName", template = "minimal")
+```
+
+### Create a package description
+
+```{r description}
+# Describe your package
+fusen::fill_description(
+  pkg = here::here(),
+  fields = list(
+    Title = "Variance decomposition for brms models",
+    Description = "This package contains functions for variance decomposition of brms models, as well as functions for model fit checks, model comparisons and visualizations.",
+    `Authors@R` = c(
+      person("Gabe", "Winter", email = "gabewinter@gmail.com", role = c("aut", "cre"), comment = c(ORCID = "0000-0001-5984-9410"))
+    )
+  )
+)
+# Define License with use_*_license()
+usethis::use_mit_license("Gabe Winter")
+```
+## Package development tools
+
+# Start using git
+
+```{r, eval=FALSE}
+usethis::use_git()
+# Deal with classical files to ignore
+usethis::git_vaccinate()
+# Use main for primary branch
+usethis::git_default_branch_rename()
+```
+
+# Set extra sources of documentation
+
+```{r, eval=FALSE}
+# Install a first time
+remotes::install_local()
+# README
+usethis::use_readme_rmd()
+# Code of Conduct
+usethis::use_code_of_conduct("gabewinter@gmail.com")
+# NEWS
+usethis::use_news_md()
+```
+
+
+**From now, you will need to "inflate" your package at least once to be able to use the following commands. Let's go to your flat template, and come back here later if/when needed.**
+
+
+
+```{r development-inflate, eval=FALSE}
+# Execute in the console directly - keep eval=FALSE to avoid infinite loop
+fusen::inflate(flat_file = "dev/VarDecomp_package.Rmd", vignette_name = "Vignette")
+```
+
+
+**Use only once**
+```{r, eval=FALSE}
+# Pipe
+usethis::use_pipe()
+
+# package-level documentation
+usethis::use_package_doc()
+
+# GitHub
+# Add your credentials for GitHub
+usethis::create_github_token()
+gitcreds::gitcreds_set()
+
+# _Or one step at a time
+# Send your project to a new GitHub project (included in
+
+fusen::init_share_on_github()
+#usethis::use_git()
+# Deal with classical files to ignore
+#usethis::git_vaccinate()
+# Use main for primary branch
+#usethis::git_default_branch_rename()
+
+# Set Continuous Integration
+# _GitHub (included in `init_share_on_github()`)
+#usethis::use_github_action_check_standard()
+#usethis::use_github_action("pkgdown")
+#usethis::use_github_action("test-coverage")
+# _GitLab
+gitlabr::use_gitlab_ci(type = "check-coverage-pkgdown")
+```
+
+Let's go for the instructions to finish the process:
+1 - Wait for the 'pkgdown' Actions 'chore: Init Actions and
+website' to finish on:
+<https://github.com/gabewinter/VarDecomp/actions/workflows/pkgdown.yaml>.
+This action will create a new branch on GitHub, named 'gh-pages'
+2 - Once the 'gh-pages' branch is created, you need to tell
+GitHub to follow it.
+Go to: <https://github.com/gabewinter/VarDecomp/settings/pages>
+and choose 'gh-pages' in the 'Branch' drop-down menu, instead of
+'None'. Click 'Save'.
+If the branch is not there, wait a minute and refresh the page.
+3 - Wait another minute and you'll be able to see your project
+website at: <https://gabewinter.github.io/VarDecomp>
+Now it's time to continue your project: fill the flat file,
+inflate, push to GitHub.
+> Infos: You will want to update your README.Rmd file. And then
+`knit()` it.
+> Note: The Action 'test-coverage' may fail as you do not have
+any test in your package yet. Inflate your flat file with a unit
+test once, and it should be good.
+The next time you run this function, you can set
+`init_share_on_github(ask = TRUE)`, to not see all the
+intermediate questions.
+
+
+**Use when needed**
+```{r, eval=FALSE}
+# Simulate package installation
+pkgload::load_all()
+
+# Generate documentation and deal with dependencies
+attachment::att_amend_desc()
+
+# Check the package
+devtools::check()
+
+# Add a new flat template
+#fusen::add_flat_template("add")
+```
+
+# Share the package
+
+```{r, eval=FALSE}
+# set and try pkgdown documentation website locally
+usethis::use_pkgdown()
+pkgdown::build_site()
+
+# build the tar.gz with vignettes to share with others
+devtools::build(vignettes = TRUE)
+
+# Share your package and its documentation on GitHub
+# usethis::create_github_token()
+# gitcreds::gitcreds_set()
+fusen::init_share_on_github()
+```
+

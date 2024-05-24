@@ -1,0 +1,138 @@
+---
+title: "VarDecomp"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r development, include=FALSE}
+library(brms)
+library(parallel)
+library(tidyverse)
+```
+
+```{r development-load}
+# Load already included functions if relevant
+pkgload::load_all(export_all = FALSE)
+```
+
+
+```{r function-testfunction}
+testfunction = function(){
+
+emojis = c("\U1F600", "\U1F604", "\U1F601", "\U1F643", "\U1F609", "\U1F60A", "\U1F929", "\U1F917", "\U1F92D", "\U1F973", "\U1F920", "\U1F978", "\U1F60E", "\U1F913", "\U1F47D", "\U1F638", "\U1F596", "\U1F44C", "\U270C", "\U1F44D", "\U1F44F", "\U1F64C", "\U1F40C", "\U1F41B", "\U1F41E", "\U1F997")  
+
+print(paste("No problem", sample(emojis, size = 1)))
+}
+```
+
+# brms_model
+
+```{r function-brms_model}
+
+#' Run a brms model
+#'
+#' @param Data A data frame containing the data - covariates should be centered to a the mean or to a meaningful zero (see Schielzeth H. 2010. Simple means to improve the interpretability of regression coefficients. Methods Ecol Evol. 1:103–113. doi:10.1111/j.2041-210X.2010.00012.x.).
+#' @param Response String with the name of the column in Data containing the response variable (e.g. "mass"). 
+#' @param FixedEffect String with the name of the column in Data containing the fixed effect variable (e.g. "height"). To add multiple fixed effects, use c() (e.g. c("height", "sex")). 
+#' @param RandomEffect String with the name of the column in Data containing the random effect variable (e.g. "species"). The current package version allows the use of a single random effect.
+#' @param RandomSlope String with the name of the column in Data containing the covariate to be added as a random slope (e.g. "height"). The current package version allows the use of a single random slope.
+#' @param Chainset String to define the number of iterations. Start with "test" (warmup=10; iter=110; thin=10; chains=2) and increase as needed until convergence: "long"(warmup=15000; iter=30000; thin=15; chains=2); "longer"(warmup=30000; iter=60000; thin=30; chains=2); "longest" (warmup=60000; iter=120000; thin=60; chains=2).
+#' @param Family String to define the family function in the brms model. Current supported families: "gaussian", "binomial", "poisson".
+#' @param Seed Numeric and optional. Set a seed in order to repeat the results from the model when running it more than once. 
+#'
+#' @return Returns a brmsfit
+#' @export 
+#'
+brms_model = function(Data, Response, FixedEffect, RandomEffect, RandomSlope, Chainset, Family, Seed){
+
+  
+stopifnot("`Data` must be a data frame" =               
+              inherits(Data, "data.frame"))
+  
+stopifnot("`Response` must be a string" =               
+              inherits(Response, "character"))
+
+stopifnot("`FixedEffect` must be a string" =               
+              inherits(FixedEffect, "character"))
+
+stopifnot("`RandomEffect` must be a string" =               
+              inherits(RandomEffect, "character"))
+
+if(!is.null(RandomSlope)){stopifnot("`RandomSlope` must be a string" =               
+              inherits(RandomSlope, "character"))}
+
+stopifnot("`Chainset` must be a string (options are 'test', 'long, 'longer', 'longest')" =               
+              inherits(Chainset, "character"))
+
+stopifnot("`Family` must be a string" =               
+              inherits(Family, "character"))
+
+stopifnot("`Seed` must be a string" =               
+              inherits(Seed, "numeric"))
+
+testfunction()
+
+if(is.null(Seed)){Seed = sample(1000:9999, 1)}
+  
+if(Chainset=="longest"){warmup=60000; iter=120000; thin=60; chains=2}
+if(Chainset=="longer"){warmup=30000; iter=60000; thin=30; chains=2}
+if(Chainset=="long"){warmup=15000; iter=30000; thin=15; chains=2}
+if(Chainset=="test"){warmup=10; iter=110; thin=10; chains=2}
+
+# Construct the formula object
+  bfform = ifelse(
+    
+    is.null(RandomSlope),
+      paste(Response, "~",
+      paste(FixedEffect, collapse = " + "),
+      "+ ( 1 |", RandomEffect, " )"),
+
+      paste(Response, "~",
+      paste(FixedEffect, collapse = " + "),
+      "+ ( 1 + ", RandomSlope, " | ", RandomEffect," )"))
+
+mod =  brms::brm(brms::bf(stats::as.formula(bfform)),
+                  family = Family,
+                  data = Data, 
+                  warmup = warmup,
+                  iter = iter, 
+                  thin=thin, 
+                  chains = chains, 
+                  init = "random", 
+                  seed = Seed, 
+                  cores = parallel::detectCores(), 
+                  control = list(adapt_delta = 0.999), 
+                  sample_prior = TRUE)
+
+brmsfit = mod
+
+return(brmsfit)
+
+}
+
+```
+
+```{r examples-brms_model}
+#md = dplyr::starwars
+
+#mod = VarDecomp::brms_model(Chainset = "long", 
+#           Response = "mass", 
+#           FixedEffect = c("sex","height"), 
+#           RandomEffect = "species", 
+#           RandomSlope = "height", 
+#           Family = "gaussian", 
+#           Data = md, 
+#          Seed = 0405)
+
+#print(mod)
+
+#plot(mod)
+
+```
+
+
+```{r development-inflate, eval=FALSE}
+# Execute in the console directly - keep eval=FALSE to avoid infinite loop
+fusen::inflate(flat_file = "dev/VarDecomp_package.Rmd", vignette_name = "Vignette")
+```
