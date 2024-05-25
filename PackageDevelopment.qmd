@@ -47,6 +47,7 @@ usethis::use_git()
 usethis::git_vaccinate()
 # Use main for primary branch
 usethis::git_default_branch_rename()
+usethis::git_default_branch_rename()
 ```
 
 # Set extra sources of documentation

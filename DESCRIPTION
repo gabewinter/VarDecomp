@@ -1,4 +1,4 @@
-Package: PackageTemplate
+Package: VarDecomp
 Version: 0.0.0.9000
 Title: Variance Decomposition For Brms Models
 Description: This package contains functions for variance decomposition of brms models, as well as functions for model fit checks, model comparisons and visualizations.
