@@ -82,13 +82,278 @@
 </h1></div>
 <!-- badges: start -->
 
-<p>The goal of VarDecomp is to …</p>
+<p>VarDecomp can be used for variance decomposition, model fit checks and output visualizations of brms models.</p>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
 <p>You can install the development version of VarDecomp like so:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># FILL THIS IN! HOW CAN PEOPLE INSTALL YOUR DEV PACKAGE?</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu">devtools</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"gabewinter/VarDecomp"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Downloading GitHub repo gabewinter/VarDecomp@HEAD</span></span>
+<span><span class="co">#&gt; parallelly   (1.36.0    -&gt; 1.37.1   ) [CRAN]</span></span>
+<span><span class="co">#&gt; listenv      (0.9.0     -&gt; 0.9.1    ) [CRAN]</span></span>
+<span><span class="co">#&gt; digest       (0.6.33    -&gt; 0.6.35   ) [CRAN]</span></span>
+<span><span class="co">#&gt; globals      (0.16.2    -&gt; 0.16.3   ) [CRAN]</span></span>
+<span><span class="co">#&gt; future       (1.33.0    -&gt; 1.33.2   ) [CRAN]</span></span>
+<span><span class="co">#&gt; vctrs        (0.6.3     -&gt; 0.6.5    ) [CRAN]</span></span>
+<span><span class="co">#&gt; stringi      (1.7.12    -&gt; 1.8.4    ) [CRAN]</span></span>
+<span><span class="co">#&gt; rlang        (1.1.1     -&gt; 1.1.3    ) [CRAN]</span></span>
+<span><span class="co">#&gt; munsell      (0.5.0     -&gt; 0.5.1    ) [CRAN]</span></span>
+<span><span class="co">#&gt; lifecycle    (1.0.3     -&gt; 1.0.4    ) [CRAN]</span></span>
+<span><span class="co">#&gt; labeling     (0.4.2     -&gt; 0.4.3    ) [CRAN]</span></span>
+<span><span class="co">#&gt; glue         (1.6.2     -&gt; 1.7.0    ) [CRAN]</span></span>
+<span><span class="co">#&gt; farver       (2.1.1     -&gt; 2.1.2    ) [CRAN]</span></span>
+<span><span class="co">#&gt; cli          (3.6.1     -&gt; 3.6.2    ) [CRAN]</span></span>
+<span><span class="co">#&gt; scales       (1.2.1     -&gt; 1.3.0    ) [CRAN]</span></span>
+<span><span class="co">#&gt; coda         (0.19-4    -&gt; 0.19-4.1 ) [CRAN]</span></span>
+<span><span class="co">#&gt; stringr      (1.5.0     -&gt; 1.5.1    ) [CRAN]</span></span>
+<span><span class="co">#&gt; mvtnorm      (1.2-2     -&gt; 1.2-5    ) [CRAN]</span></span>
+<span><span class="co">#&gt; utf8         (1.2.3     -&gt; 1.2.4    ) [CRAN]</span></span>
+<span><span class="co">#&gt; backports    (1.4.1     -&gt; 1.5.0    ) [CRAN]</span></span>
+<span><span class="co">#&gt; fansi        (1.0.4     -&gt; 1.0.6    ) [CRAN]</span></span>
+<span><span class="co">#&gt; Rcpp         (1.0.11    -&gt; 1.0.12   ) [CRAN]</span></span>
+<span><span class="co">#&gt; plyr         (1.8.8     -&gt; 1.8.9    ) [CRAN]</span></span>
+<span><span class="co">#&gt; matrixStats  (1.0.0     -&gt; 1.3.0    ) [CRAN]</span></span>
+<span><span class="co">#&gt; distribut... (0.3.2     -&gt; 0.4.0    ) [CRAN]</span></span>
+<span><span class="co">#&gt; tensorA      (0.36.2    -&gt; 0.36.2.1 ) [CRAN]</span></span>
+<span><span class="co">#&gt; checkmate    (2.2.0     -&gt; 2.3.1    ) [CRAN]</span></span>
+<span><span class="co">#&gt; withr        (2.5.0     -&gt; 3.0.0    ) [CRAN]</span></span>
+<span><span class="co">#&gt; gtable       (0.3.3     -&gt; 0.3.5    ) [CRAN]</span></span>
+<span><span class="co">#&gt; tidyselect   (1.2.0     -&gt; 1.2.1    ) [CRAN]</span></span>
+<span><span class="co">#&gt; posterior    (1.4.1     -&gt; 1.5.0    ) [CRAN]</span></span>
+<span><span class="co">#&gt; ggridges     (0.5.4     -&gt; 0.5.6    ) [CRAN]</span></span>
+<span><span class="co">#&gt; ggplot2      (3.4.3     -&gt; 3.5.1    ) [CRAN]</span></span>
+<span><span class="co">#&gt; dplyr        (1.1.2     -&gt; 1.1.4    ) [CRAN]</span></span>
+<span><span class="co">#&gt; desc         (1.4.2     -&gt; 1.4.3    ) [CRAN]</span></span>
+<span><span class="co">#&gt; ps           (1.7.5     -&gt; 1.7.6    ) [CRAN]</span></span>
+<span><span class="co">#&gt; jsonlite     (1.8.7     -&gt; 1.8.8    ) [CRAN]</span></span>
+<span><span class="co">#&gt; processx     (3.8.2     -&gt; 3.8.4    ) [CRAN]</span></span>
+<span><span class="co">#&gt; callr        (3.7.3     -&gt; 3.7.6    ) [CRAN]</span></span>
+<span><span class="co">#&gt; BH           (1.81.0-1  -&gt; 1.84.0-0 ) [CRAN]</span></span>
+<span><span class="co">#&gt; RcppEigen    (0.3.3.9.3 -&gt; 0.3.4.0.0) [CRAN]</span></span>
+<span><span class="co">#&gt; QuickJSR     (1.1.0     -&gt; 1.1.3    ) [CRAN]</span></span>
+<span><span class="co">#&gt; pkgbuild     (1.4.2     -&gt; 1.4.4    ) [CRAN]</span></span>
+<span><span class="co">#&gt; loo          (2.6.0     -&gt; 2.7.0    ) [CRAN]</span></span>
+<span><span class="co">#&gt; StanHeaders  (2.32.5    -&gt; 2.32.8   ) [CRAN]</span></span>
+<span><span class="co">#&gt; nleqslv      (3.3.4     -&gt; 3.3.5    ) [CRAN]</span></span>
+<span><span class="co">#&gt; future.apply (NA        -&gt; 1.11.2   ) [CRAN]</span></span>
+<span><span class="co">#&gt; bayesplot    (1.10.0    -&gt; 1.11.1   ) [CRAN]</span></span>
+<span><span class="co">#&gt; rstantools   (2.3.1     -&gt; 2.4.0    ) [CRAN]</span></span>
+<span><span class="co">#&gt; rstan        (2.32.5    -&gt; 2.32.6   ) [CRAN]</span></span>
+<span><span class="co">#&gt; brms         (2.19.0    -&gt; 2.21.0   ) [CRAN]</span></span>
+<span><span class="co">#&gt; Installing 51 packages: parallelly, listenv, digest, globals, future, vctrs, stringi, rlang, munsell, lifecycle, labeling, glue, farver, cli, scales, coda, stringr, mvtnorm, utf8, backports, fansi, Rcpp, plyr, matrixStats, distributional, tensorA, checkmate, withr, gtable, tidyselect, posterior, ggridges, ggplot2, dplyr, desc, ps, jsonlite, processx, callr, BH, RcppEigen, QuickJSR, pkgbuild, loo, StanHeaders, nleqslv, future.apply, bayesplot, rstantools, rstan, brms</span></span>
+<span><span class="co">#&gt; Installing packages into 'C:/Users/Gabe/AppData/Local/R/win-library/4.3'</span></span>
+<span><span class="co">#&gt; (as 'lib' is unspecified)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;   There is a binary version available but the source version is later:</span></span>
+<span><span class="co">#&gt;           binary source needs_compilation</span></span>
+<span><span class="co">#&gt; backports  1.4.1  1.5.0              TRUE</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; package 'parallelly' successfully unpacked and MD5 sums checked</span></span>
+<span><span class="co">#&gt; package 'listenv' successfully unpacked and MD5 sums checked</span></span>
+<span><span class="co">#&gt; package 'digest' successfully unpacked and MD5 sums checked</span></span>
+<span><span class="co">#&gt; Warning: cannot remove prior installation of package 'digest'</span></span>
+<span><span class="co">#&gt; Warning in file.copy(savedcopy, lib, recursive = TRUE): problem copying</span></span>
+<span><span class="co">#&gt; C:\Users\Gabe\AppData\Local\R\win-library\4.3\00LOCK\digest\libs\x64\digest.dll</span></span>
+<span><span class="co">#&gt; to C:\Users\Gabe\AppData\Local\R\win-library\4.3\digest\libs\x64\digest.dll:</span></span>
+<span><span class="co">#&gt; Permission denied</span></span>
+<span><span class="co">#&gt; Warning: restored 'digest'</span></span>
+<span><span class="co">#&gt; package 'globals' successfully unpacked and MD5 sums checked</span></span>
+<span><span class="co">#&gt; package 'future' successfully unpacked and MD5 sums checked</span></span>
+<span><span class="co">#&gt; package 'vctrs' successfully unpacked and MD5 sums checked</span></span>
+<span><span class="co">#&gt; Warning: cannot remove prior installation of package 'vctrs'</span></span>
+<span><span class="co">#&gt; Warning in file.copy(savedcopy, lib, recursive = TRUE): problem copying</span></span>
+<span><span class="co">#&gt; C:\Users\Gabe\AppData\Local\R\win-library\4.3\00LOCK\vctrs\libs\x64\vctrs.dll</span></span>
+<span><span class="co">#&gt; to C:\Users\Gabe\AppData\Local\R\win-library\4.3\vctrs\libs\x64\vctrs.dll:</span></span>
+<span><span class="co">#&gt; Permission denied</span></span>
+<span><span class="co">#&gt; Warning: restored 'vctrs'</span></span>
+<span><span class="co">#&gt; package 'stringi' successfully unpacked and MD5 sums checked</span></span>
+<span><span class="co">#&gt; Warning: cannot remove prior installation of package 'stringi'</span></span>
+<span><span class="co">#&gt; Warning in file.copy(savedcopy, lib, recursive = TRUE): problem copying</span></span>
+<span><span class="co">#&gt; C:\Users\Gabe\AppData\Local\R\win-library\4.3\00LOCK\stringi\libs\x64\stringi.dll</span></span>
+<span><span class="co">#&gt; to C:\Users\Gabe\AppData\Local\R\win-library\4.3\stringi\libs\x64\stringi.dll:</span></span>
+<span><span class="co">#&gt; Permission denied</span></span>
+<span><span class="co">#&gt; Warning: restored 'stringi'</span></span>
+<span><span class="co">#&gt; package 'rlang' successfully unpacked and MD5 sums checked</span></span>
+<span><span class="co">#&gt; Warning: cannot remove prior installation of package 'rlang'</span></span>
+<span><span class="co">#&gt; Warning in file.copy(savedcopy, lib, recursive = TRUE): problem copying</span></span>
+<span><span class="co">#&gt; C:\Users\Gabe\AppData\Local\R\win-library\4.3\00LOCK\rlang\libs\x64\rlang.dll</span></span>
+<span><span class="co">#&gt; to C:\Users\Gabe\AppData\Local\R\win-library\4.3\rlang\libs\x64\rlang.dll:</span></span>
+<span><span class="co">#&gt; Permission denied</span></span>
+<span><span class="co">#&gt; Warning: restored 'rlang'</span></span>
+<span><span class="co">#&gt; package 'munsell' successfully unpacked and MD5 sums checked</span></span>
+<span><span class="co">#&gt; package 'lifecycle' successfully unpacked and MD5 sums checked</span></span>
+<span><span class="co">#&gt; package 'labeling' successfully unpacked and MD5 sums checked</span></span>
+<span><span class="co">#&gt; package 'glue' successfully unpacked and MD5 sums checked</span></span>
+<span><span class="co">#&gt; Warning: cannot remove prior installation of package 'glue'</span></span>
+<span><span class="co">#&gt; Warning in file.copy(savedcopy, lib, recursive = TRUE): problem copying</span></span>
+<span><span class="co">#&gt; C:\Users\Gabe\AppData\Local\R\win-library\4.3\00LOCK\glue\libs\x64\glue.dll to</span></span>
+<span><span class="co">#&gt; C:\Users\Gabe\AppData\Local\R\win-library\4.3\glue\libs\x64\glue.dll:</span></span>
+<span><span class="co">#&gt; Permission denied</span></span>
+<span><span class="co">#&gt; Warning: restored 'glue'</span></span>
+<span><span class="co">#&gt; package 'farver' successfully unpacked and MD5 sums checked</span></span>
+<span><span class="co">#&gt; Warning: cannot remove prior installation of package 'farver'</span></span>
+<span><span class="co">#&gt; Warning in file.copy(savedcopy, lib, recursive = TRUE): problem copying</span></span>
+<span><span class="co">#&gt; C:\Users\Gabe\AppData\Local\R\win-library\4.3\00LOCK\farver\libs\x64\farver.dll</span></span>
+<span><span class="co">#&gt; to C:\Users\Gabe\AppData\Local\R\win-library\4.3\farver\libs\x64\farver.dll:</span></span>
+<span><span class="co">#&gt; Permission denied</span></span>
+<span><span class="co">#&gt; Warning: restored 'farver'</span></span>
+<span><span class="co">#&gt; package 'cli' successfully unpacked and MD5 sums checked</span></span>
+<span><span class="co">#&gt; Warning: cannot remove prior installation of package 'cli'</span></span>
+<span><span class="co">#&gt; Warning in file.copy(savedcopy, lib, recursive = TRUE): problem copying</span></span>
+<span><span class="co">#&gt; C:\Users\Gabe\AppData\Local\R\win-library\4.3\00LOCK\cli\libs\x64\cli.dll to</span></span>
+<span><span class="co">#&gt; C:\Users\Gabe\AppData\Local\R\win-library\4.3\cli\libs\x64\cli.dll: Permission</span></span>
+<span><span class="co">#&gt; denied</span></span>
+<span><span class="co">#&gt; Warning: restored 'cli'</span></span>
+<span><span class="co">#&gt; package 'scales' successfully unpacked and MD5 sums checked</span></span>
+<span><span class="co">#&gt; package 'coda' successfully unpacked and MD5 sums checked</span></span>
+<span><span class="co">#&gt; package 'stringr' successfully unpacked and MD5 sums checked</span></span>
+<span><span class="co">#&gt; package 'mvtnorm' successfully unpacked and MD5 sums checked</span></span>
+<span><span class="co">#&gt; Warning: cannot remove prior installation of package 'mvtnorm'</span></span>
+<span><span class="co">#&gt; Warning in file.copy(savedcopy, lib, recursive = TRUE): problem copying</span></span>
+<span><span class="co">#&gt; C:\Users\Gabe\AppData\Local\R\win-library\4.3\00LOCK\mvtnorm\libs\x64\mvtnorm.dll</span></span>
+<span><span class="co">#&gt; to C:\Users\Gabe\AppData\Local\R\win-library\4.3\mvtnorm\libs\x64\mvtnorm.dll:</span></span>
+<span><span class="co">#&gt; Permission denied</span></span>
+<span><span class="co">#&gt; Warning: restored 'mvtnorm'</span></span>
+<span><span class="co">#&gt; package 'utf8' successfully unpacked and MD5 sums checked</span></span>
+<span><span class="co">#&gt; Warning: cannot remove prior installation of package 'utf8'</span></span>
+<span><span class="co">#&gt; Warning in file.copy(savedcopy, lib, recursive = TRUE): problem copying</span></span>
+<span><span class="co">#&gt; C:\Users\Gabe\AppData\Local\R\win-library\4.3\00LOCK\utf8\libs\x64\utf8.dll to</span></span>
+<span><span class="co">#&gt; C:\Users\Gabe\AppData\Local\R\win-library\4.3\utf8\libs\x64\utf8.dll:</span></span>
+<span><span class="co">#&gt; Permission denied</span></span>
+<span><span class="co">#&gt; Warning: restored 'utf8'</span></span>
+<span><span class="co">#&gt; package 'fansi' successfully unpacked and MD5 sums checked</span></span>
+<span><span class="co">#&gt; Warning: cannot remove prior installation of package 'fansi'</span></span>
+<span><span class="co">#&gt; Warning in file.copy(savedcopy, lib, recursive = TRUE): problem copying</span></span>
+<span><span class="co">#&gt; C:\Users\Gabe\AppData\Local\R\win-library\4.3\00LOCK\fansi\libs\x64\fansi.dll</span></span>
+<span><span class="co">#&gt; to C:\Users\Gabe\AppData\Local\R\win-library\4.3\fansi\libs\x64\fansi.dll:</span></span>
+<span><span class="co">#&gt; Permission denied</span></span>
+<span><span class="co">#&gt; Warning: restored 'fansi'</span></span>
+<span><span class="co">#&gt; package 'Rcpp' successfully unpacked and MD5 sums checked</span></span>
+<span><span class="co">#&gt; Warning: cannot remove prior installation of package 'Rcpp'</span></span>
+<span><span class="co">#&gt; Warning in file.copy(savedcopy, lib, recursive = TRUE): problem copying</span></span>
+<span><span class="co">#&gt; C:\Users\Gabe\AppData\Local\R\win-library\4.3\00LOCK\Rcpp\libs\x64\Rcpp.dll to</span></span>
+<span><span class="co">#&gt; C:\Users\Gabe\AppData\Local\R\win-library\4.3\Rcpp\libs\x64\Rcpp.dll:</span></span>
+<span><span class="co">#&gt; Permission denied</span></span>
+<span><span class="co">#&gt; Warning: restored 'Rcpp'</span></span>
+<span><span class="co">#&gt; package 'plyr' successfully unpacked and MD5 sums checked</span></span>
+<span><span class="co">#&gt; Warning: cannot remove prior installation of package 'plyr'</span></span>
+<span><span class="co">#&gt; Warning in file.copy(savedcopy, lib, recursive = TRUE): problem copying</span></span>
+<span><span class="co">#&gt; C:\Users\Gabe\AppData\Local\R\win-library\4.3\00LOCK\plyr\libs\x64\plyr.dll to</span></span>
+<span><span class="co">#&gt; C:\Users\Gabe\AppData\Local\R\win-library\4.3\plyr\libs\x64\plyr.dll:</span></span>
+<span><span class="co">#&gt; Permission denied</span></span>
+<span><span class="co">#&gt; Warning: restored 'plyr'</span></span>
+<span><span class="co">#&gt; package 'matrixStats' successfully unpacked and MD5 sums checked</span></span>
+<span><span class="co">#&gt; Warning: cannot remove prior installation of package 'matrixStats'</span></span>
+<span><span class="co">#&gt; Warning in file.copy(savedcopy, lib, recursive = TRUE): problem copying</span></span>
+<span><span class="co">#&gt; C:\Users\Gabe\AppData\Local\R\win-library\4.3\00LOCK\matrixStats\libs\x64\matrixStats.dll</span></span>
+<span><span class="co">#&gt; to</span></span>
+<span><span class="co">#&gt; C:\Users\Gabe\AppData\Local\R\win-library\4.3\matrixStats\libs\x64\matrixStats.dll:</span></span>
+<span><span class="co">#&gt; Permission denied</span></span>
+<span><span class="co">#&gt; Warning: restored 'matrixStats'</span></span>
+<span><span class="co">#&gt; package 'distributional' successfully unpacked and MD5 sums checked</span></span>
+<span><span class="co">#&gt; package 'tensorA' successfully unpacked and MD5 sums checked</span></span>
+<span><span class="co">#&gt; Warning: cannot remove prior installation of package 'tensorA'</span></span>
+<span><span class="co">#&gt; Warning in file.copy(savedcopy, lib, recursive = TRUE): problem copying</span></span>
+<span><span class="co">#&gt; C:\Users\Gabe\AppData\Local\R\win-library\4.3\00LOCK\tensorA\libs\x64\tensorA.dll</span></span>
+<span><span class="co">#&gt; to C:\Users\Gabe\AppData\Local\R\win-library\4.3\tensorA\libs\x64\tensorA.dll:</span></span>
+<span><span class="co">#&gt; Permission denied</span></span>
+<span><span class="co">#&gt; Warning: restored 'tensorA'</span></span>
+<span><span class="co">#&gt; package 'checkmate' successfully unpacked and MD5 sums checked</span></span>
+<span><span class="co">#&gt; Warning: cannot remove prior installation of package 'checkmate'</span></span>
+<span><span class="co">#&gt; Warning in file.copy(savedcopy, lib, recursive = TRUE): problem copying</span></span>
+<span><span class="co">#&gt; C:\Users\Gabe\AppData\Local\R\win-library\4.3\00LOCK\checkmate\libs\x64\checkmate.dll</span></span>
+<span><span class="co">#&gt; to</span></span>
+<span><span class="co">#&gt; C:\Users\Gabe\AppData\Local\R\win-library\4.3\checkmate\libs\x64\checkmate.dll:</span></span>
+<span><span class="co">#&gt; Permission denied</span></span>
+<span><span class="co">#&gt; Warning: restored 'checkmate'</span></span>
+<span><span class="co">#&gt; package 'withr' successfully unpacked and MD5 sums checked</span></span>
+<span><span class="co">#&gt; package 'gtable' successfully unpacked and MD5 sums checked</span></span>
+<span><span class="co">#&gt; package 'tidyselect' successfully unpacked and MD5 sums checked</span></span>
+<span><span class="co">#&gt; package 'posterior' successfully unpacked and MD5 sums checked</span></span>
+<span><span class="co">#&gt; package 'ggridges' successfully unpacked and MD5 sums checked</span></span>
+<span><span class="co">#&gt; package 'ggplot2' successfully unpacked and MD5 sums checked</span></span>
+<span><span class="co">#&gt; package 'dplyr' successfully unpacked and MD5 sums checked</span></span>
+<span><span class="co">#&gt; Warning: cannot remove prior installation of package 'dplyr'</span></span>
+<span><span class="co">#&gt; Warning in file.copy(savedcopy, lib, recursive = TRUE): problem copying</span></span>
+<span><span class="co">#&gt; C:\Users\Gabe\AppData\Local\R\win-library\4.3\00LOCK\dplyr\libs\x64\dplyr.dll</span></span>
+<span><span class="co">#&gt; to C:\Users\Gabe\AppData\Local\R\win-library\4.3\dplyr\libs\x64\dplyr.dll:</span></span>
+<span><span class="co">#&gt; Permission denied</span></span>
+<span><span class="co">#&gt; Warning: restored 'dplyr'</span></span>
+<span><span class="co">#&gt; package 'desc' successfully unpacked and MD5 sums checked</span></span>
+<span><span class="co">#&gt; package 'ps' successfully unpacked and MD5 sums checked</span></span>
+<span><span class="co">#&gt; Warning: cannot remove prior installation of package 'ps'</span></span>
+<span><span class="co">#&gt; Warning in file.copy(savedcopy, lib, recursive = TRUE): problem copying</span></span>
+<span><span class="co">#&gt; C:\Users\Gabe\AppData\Local\R\win-library\4.3\00LOCK\ps\libs\x64\ps.dll to</span></span>
+<span><span class="co">#&gt; C:\Users\Gabe\AppData\Local\R\win-library\4.3\ps\libs\x64\ps.dll: Permission</span></span>
+<span><span class="co">#&gt; denied</span></span>
+<span><span class="co">#&gt; Warning: restored 'ps'</span></span>
+<span><span class="co">#&gt; package 'jsonlite' successfully unpacked and MD5 sums checked</span></span>
+<span><span class="co">#&gt; Warning: cannot remove prior installation of package 'jsonlite'</span></span>
+<span><span class="co">#&gt; Warning in file.copy(savedcopy, lib, recursive = TRUE): problem copying</span></span>
+<span><span class="co">#&gt; C:\Users\Gabe\AppData\Local\R\win-library\4.3\00LOCK\jsonlite\libs\x64\jsonlite.dll</span></span>
+<span><span class="co">#&gt; to</span></span>
+<span><span class="co">#&gt; C:\Users\Gabe\AppData\Local\R\win-library\4.3\jsonlite\libs\x64\jsonlite.dll:</span></span>
+<span><span class="co">#&gt; Permission denied</span></span>
+<span><span class="co">#&gt; Warning: restored 'jsonlite'</span></span>
+<span><span class="co">#&gt; package 'processx' successfully unpacked and MD5 sums checked</span></span>
+<span><span class="co">#&gt; Warning: cannot remove prior installation of package 'processx'</span></span>
+<span><span class="co">#&gt; Warning in file.copy(savedcopy, lib, recursive = TRUE): problem copying</span></span>
+<span><span class="co">#&gt; C:\Users\Gabe\AppData\Local\R\win-library\4.3\00LOCK\processx\libs\x64\processx.dll</span></span>
+<span><span class="co">#&gt; to</span></span>
+<span><span class="co">#&gt; C:\Users\Gabe\AppData\Local\R\win-library\4.3\processx\libs\x64\processx.dll:</span></span>
+<span><span class="co">#&gt; Permission denied</span></span>
+<span><span class="co">#&gt; Warning: restored 'processx'</span></span>
+<span><span class="co">#&gt; package 'callr' successfully unpacked and MD5 sums checked</span></span>
+<span><span class="co">#&gt; package 'BH' successfully unpacked and MD5 sums checked</span></span>
+<span><span class="co">#&gt; package 'RcppEigen' successfully unpacked and MD5 sums checked</span></span>
+<span><span class="co">#&gt; package 'QuickJSR' successfully unpacked and MD5 sums checked</span></span>
+<span><span class="co">#&gt; Warning: cannot remove prior installation of package 'QuickJSR'</span></span>
+<span><span class="co">#&gt; Warning in file.copy(savedcopy, lib, recursive = TRUE): problem copying</span></span>
+<span><span class="co">#&gt; C:\Users\Gabe\AppData\Local\R\win-library\4.3\00LOCK\QuickJSR\libs\x64\QuickJSR.dll</span></span>
+<span><span class="co">#&gt; to</span></span>
+<span><span class="co">#&gt; C:\Users\Gabe\AppData\Local\R\win-library\4.3\QuickJSR\libs\x64\QuickJSR.dll:</span></span>
+<span><span class="co">#&gt; Permission denied</span></span>
+<span><span class="co">#&gt; Warning: restored 'QuickJSR'</span></span>
+<span><span class="co">#&gt; package 'pkgbuild' successfully unpacked and MD5 sums checked</span></span>
+<span><span class="co">#&gt; package 'loo' successfully unpacked and MD5 sums checked</span></span>
+<span><span class="co">#&gt; package 'StanHeaders' successfully unpacked and MD5 sums checked</span></span>
+<span><span class="co">#&gt; Warning: cannot remove prior installation of package 'StanHeaders'</span></span>
+<span><span class="co">#&gt; Warning in file.copy(savedcopy, lib, recursive = TRUE): problem copying</span></span>
+<span><span class="co">#&gt; C:\Users\Gabe\AppData\Local\R\win-library\4.3\00LOCK\StanHeaders\libs\x64\StanHeaders.dll</span></span>
+<span><span class="co">#&gt; to</span></span>
+<span><span class="co">#&gt; C:\Users\Gabe\AppData\Local\R\win-library\4.3\StanHeaders\libs\x64\StanHeaders.dll:</span></span>
+<span><span class="co">#&gt; Permission denied</span></span>
+<span><span class="co">#&gt; Warning: restored 'StanHeaders'</span></span>
+<span><span class="co">#&gt; package 'nleqslv' successfully unpacked and MD5 sums checked</span></span>
+<span><span class="co">#&gt; package 'future.apply' successfully unpacked and MD5 sums checked</span></span>
+<span><span class="co">#&gt; package 'bayesplot' successfully unpacked and MD5 sums checked</span></span>
+<span><span class="co">#&gt; package 'rstantools' successfully unpacked and MD5 sums checked</span></span>
+<span><span class="co">#&gt; package 'rstan' successfully unpacked and MD5 sums checked</span></span>
+<span><span class="co">#&gt; Warning: cannot remove prior installation of package 'rstan'</span></span>
+<span><span class="co">#&gt; Warning in file.copy(savedcopy, lib, recursive = TRUE): problem copying</span></span>
+<span><span class="co">#&gt; C:\Users\Gabe\AppData\Local\R\win-library\4.3\00LOCK\rstan\libs\x64\rstan.dll</span></span>
+<span><span class="co">#&gt; to C:\Users\Gabe\AppData\Local\R\win-library\4.3\rstan\libs\x64\rstan.dll:</span></span>
+<span><span class="co">#&gt; Permission denied</span></span>
+<span><span class="co">#&gt; Warning: restored 'rstan'</span></span>
+<span><span class="co">#&gt; package 'brms' successfully unpacked and MD5 sums checked</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; The downloaded binary packages are in</span></span>
+<span><span class="co">#&gt;  C:\Users\Gabe\AppData\Local\Temp\Rtmp0EaISb\downloaded_packages</span></span>
+<span><span class="co">#&gt; installing the source package 'backports'</span></span>
+<span><span class="co">#&gt; Warning in i.p(...): installation of package 'backports' had non-zero exit</span></span>
+<span><span class="co">#&gt; status</span></span>
+<span><span class="co">#&gt; ── R CMD build ─────────────────────────────────────────────────────────────────</span></span>
+<span><span class="co">#&gt;          checking for file 'C:\Users\Gabe\AppData\Local\Temp\Rtmp0EaISb\remotes3e884c9365a4\gabewinter-VarDecomp-ecdbef7/DESCRIPTION' ...     checking for file 'C:\Users\Gabe\AppData\Local\Temp\Rtmp0EaISb\remotes3e884c9365a4\gabewinter-VarDecomp-ecdbef7/DESCRIPTION' ...   ✔  checking for file 'C:\Users\Gabe\AppData\Local\Temp\Rtmp0EaISb\remotes3e884c9365a4\gabewinter-VarDecomp-ecdbef7/DESCRIPTION' (398ms)</span></span>
+<span><span class="co">#&gt;       ─  preparing 'VarDecomp': (348ms)</span></span>
+<span><span class="co">#&gt;    checking DESCRIPTION meta-information ...     checking DESCRIPTION meta-information ...   ✔  checking DESCRIPTION meta-information</span></span>
+<span><span class="co">#&gt;       ─  checking for LF line-endings in source and make files and shell scripts</span></span>
+<span><span class="co">#&gt;   ─  checking for empty or unneeded directories</span></span>
+<span><span class="co">#&gt;       ─  building 'VarDecomp_0.0.0.9000.tar.gz'</span></span>
+<span><span class="co">#&gt;      </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Installing package into 'C:/Users/Gabe/AppData/Local/R/win-library/4.3'</span></span>
+<span><span class="co">#&gt; (as 'lib' is unspecified)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="documentation">Documentation<a class="anchor" aria-label="anchor" href="#documentation"></a>
@@ -98,28 +363,61 @@
 <div class="section level2">
 <h2 id="example">Example<a class="anchor" aria-label="anchor" href="#example"></a>
 </h2>
-<p>This is a basic example which shows you how to solve a common problem:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/gabewinter/VarDecomp" class="external-link">VarDecomp</a></span><span class="op">)</span></span>
-<span><span class="co">## basic example code</span></span></code></pre></div>
-<p>What is special about using <code>README.Rmd</code> instead of just <code>README.md</code>? You can include R chunks like so:</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">cars</span><span class="op">)</span></span>
-<span><span class="co">#&gt;      speed           dist       </span></span>
-<span><span class="co">#&gt;  Min.   : 4.0   Min.   :  2.00  </span></span>
-<span><span class="co">#&gt;  1st Qu.:12.0   1st Qu.: 26.00  </span></span>
-<span><span class="co">#&gt;  Median :15.0   Median : 36.00  </span></span>
-<span><span class="co">#&gt;  Mean   :15.4   Mean   : 42.98  </span></span>
-<span><span class="co">#&gt;  3rd Qu.:19.0   3rd Qu.: 56.00  </span></span>
-<span><span class="co">#&gt;  Max.   :25.0   Max.   :120.00</span></span></code></pre></div>
-<p>You’ll still need to render <code>README.Rmd</code> regularly, to keep <code>README.md</code> up-to-date. <code>devtools::build_readme()</code> is handy for this.</p>
-<p>You can also embed plots, for example:</p>
-<div class="figure">
-<img src="reference/figures/README-pressure-1.png" alt="plot of chunk pressure" width="100%"><p class="caption">
-plot of chunk pressure
-</p>
-</div>
-<p>In that case, don’t forget to commit and push the resulting figure files, so they display on GitHub and CRAN.</p>
+<span></span>
+<span><span class="va">md</span> <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="va"><a href="https://dplyr.tidyverse.org/reference/starwars.html" class="external-link">starwars</a></span></span>
+<span></span>
+<span><span class="va">mod</span> <span class="op">=</span> <span class="fu"><a href="reference/brms_model.html">brms_model</a></span><span class="op">(</span>Chainset <span class="op">=</span> <span class="st">"long"</span>, </span>
+<span>           Response <span class="op">=</span> <span class="st">"mass"</span>, </span>
+<span>           FixedEffect <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"sex"</span>,<span class="st">"height"</span><span class="op">)</span>, </span>
+<span>           RandomEffect <span class="op">=</span> <span class="st">"species"</span>, </span>
+<span>           RandomSlope <span class="op">=</span> <span class="st">"height"</span>, </span>
+<span>           Family <span class="op">=</span> <span class="st">"gaussian"</span>, </span>
+<span>           Data <span class="op">=</span> <span class="va">md</span>, </span>
+<span>          Seed <span class="op">=</span> <span class="fl">0405</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "No problem 👏"</span></span>
+<span><span class="co">#&gt; Warning: Rows containing NAs were excluded from the model.</span></span>
+<span><span class="co">#&gt; Compiling Stan program...</span></span>
+<span><span class="co">#&gt; Start sampling</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">mod</span><span class="op">)</span></span>
+<span><span class="co">#&gt;  Family: gaussian </span></span>
+<span><span class="co">#&gt;   Links: mu = identity; sigma = identity </span></span>
+<span><span class="co">#&gt; Formula: mass ~ sex + height + (1 + height | species) </span></span>
+<span><span class="co">#&gt;    Data: Data (Number of observations: 58) </span></span>
+<span><span class="co">#&gt;   Draws: 2 chains, each with iter = 30000; warmup = 15000; thin = 15;</span></span>
+<span><span class="co">#&gt;          total post-warmup draws = 2000</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Multilevel Hyperparameters:</span></span>
+<span><span class="co">#&gt; ~species (Number of levels: 31) </span></span>
+<span><span class="co">#&gt;                       Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS</span></span>
+<span><span class="co">#&gt; sd(Intercept)             8.64      7.44     0.31    28.27 1.00     2065</span></span>
+<span><span class="co">#&gt; sd(height)                0.08      0.05     0.01     0.21 1.00     1801</span></span>
+<span><span class="co">#&gt; cor(Intercept,height)    -0.36      0.57    -0.99     0.86 1.00     1744</span></span>
+<span><span class="co">#&gt;                       Tail_ESS</span></span>
+<span><span class="co">#&gt; sd(Intercept)             1944</span></span>
+<span><span class="co">#&gt; sd(height)                1754</span></span>
+<span><span class="co">#&gt; cor(Intercept,height)     1739</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Regression Coefficients:</span></span>
+<span><span class="co">#&gt;                   Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS</span></span>
+<span><span class="co">#&gt; Intercept           -53.20     13.15   -80.03   -27.94 1.00     1856     1550</span></span>
+<span><span class="co">#&gt; sexhermaphroditic  1300.65     20.01  1260.37  1340.48 1.00     1838     1582</span></span>
+<span><span class="co">#&gt; sexmale              19.45      6.48     6.46    32.05 1.00     1936     1977</span></span>
+<span><span class="co">#&gt; sexnone              28.86     14.05     1.31    55.94 1.00     1927     1688</span></span>
+<span><span class="co">#&gt; height                0.63      0.07     0.49     0.78 1.00     2072     1690</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Further Distributional Parameters:</span></span>
+<span><span class="co">#&gt;       Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS</span></span>
+<span><span class="co">#&gt; sigma    14.54      1.93    11.12    18.66 1.00     1986     1796</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Draws were sampled using sampling(NUTS). For each parameter, Bulk_ESS</span></span>
+<span><span class="co">#&gt; and Tail_ESS are effective sample size measures, and Rhat is the potential</span></span>
+<span><span class="co">#&gt; scale reduction factor on split chains (at convergence, Rhat = 1).</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">mod</span><span class="op">)</span></span></code></pre></div>
+<p><img src="reference/figures/README-example-1.png" width="100%"><img src="reference/figures/README-example-2.png" width="100%"></p>
 </div>
 </div>
   </div>
