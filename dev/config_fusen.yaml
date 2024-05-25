@@ -1,0 +1,15 @@
+VarDecomp_package.Rmd:
+  path: dev/VarDecomp_package.Rmd
+  state: active
+  R:
+  - R/brms_model.R
+  - R/testfunction.R
+  tests: []
+  vignettes: vignettes/vignette.Rmd
+  inflate:
+    flat_file: dev/VarDecomp_package.Rmd
+    vignette_name: Vignette
+    open_vignette: true
+    check: true
+    document: true
+    overwrite: ask
