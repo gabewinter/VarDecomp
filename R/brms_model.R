@@ -16,20 +16,20 @@
 #' @export 
 #'
 #' @examples
-#' #md = dplyr::starwars
+#' md = dplyr::starwars
 #'
-#' #mod = VarDecomp::brms_model(Chainset = "long", 
-#' #           Response = "mass", 
-#' #           FixedEffect = c("sex","height"), 
-#' #           RandomEffect = "species", 
-#' #           RandomSlope = "height", 
-#' #           Family = "gaussian", 
-#' #           Data = md, 
-#' #          Seed = 0405)
+#' mod = VarDecomp::brms_model(Chainset = "long", 
+#'            Response = "mass", 
+#'            FixedEffect = c("sex","height"), 
+#'            RandomEffect = "species", 
+#'            RandomSlope = "height", 
+#'            Family = "gaussian", 
+#'            Data = md, 
+#'           Seed = 0405)
 #'
-#' #print(mod)
+#' print(mod)
 #'
-#' #plot(mod)
+#' plot(mod)
 #'
 brms_model = function(Data, Response, FixedEffect, RandomEffect, RandomSlope, Chainset, Family, Seed){
 

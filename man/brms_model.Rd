@@ -39,19 +39,19 @@ Returns a brmsfit
 Run a brms model
 }
 \examples{
-#md = dplyr::starwars
+md = dplyr::starwars
 
-#mod = VarDecomp::brms_model(Chainset = "long", 
-#           Response = "mass", 
-#           FixedEffect = c("sex","height"), 
-#           RandomEffect = "species", 
-#           RandomSlope = "height", 
-#           Family = "gaussian", 
-#           Data = md, 
-#          Seed = 0405)
+mod = VarDecomp::brms_model(Chainset = "long", 
+           Response = "mass", 
+           FixedEffect = c("sex","height"), 
+           RandomEffect = "species", 
+           RandomSlope = "height", 
+           Family = "gaussian", 
+           Data = md, 
+          Seed = 0405)
 
-#print(mod)
+print(mod)
 
-#plot(mod)
+plot(mod)
 
 }
