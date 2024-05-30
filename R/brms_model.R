@@ -16,22 +16,24 @@
 #' @export 
 #'
 #' @examples
+#'
+#' # With random slope
 #' md = dplyr::starwars
 #'
 #' mod = VarDecomp::brms_model(Chainset = "long", 
 #'            Response = "mass", 
 #'            FixedEffect = c("sex","height"), 
 #'            RandomEffect = "species", 
-#'            RandomSlope = "height", 
+#'            RandomSlope = "height",
 #'            Family = "gaussian", 
 #'            Data = md, 
-#'           Seed = 0405)
+#'            Seed = 0405)
 #'
 #' print(mod)
 #'
 #' plot(mod)
 #'
-brms_model = function(Data, Response, FixedEffect, RandomEffect, RandomSlope, Chainset, Family, Seed){
+brms_model = function(Data, Response, FixedEffect, RandomEffect = NULL, RandomSlope = NULL, Chainset, Family = "gaussian", Seed = sample(1000:9999, 1)){
 
   
 stopifnot("`Data` must be a data frame" =               
@@ -43,8 +45,8 @@ stopifnot("`Response` must be a string" =
 stopifnot("`FixedEffect` must be a string" =               
               inherits(FixedEffect, "character"))
 
-stopifnot("`RandomEffect` must be a string" =               
-              inherits(RandomEffect, "character"))
+if(!is.null(RandomEffect)) {stopifnot("`RandomEffect` must be a string" =               
+              inherits(RandomEffect, "character"))}
 
 if(!is.null(RandomSlope)){stopifnot("`RandomSlope` must be a string" =               
               inherits(RandomSlope, "character"))}
@@ -59,26 +61,28 @@ stopifnot("`Seed` must be a string" =
               inherits(Seed, "numeric"))
 
 testfunction()
-
-if(is.null(Seed)){Seed = sample(1000:9999, 1)}
   
 if(Chainset=="longest"){warmup=60000; iter=120000; thin=60; chains=2}
 if(Chainset=="longer"){warmup=30000; iter=60000; thin=30; chains=2}
 if(Chainset=="long"){warmup=15000; iter=30000; thin=15; chains=2}
 if(Chainset=="test"){warmup=10; iter=110; thin=10; chains=2}
 
+
 # Construct the formula object
-  bfform = ifelse(
+  bfform = 
     
-    is.null(RandomSlope),
-      paste(Response, "~",
-      paste(FixedEffect, collapse = " + "),
-      "+ ( 1 |", RandomEffect, " )"),
-
-      paste(Response, "~",
-      paste(FixedEffect, collapse = " + "),
-      "+ ( 1 + ", RandomSlope, " | ", RandomEffect," )"))
-
+    if(is.null(RandomEffect)) {
+      paste0(Response, "~", paste(FixedEffect, collapse = " + "))
+      } else {
+        if(is.null(RandomSlope)){
+        paste0(Response, "~", paste(FixedEffect, collapse = " + "),
+        "+ ( 1 | ", RandomEffect," )")
+          } else {
+          paste0(Response, "~",
+                 paste(FixedEffect, collapse = " + "),
+                 "+ ( 1 +", RandomSlope, " | ", RandomEffect," )")}}
+        
+    
 mod =  brms::brm(brms::bf(stats::as.formula(bfform)),
                   family = Family,
                   data = Data, 

@@ -4,7 +4,7 @@ VarDecomp_package.Rmd:
   R:
   - R/brms_model.R
   - R/testfunction.R
-  tests: []
+  tests: tests/testthat/test-brms_model.R
   vignettes: vignettes/vignette.Rmd
   inflate:
     flat_file: dev/VarDecomp_package.Rmd

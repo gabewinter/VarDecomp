@@ -8,11 +8,11 @@ brms_model(
   Data,
   Response,
   FixedEffect,
-  RandomEffect,
-  RandomSlope,
+  RandomEffect = NULL,
+  RandomSlope = NULL,
   Chainset,
-  Family,
-  Seed
+  Family = "gaussian",
+  Seed = sample(1000:9999, 1)
 )
 }
 \arguments{
@@ -39,16 +39,18 @@ Returns a brmsfit
 Run a brms model
 }
 \examples{
+
+# With random slope
 md = dplyr::starwars
 
 mod = VarDecomp::brms_model(Chainset = "long", 
            Response = "mass", 
            FixedEffect = c("sex","height"), 
            RandomEffect = "species", 
-           RandomSlope = "height", 
+           RandomSlope = "height",
            Family = "gaussian", 
            Data = md, 
-          Seed = 0405)
+           Seed = 0405)
 
 print(mod)
 
