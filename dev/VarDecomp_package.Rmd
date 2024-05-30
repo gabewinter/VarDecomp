@@ -26,7 +26,7 @@ print(paste("No problem", sample(emojis, size = 1)))
 }
 ```
 
-# brms_model
+# brms_model: function for running brms models
 
 ```{r function-brms_model}
 
@@ -113,7 +113,8 @@ return(brmsfit)
 
 ```
 
-```{r examples-brms_model}
+```{r examples-brms_model, warning=FALSE, message=FALSE}
+# Without random slope
 md = dplyr::starwars
 
 mod = VarDecomp::brms_model(Chainset = "long", 
@@ -129,7 +130,200 @@ print(mod)
 
 plot(mod)
 
+# With random slope
+mod_RS = VarDecomp::brms_model(Chainset = "long", 
+           Response = "mass", 
+           FixedEffect = c("sex","height"), 
+           RandomEffect = "species", 
+           Family = "gaussian", 
+           Data = md, 
+          Seed = 0405)
+
+print(mod_RS)
+
+plot(mod_RS)
+
 ```
+
+________
+
+## VarDecomp = function for variance decomposition
+```{r function-var_decomp}
+
+var_decomp = function(brmsfit){
+
+# Extract original data
+  Data = brmsfit$data
+  
+  Data = Data %>% 
+    filter(if_all(1:ncol(Data),~ !is.na(.)))
+  
+  
+# Extract posterior samples
+  PS = as.data.frame(brmsfit) %>% 
+  select(!starts_with("r")) %>% 
+  select(!contains("prior")) %>% 
+  select(!lp__)
+ 
+  
+### CHECK WHY THERE IS A SECOND INTERCEPT VALUE
+if("Intercept" %in% colnames(PS)){PS = PS %>% select(-Intercept)}
+
+#Extract family
+Family = brmsfit$family[[1]][1]
+
+#Extract fixed effect names
+PS_b = PS %>% 
+  select(starts_with("b_")) %>% 
+  rename_with(~ str_remove(., "^b_")) %>%  
+  select(!Intercept)
+
+FixedEffect = colnames(PS_b)
+
+#Extract random effect names
+PS_sd = PS %>% 
+  select(starts_with("sd_")) %>% 
+  rename_with(~ str_remove(., "^sd_"))
+
+PS_RE = PS_sd %>% 
+  select(ends_with("Intercept")) %>% 
+  rename_with(~ str_remove(., "__Intercept"))
+
+RandomEffect = colnames(PS_RE)
+
+
+#Extract random slope names
+
+PS_RS = PS_sd %>% 
+  rename_with(~ str_replace_all(., "__", "_")) %>% 
+  select(!ends_with("Intercept"))
+  
+
+RandomSlope = colnames(PS_RS)
+
+
+#Rename columns for tidying the data
+PS = PS %>% 
+  rename_with(~str_remove_all(., "^b_")) %>% 
+  rename_with(~str_remove_all(., "sd_")) %>% 
+  rename_with(~str_replace_all(., "__", "_")) %>% 
+  rename_with(~str_remove_all(., "_Intercept")) 
+
+
+# Variance in fixed effects
+
+## Create a dataframe with the values used by the model for fixed effects
+  FixedEffectData = Data %>% 
+  select(c(setdiff(colnames(Data), RandomEffect))) %>% 
+  select(-1)  
+  
+## Specific for covariates with a character input
+  CharactersFE = FixedEffectData%>%
+  select(-one_of(FixedEffect))
+  
+for(i in colnames(CharactersFE)){
+unique_values = unique(CharactersFE[[i]])
+
+for (j in unique_values) {
+#  CharactersFE[[j]] = if_else(CharactersFE[[i]] == j, 1, 0)
+  
+  CharactersFE = CharactersFE %>% 
+    mutate(!!paste(j) := if_else(CharactersFE[[i]] == j, 1,0)) %>% 
+    rename(!!paste0(i, j) := paste(j)) 
+  
+}
+CharactersFE = CharactersFE 
+}
+
+FixedEffectData = bind_cols(FixedEffectData,CharactersFE) %>% 
+  select_if(~ is.numeric(.))
+
+
+## Calculate estimated variances for each fixed effect
+
+for (i in colnames(FixedEffectData)){
+  if (i %in% colnames(PS)) {
+        PS = PS %>% 
+           mutate(!!paste0("var_", i) := get(paste0(i))*
+               var(FixedEffectData[[paste0(i)]]))
+  
+    }}
+
+
+
+# Calculate the estimated variances in random slope
+if(RandomSlope){
+  PS = PS %>% 
+  mutate(!!paste0("var_", FixedEffect, RandomEffect) := (get(paste0("sd_",RandomEffect,"__", FixedEffect,"C"))^2 *
+                  var(Data[[paste0(FixedEffect, "C")]])) +
+                
+                 (get(paste0("sd_",RandomEffect,"__", FixedEffect,"C"))^2 *
+                  mean(Data[[paste0(FixedEffect, "C")]])))}
+           
+# Variances in random effect
+PS = PS %>% 
+  mutate(!!paste0("var_", RandomEffect) := 
+           
+           
+        # for models without random slopes
+          ifelse(RandomSlope == FALSE, 
+                 get(paste0("sd_",RandomEffect,"__Intercept"))^2,
+        
+        # for models with random slope (in Holger's paper on random slopes)
+                 (get(paste0("sd_",RandomEffect,"__", "Intercept"))^2) +
+                  
+              (get(paste0("var_", FixedEffect, RandomEffect))) +
+                        
+                (get(paste0("cor_", RandomEffect, "__Intercept__",
+                            FixedEffect, "C"))) *
+                   get(paste0("sd_",RandomEffect,"__Intercept")) *
+                   get(paste0("sd_",RandomEffect,"__", FixedEffect,"C")) *
+                   2 *  mean(Data[[paste0(FixedEffect, "C")]]))) %>% 
+                            
+# Total phenotypic variance
+  mutate(residual = ifelse(Family == "gaussian", sigma^2,
+                      ifelse(Family == "binomial",
+                             (sd_observationID__Intercept^2 + (pi^2/3)),
+                        ifelse(Family== "poisson", 
+                               (sd_observationID__Intercept^2 + 
+                                  log(1/exp(b_Intercept)+1)), NA)))) %>% 
+  
+  mutate(total_pv = 
+           get(paste0("var_", FixedEffect)) + 
+           get(paste0("var_", RandomEffect)) + 
+           residual) %>% 
+
+
+
+# Variance explained by each variable
+
+    # Fixed effect
+   mutate(!!paste0("R2_", FixedEffect) := 
+            get(paste0("var_", FixedEffect))/total_pv,
+    
+    # Random effect
+          !!paste0("R2_",RandomEffect) := 
+             get(paste0("var_", RandomEffect))/total_pv,
+
+    # Residual
+          R2_Residual = residual/total_pv) 
+   
+   
+    # Random slopes
+    if(RandomSlope){
+      
+      PS = PS %>%
+        mutate(!!paste0("R2_", FixedEffect, RandomEffect) := 
+                   get(paste0("var_", FixedEffect, RandomEffect))/total_pv)} 
+    
+return(PS)
+  
+}
+
+```
+
+
+
 
 
 ```{r development-inflate, eval=FALSE}
