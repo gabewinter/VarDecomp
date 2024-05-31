@@ -68,7 +68,28 @@ if(Chainset=="long"){warmup=15000; iter=30000; thin=15; chains=2}
 if(Chainset=="test"){warmup=10; iter=110; thin=10; chains=2}
 
 
-# Construct the formula object
+# Construct the formula object for models of binomial or poisson families
+if(Family == "binomial" | Family == "poisson"){
+Data = Data %>%
+  mutate(observationID = as.factor(row_number()))
+
+bfform = 
+    
+    if(is.null(RandomEffect)) {
+      paste0(Response, "~", paste(FixedEffect, collapse = " + "), " + (1|observationID)")
+      } else {
+        if(is.null(RandomSlope)){
+        paste0(Response, "~", paste(FixedEffect, collapse = " + "),
+        "+ ( 1 | ", RandomEffect," ) + (1|observationID)")
+          } else {
+          paste0(Response, "~",
+                 paste(FixedEffect, collapse = " + "),
+                 "+ ( 1 +", RandomSlope, " | ", 
+                 RandomEffect," ) + (1|observationID)")}}
+
+} else {
+# Construct the formula object for other model families
+
   bfform = 
     
     if(is.null(RandomEffect)) {
@@ -82,7 +103,8 @@ if(Chainset=="test"){warmup=10; iter=110; thin=10; chains=2}
                  paste(FixedEffect, collapse = " + "),
                  "+ ( 1 +", RandomSlope, " | ", RandomEffect," )")}}
         
-    
+}
+
 mod =  brms::brm(brms::bf(stats::as.formula(bfform)),
                   family = Family,
                   data = Data, 

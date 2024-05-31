@@ -47,3 +47,8 @@ ________
 
 ## VarDecomp = function for variance decomposition
 
+```{r examples-var_decomp}
+VarDecomp::var_decomp(mod_RS)
+
+```
+
