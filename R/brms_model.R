@@ -70,8 +70,11 @@ if(Chainset=="test"){warmup=10; iter=110; thin=10; chains=2}
 
 # Construct the formula object for models of binomial or poisson families
 if(Family == "binomial" | Family == "poisson"){
+
+obsID = as.factor(row_number(Data))
+                  
 Data = Data %>%
-  mutate(observationID = as.factor(row_number()))
+  mutate(observationID = obsID)
 
 bfform = 
     
