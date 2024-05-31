@@ -79,7 +79,31 @@ if(Chainset=="long"){warmup=15000; iter=30000; thin=15; chains=2}
 if(Chainset=="test"){warmup=10; iter=110; thin=10; chains=2}
 
 
-# Construct the formula object
+# Construct the formula object for models of binomial or poisson families
+if(Family == "binomial" | Family == "poisson"){
+  
+obsID = as.factor(row_number(Data))
+                  
+Data = Data %>%
+  mutate(observationID = obsID)
+
+bfform = 
+    
+    if(is.null(RandomEffect)) {
+      paste0(Response, "~", paste(FixedEffect, collapse = " + "), " + (1|observationID)")
+      } else {
+        if(is.null(RandomSlope)){
+        paste0(Response, "~", paste(FixedEffect, collapse = " + "),
+        "+ ( 1 | ", RandomEffect," ) + (1|observationID)")
+          } else {
+          paste0(Response, "~",
+                 paste(FixedEffect, collapse = " + "),
+                 "+ ( 1 +", RandomSlope, " | ", 
+                 RandomEffect," ) + (1|observationID)")}}
+
+} else {
+# Construct the formula object for other model families
+
   bfform = 
     
     if(is.null(RandomEffect)) {
@@ -93,7 +117,8 @@ if(Chainset=="test"){warmup=10; iter=110; thin=10; chains=2}
                  paste(FixedEffect, collapse = " + "),
                  "+ ( 1 +", RandomSlope, " | ", RandomEffect," )")}}
         
-    
+}
+
 mod =  brms::brm(brms::bf(stats::as.formula(bfform)),
                   family = Family,
                   data = Data, 
@@ -181,8 +206,19 @@ print(mod_RS)
 
 plot(mod_RS)
 
+
+
 ```
 
+```{r dev, eval=FALSE}
+save(mod, file="mod.RData")
+save(mod_RE, file="mod_RE.RData")
+save(mod_RS, file="mod_RS.RData")
+
+load(file="mod.RData")
+load(file="mod_RE.RData")
+load(file="mod_RS.RData")
+```
 
 
 ________
@@ -225,11 +261,24 @@ PS_sd = PS %>%
   select(starts_with("sd_")) %>% 
   rename_with(~ str_remove(., "^sd_"))
 
+if(Family == "binomial" | Family == "poisson"){
+
+  PS_RE = PS_sd %>% 
+  select(ends_with("Intercept")) %>% 
+  select(!contains("observationID")) %>% 
+  rename_with(~ str_remove(., "__Intercept"))
+
+} else {
+
 PS_RE = PS_sd %>% 
   select(ends_with("Intercept")) %>% 
   rename_with(~ str_remove(., "__Intercept"))
+}
 
-RandomEffect = colnames(PS_RE)
+if(ncol(PS_RE) == 0){RandomEffect = NULL
+} else {
+  RandomEffect = colnames(PS_RE)
+}
 
 
 #Extract random slope names
@@ -237,9 +286,14 @@ RandomEffect = colnames(PS_RE)
 PS_RS = PS_sd %>% 
   rename_with(~ str_replace_all(., "__", "_")) %>% 
   select(!ends_with("Intercept"))
+
+if(ncol(PS_RS) == 0){RandomSlope = NULL
+} else {
+  RandomSlope = colnames(PS_RS)
+RandomSlope = gsub(paste0(RandomEffect, "_"), "", RandomSlope)
+}
   
 
-RandomSlope = colnames(PS_RS)
 
 
 #Rename columns for tidying the data
@@ -255,18 +309,21 @@ PS = PS %>%
 ## Create a dataframe with the values used by the model for fixed effects
   FixedEffectData = Data %>% 
   select(c(setdiff(colnames(Data), RandomEffect))) %>% 
-  select(-1)  
+  select(-1)  #Removing the response variable
   
-## Specific for covariates with a character input
-  CharactersFE = FixedEffectData%>%
-  select(-one_of(FixedEffect))
+## Specific for covariates with of character class 
+suppressWarnings({  CharactersFE = FixedEffectData%>%
+  select(-one_of(FixedEffect)) })
+  
+  if(ncol(CharactersFE) == 0){
+    
+  } else{
   
 for(i in colnames(CharactersFE)){
 unique_values = unique(CharactersFE[[i]])
 
 for (j in unique_values) {
-#  CharactersFE[[j]] = if_else(CharactersFE[[i]] == j, 1, 0)
-  
+
   CharactersFE = CharactersFE %>% 
     mutate(!!paste(j) := if_else(CharactersFE[[i]] == j, 1,0)) %>% 
     rename(!!paste0(i, j) := paste(j)) 
@@ -277,7 +334,7 @@ CharactersFE = CharactersFE
 
 FixedEffectData = bind_cols(FixedEffectData,CharactersFE) %>% 
   select_if(~ is.numeric(.))
-
+}
 
 ## Calculate estimated variances for each fixed effect
 
@@ -287,82 +344,141 @@ for (i in colnames(FixedEffectData)){
            mutate(!!paste0("var_", i) := get(paste0(i))*
                var(FixedEffectData[[paste0(i)]]))
   
-    }}
+  }
+  }
 
+# Total variance in fixed effects
+FixedEffectNames = intersect(names(PS), paste0("var_", names(FixedEffectData)))
 
-
+PS = PS %>% 
+mutate(var_FixedEffects = rowSums(across(all_of(FixedEffectNames)), na.rm = TRUE))
+  
+  
 # Calculate the estimated variances in random slope
-if(RandomSlope){
+
+if(!is.null(RandomSlope)){
+  
+  
   PS = PS %>% 
-  mutate(!!paste0("var_", FixedEffect, RandomEffect) := (get(paste0("sd_",RandomEffect,"__", FixedEffect,"C"))^2 *
-                  var(Data[[paste0(FixedEffect, "C")]])) +
+  mutate(!!paste0("var_", RandomEffect, "_", RandomSlope) := (get(paste0(RandomEffect, "_", RandomSlope))^2 *
+                  var(FixedEffectData[[RandomSlope]])) +
                 
-                 (get(paste0("sd_",RandomEffect,"__", FixedEffect,"C"))^2 *
-                  mean(Data[[paste0(FixedEffect, "C")]])))}
+                 (get(paste0(RandomEffect,"_", RandomSlope))^2 *
+                  mean(FixedEffectData[[RandomSlope]])))
+  }
+
+
            
 # Variances in random effect
+if(!is.null(RandomEffect)){
 PS = PS %>% 
   mutate(!!paste0("var_", RandomEffect) := 
            
-           
         # for models without random slopes
           ifelse(RandomSlope == FALSE, 
-                 get(paste0("sd_",RandomEffect,"__Intercept"))^2,
+                 get(paste0(RandomEffect))^2,
         
         # for models with random slope (in Holger's paper on random slopes)
-                 (get(paste0("sd_",RandomEffect,"__", "Intercept"))^2) +
+                 (get(paste0(RandomEffect))^2) +
                   
-              (get(paste0("var_", FixedEffect, RandomEffect))) +
+              (get(paste0("var_", RandomEffect, "_", RandomSlope))) +
                         
-                (get(paste0("cor_", RandomEffect, "__Intercept__",
-                            FixedEffect, "C"))) *
-                   get(paste0("sd_",RandomEffect,"__Intercept")) *
-                   get(paste0("sd_",RandomEffect,"__", FixedEffect,"C")) *
-                   2 *  mean(Data[[paste0(FixedEffect, "C")]]))) %>% 
+                (get(paste0("cor_", RandomEffect, "_",
+                            RandomSlope))) *
+                   get(paste0(RandomEffect)) *
+                   get(paste0(RandomEffect,"_", RandomSlope)) *
+                   2 *  mean(FixedEffectData[[RandomSlope]])))
+}
                             
-# Total phenotypic variance
-  mutate(residual = ifelse(Family == "gaussian", sigma^2,
-                      ifelse(Family == "binomial",
-                             (sd_observationID__Intercept^2 + (pi^2/3)),
-                        ifelse(Family== "poisson", 
-                               (sd_observationID__Intercept^2 + 
-                                  log(1/exp(b_Intercept)+1)), NA)))) %>% 
-  
-  mutate(total_pv = 
-           get(paste0("var_", FixedEffect)) + 
-           get(paste0("var_", RandomEffect)) + 
-           residual) %>% 
+# Residual variance
+if(Family == "gaussian"){
+PS = PS %>% 
+  mutate(residual = sigma^2)
 
+} else {
+  if(Family == "binomial"){
 
+    PS = PS %>% 
+      mutate(residual = observationID^2 + (pi^2/3))
 
-# Variance explained by each variable
-
-    # Fixed effect
-   mutate(!!paste0("R2_", FixedEffect) := 
-            get(paste0("var_", FixedEffect))/total_pv,
+    } else {
+     if(Family== "poisson") {
+       
+      PS = PS %>% 
+        mutate(residual =  observationID^2 + 
+                                    log(1/exp(Intercept)+1))
+     
+     } else {
+       
+       stop("`The family of this model is not yet supported by var_decomp function")
     
-    # Random effect
-          !!paste0("R2_",RandomEffect) := 
-             get(paste0("var_", RandomEffect))/total_pv,
+       
+  }
+  }
+  }
 
-    # Residual
-          R2_Residual = residual/total_pv) 
-   
-   
-    # Random slopes
-    if(RandomSlope){
+# Total phenotypic variance
+  
+PS = PS %>% 
+    mutate(total_pv = var_FixedEffects + 
+           get(paste0("var_", RandomEffect)) + 
+           residual) 
+
+
+
+# calculate R2 for fixed effects
+
+for (i in FixedEffectNames){
+        PS = PS %>% 
+           mutate(!!paste0("R2_", i) := get(paste0(i))/total_pv)
+}
+
+PS = PS %>% 
+mutate(R2_FixedEffects = rowSums(across(all_of(paste0("R2_", FixedEffectNames))), na.rm = TRUE))%>%          rename_with(~str_replace_all(., "_var_", "_"), contains("_var_"))
+
+# calculate R2 for random slopes
+    if(!is.null(RandomSlope)){
       
       PS = PS %>%
-        mutate(!!paste0("R2_", FixedEffect, RandomEffect) := 
-                   get(paste0("var_", FixedEffect, RandomEffect))/total_pv)} 
-    
-return(PS)
+        mutate(!!paste0("R2_", RandomEffect, "_", RandomSlope) := 
+                   get(paste0("var_", RandomEffect, "_", RandomSlope))/total_pv)
+      } 
   
-}
+
+# calculate R2 for random effect
+
+PS = PS %>% 
+  mutate(!!paste0("R2_",RandomEffect) := 
+             get(paste0("var_", RandomEffect))/total_pv) %>% 
+
+# Residual
+  mutate(R2_residual = 
+             residual/total_pv)
+
+
+output = PS %>% 
+  select(-all_of(RandomEffect)) %>% 
+  select(-starts_with("var_")) %>% 
+  select(-total_pv) %>% 
+  select(-residual)
+
+return(print(output))   
+}   
+
+
+```
+
+```{r examples-var_decomp}
+#VarDecomp::var_decomp(mod_RS)
 
 ```
 
 
+```{r test-var_decomp}
+#var_decomp(mod)
+#var_decomp(mod_RE)
+#var_decomp(mod_RS)
+```
 
 
 
