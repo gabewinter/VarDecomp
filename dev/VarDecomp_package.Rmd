@@ -93,6 +93,7 @@ if(Chainset=="test"){warmup=10; iter=110; thin=10; chains=2}
 # Add an observation ID for models of binomial or poisson families
 if(Family == "binomial" | Family == "poisson"){
 
+<<<<<<< HEAD
 Data = Data %>%
   tidyverse::mutate(observationID = as.factor(tidyverse::row_number(Data)))
 
@@ -101,6 +102,12 @@ Data = Data %>%
 
 # Construct model formula if binomial family 
 if(Family == "binomial"){
+=======
+obsID = as.factor(row_number(Data))
+                  
+Data = Data %>%
+  mutate(observationID = obsID)
+>>>>>>> c07815e86fcaf55676493e1c7de825acf3d3b5b1
 
 bfform = 
     
@@ -547,9 +554,13 @@ return(print(EstSummary))
 
 ### Examples
 ```{r examples-var_decomp}
+<<<<<<< HEAD
 
 #var_decomp(mod_RS)
+=======
+>>>>>>> c07815e86fcaf55676493e1c7de825acf3d3b5b1
 
+#VarDecomp::var_decomp(mod_RS)
 ```
 
 ### Tests
