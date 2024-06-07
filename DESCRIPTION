@@ -13,14 +13,15 @@ BugReports: https://github.com/gabewinter/VarDecomp/issues
 Imports: 
     brms,
     coda,
+    dplyr,
     magrittr,
     mcmcr,
     parallel,
     posterior,
     stats,
-    tidyverse
+    stringr,
+    tidyselect
 Suggests: 
-    dplyr,
     knitr,
     rmarkdown,
     testthat

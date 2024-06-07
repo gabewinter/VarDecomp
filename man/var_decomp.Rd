@@ -16,7 +16,5 @@ Returns a data frame with the summaries of posterior estimates.
 Variance decomposition for brms models
 }
 \examples{
-
 #var_decomp(mod_RS)
-
 }

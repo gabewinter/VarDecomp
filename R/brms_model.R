@@ -83,7 +83,7 @@ if(Chainset=="test"){warmup=10; iter=110; thin=10; chains=2}
 if(Family == "binomial" | Family == "poisson"){
 
 Data = Data %>%
-  tidyverse::mutate(observationID = as.factor(tidyverse::row_number(Data)))
+  dplyr::mutate(observationID = as.factor(dplyr::row_number(Data)))
 
 }
 
@@ -91,7 +91,7 @@ Data = Data %>%
 # Construct model formula if binomial family 
 if(Family == "binomial"){
 
-bfform = 
+  bfform = 
     
     if(is.null(RandomEffect)) {
       paste0(Response, " | trials( ", Trials, ") ~ ", paste(FixedEffect, collapse = " + "), " + (1|observationID)")
