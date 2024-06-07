@@ -3,12 +3,14 @@ title: "VarDecomp"
 output: html_document
 editor_options: 
   chunk_output_type: console
+  
 ---
 
 
 ```{r development-load}
 # Load already included functions if relevant
 pkgload::load_all(export_all = FALSE)
+options(rmarkdown.html_vignette.check_title = FALSE)
 ```
 
 
