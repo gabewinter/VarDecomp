@@ -11,6 +11,7 @@
 #' @param Chainset String to define the number of iterations. Start with "test" (warmup=10; iter=110; thin=10; chains=2) and increase as needed until convergence: "long"(warmup=15000; iter=30000; thin=15; chains=2); "longer"(warmup=30000; iter=60000; thin=30; chains=2); "longest" (warmup=60000; iter=120000; thin=60; chains=2).
 #' @param Family String to define the family function in the brms model. Current supported families: "gaussian", "binomial", "poisson".
 #' @param Seed Numeric and optional. Set a seed in order to repeat the results from the model when running it more than once. 
+#' @param Trials The total number of trials in a binomial model. The number of successes should be inputed on Response.
 #'
 #' @return Returns a brmsfit
 #' @export 
@@ -20,7 +21,7 @@
 #' # With random slope
 #' md = dplyr::starwars
 #'
-#' mod = VarDecomp::brms_model(Chainset = "long", 
+#' mod = brms_model(Chainset = "long", 
 #'            Response = "mass", 
 #'            FixedEffect = c("sex","height"), 
 #'            RandomEffect = "species", 
@@ -33,14 +34,20 @@
 #'
 #' plot(mod)
 #'
-brms_model = function(Data, Response, FixedEffect, RandomEffect = NULL, RandomSlope = NULL, Chainset, Family = "gaussian", Seed = sample(1000:9999, 1)){
-
-  
+brms_model = function(Data, Response, FixedEffect, RandomEffect = NULL, RandomSlope = NULL, Chainset, Family = "gaussian", Seed = sample(1000:9999, 1), Trials = NA){
 stopifnot("`Data` must be a data frame" =               
               inherits(Data, "data.frame"))
   
 stopifnot("`Response` must be a string" =               
               inherits(Response, "character"))
+
+if(Family == "binomial"){
+stopifnot("Family 'binomial' requires an integer response variable." =
+              inherits(Response, "integer"))}
+
+if(Family == "poisson"){
+stopifnot("Family 'poisson' requires an integer response variable." =
+              inherits(Response, "integer"))}
 
 stopifnot("`FixedEffect` must be a string" =               
               inherits(FixedEffect, "character"))
@@ -57,6 +64,10 @@ stopifnot("`Chainset` must be a string (options are 'test', 'long, 'longer', 'lo
 stopifnot("`Family` must be a string" =               
               inherits(Family, "character"))
 
+if(Family == "binomial" && is.na(Trials)){
+stop("Binomial models require the total number of trials (use `Trial =` for inputing the corresponding variable) and a response variable with the number of successes (use `Response =` for inputing the variable with the count of successes).")}
+
+
 stopifnot("`Seed` must be a string" =               
               inherits(Seed, "numeric"))
 
@@ -68,30 +79,57 @@ if(Chainset=="long"){warmup=15000; iter=30000; thin=15; chains=2}
 if(Chainset=="test"){warmup=10; iter=110; thin=10; chains=2}
 
 
-# Construct the formula object for models of binomial or poisson families
+# Add an observation ID for models of binomial or poisson families
 if(Family == "binomial" | Family == "poisson"){
 
-obsID = as.factor(row_number(Data))
-                  
 Data = Data %>%
-  mutate(observationID = obsID)
+  tidyverse::mutate(observationID = as.factor(tidyverse::row_number(Data)))
+
+}
+
+
+# Construct model formula if binomial family 
+if(Family == "binomial"){
 
 bfform = 
     
     if(is.null(RandomEffect)) {
-      paste0(Response, "~", paste(FixedEffect, collapse = " + "), " + (1|observationID)")
+      paste0(Response, " | trials( ", Trials, ") ~ ", paste(FixedEffect, collapse = " + "), " + (1|observationID)")
       } else {
         if(is.null(RandomSlope)){
-        paste0(Response, "~", paste(FixedEffect, collapse = " + "),
+        paste0(Response, " | trials( ", Trials, ") ~ ", 
+               paste(FixedEffect, collapse = " + "),
         "+ ( 1 | ", RandomEffect," ) + (1|observationID)")
           } else {
-          paste0(Response, "~",
+          paste0(Response, " | trials( ", Trials, ") ~ ",
                  paste(FixedEffect, collapse = " + "),
                  "+ ( 1 +", RandomSlope, " | ", 
                  RandomEffect," ) + (1|observationID)")}}
 
 } else {
+
+# Construct the formula object if poisson family
+  
+if(Family == "poisson"){
+
+bfform = 
+    
+    if(is.null(RandomEffect)) {
+      paste0(Response, " ~ ", paste(FixedEffect, collapse = " + "), " + (1|observationID)")
+      } else {
+        if(is.null(RandomSlope)){
+        paste0(Response, " ~ ", 
+               paste(FixedEffect, collapse = " + "),
+        "+ ( 1 | ", RandomEffect," ) + (1|observationID)")
+          } else {
+          paste0(Response, " ~ ",
+                 paste(FixedEffect, collapse = " + "),
+                 "+ ( 1 +", RandomSlope, " | ", 
+                 RandomEffect," ) + (1|observationID)")}}
+} else {
+  
 # Construct the formula object for other model families
+  
 
   bfform = 
     
@@ -106,6 +144,7 @@ bfform =
                  paste(FixedEffect, collapse = " + "),
                  "+ ( 1 +", RandomSlope, " | ", RandomEffect," )")}}
         
+}
 }
 
 mod =  brms::brm(brms::bf(stats::as.formula(bfform)),

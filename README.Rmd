@@ -11,6 +11,10 @@ knitr::opts_chunk$set(
   fig.path = "man/figures/README-",
   out.width = "100%"
 )
+
+library(tidyverse)
+library(dplyr)
+
 ```
 
 # VarDecomp
@@ -50,8 +54,6 @@ mod = brms_model(Chainset = "long",
            Data = md, 
           Seed = 0405)
 
-print(mod)
-
-plot(mod)
+var_decomp(mod)
 
 ```

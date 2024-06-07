@@ -22,12 +22,14 @@ library(VarDecomp)
 
 # brms_model: function for running brms models
 
+### Examples
+
 ```{r examples-brms_model, warning = FALSE, message = FALSE}
 
 # With random slope
 md = dplyr::starwars
 
-mod = VarDecomp::brms_model(Chainset = "long", 
+mod = brms_model(Chainset = "long", 
            Response = "mass", 
            FixedEffect = c("sex","height"), 
            RandomEffect = "species", 
@@ -42,13 +44,22 @@ plot(mod)
 
 ```
 
+### Tests
+
 ________
 
 
-## VarDecomp = function for variance decomposition
+# var_decomp = function for variance decomposition
+
+### Examples
 
 ```{r examples-var_decomp}
 
-#VarDecomp::var_decomp(mod_RS)
+#var_decomp(mod_RS)
+
 ```
+
+### Tests
+
+# Inflate
 

@@ -12,9 +12,13 @@ URL: https://github.com/gabewinter/VarDecomp
 BugReports: https://github.com/gabewinter/VarDecomp/issues
 Imports: 
     brms,
+    coda,
     magrittr,
+    mcmcr,
     parallel,
-    stats
+    posterior,
+    stats,
+    tidyverse
 Suggests: 
     dplyr,
     knitr,

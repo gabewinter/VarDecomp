@@ -12,7 +12,8 @@ brms_model(
   RandomSlope = NULL,
   Chainset,
   Family = "gaussian",
-  Seed = sample(1000:9999, 1)
+  Seed = sample(1000:9999, 1),
+  Trials = NA
 )
 }
 \arguments{
@@ -31,6 +32,8 @@ brms_model(
 \item{Family}{String to define the family function in the brms model. Current supported families: "gaussian", "binomial", "poisson".}
 
 \item{Seed}{Numeric and optional. Set a seed in order to repeat the results from the model when running it more than once.}
+
+\item{Trials}{The total number of trials in a binomial model. The number of successes should be inputed on Response.}
 }
 \value{
 Returns a brmsfit
@@ -43,7 +46,7 @@ Run a brms model
 # With random slope
 md = dplyr::starwars
 
-mod = VarDecomp::brms_model(Chainset = "long", 
+mod = brms_model(Chainset = "long", 
            Response = "mass", 
            FixedEffect = c("sex","height"), 
            RandomEffect = "species", 

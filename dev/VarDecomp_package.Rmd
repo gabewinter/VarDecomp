@@ -40,6 +40,7 @@ print(paste("No problem", sample(emojis, size = 1)))
 #' @param Chainset String to define the number of iterations. Start with "test" (warmup=10; iter=110; thin=10; chains=2) and increase as needed until convergence: "long"(warmup=15000; iter=30000; thin=15; chains=2); "longer"(warmup=30000; iter=60000; thin=30; chains=2); "longest" (warmup=60000; iter=120000; thin=60; chains=2).
 #' @param Family String to define the family function in the brms model. Current supported families: "gaussian", "binomial", "poisson".
 #' @param Seed Numeric and optional. Set a seed in order to repeat the results from the model when running it more than once. 
+#' @param Trials The total number of trials in a binomial model. The number of successes should be inputed on Response.
 #'
 #' @return Returns a brmsfit
 #' @export 
@@ -93,7 +94,7 @@ if(Chainset=="test"){warmup=10; iter=110; thin=10; chains=2}
 if(Family == "binomial" | Family == "poisson"){
 
 Data = Data %>%
-  mutate(observationID = as.factor(row_number(Data)))
+  tidyverse::mutate(observationID = as.factor(tidyverse::row_number(Data)))
 
 }
 
@@ -178,6 +179,7 @@ return(brmsfit)
 
 ```
 
+### Examples
 ```{r examples-brms_model, warning=FALSE, message=FALSE}
 
 # With random slope
@@ -198,6 +200,7 @@ plot(mod)
 
 ```
 
+### Tests
 ```{r test-brms_model}
 
 md = dplyr::starwars
@@ -261,56 +264,62 @@ load(file="mod_RS.RData")
 
 ________
 
-## VarDecomp = function for variance decomposition
-```{r dev}
-#function-var_decomp
+# var_decomp = function for variance decomposition
+```{r function-var_decomp}
+#' Variance decomposition for brms models
+#'
+#' @param brmsfit The output of a brms model. You can use VarDecomp::brms_model() to produce a brmsfit. 
+#'
+#' @return Returns a data frame with the summaries of posterior estimates.
+#'
+#' @export
+#'
 var_decomp = function(brmsfit){
 
 # Extract original data
   Data = brmsfit$data
   
   Data = Data %>% 
-    filter(if_all(1:ncol(Data),~ !is.na(.)))
+    tidyverse::filter(tidyverse::if_all(1:ncol(Data),~ !is.na(.)))
   
   
 # Extract posterior samples
   PS = as.data.frame(brmsfit) %>% 
-  select(!starts_with("r")) %>% 
-  select(!contains("prior")) %>% 
-  select(!lp__)
+  tidyverse::select(!tidyverse::starts_with("r")) %>% 
+  tidyverse::select(!tidyverse::contains("prior")) %>% 
+  tidyverse::select(!lp__)
  
-  
-### CHECK WHY THERE IS A SECOND INTERCEPT VALUE
-if("Intercept" %in% colnames(PS)){PS = PS %>% select(-Intercept)}
+
+if("Intercept" %in% colnames(PS)){PS = PS %>% tidyverse::select(-Intercept)}
 
 #Extract family
 Family = brmsfit$family[[1]][1]
 
 #Extract fixed effect names
 PS_b = PS %>% 
-  select(starts_with("b_")) %>% 
-  rename_with(~ str_remove(., "^b_")) %>%  
-  select(!Intercept)
+  tidyverse::select(tidyverse::starts_with("b_")) %>% 
+  tidyverse::rename_with(~ tidyverse::str_remove(., "^b_")) %>%  
+  tidyverse::select(!Intercept)
 
 FixedEffect = colnames(PS_b)
 
 #Extract random effect names
 PS_sd = PS %>% 
-  select(starts_with("sd_")) %>% 
-  rename_with(~ str_remove(., "^sd_"))
+  tidyverse::select(tidyverse::starts_with("sd_")) %>% 
+  tidyverse::rename_with(~ tidyverse::str_remove(., "^sd_"))
 
 if(Family == "binomial" | Family == "poisson"){
 
   PS_RE = PS_sd %>% 
-  select(ends_with("Intercept")) %>% 
-  select(!contains("observationID")) %>% 
-  rename_with(~ str_remove(., "__Intercept"))
+  tidyverse::select(tidyverse::ends_with("Intercept")) %>% 
+  tidyverse::select(!tidyverse::contains("observationID")) %>% 
+  tidyverse::rename_with(~ tidyverse::str_remove(., "__Intercept"))
 
 } else {
 
 PS_RE = PS_sd %>% 
-  select(ends_with("Intercept")) %>% 
-  rename_with(~ str_remove(., "__Intercept"))
+  tidyverse::select(tidyverse::ends_with("Intercept")) %>% 
+  tidyverse::rename_with(~ tidyverse::str_remove(., "__Intercept"))
 }
 
 if(ncol(PS_RE) == 0){RandomEffect = NULL
@@ -322,8 +331,8 @@ if(ncol(PS_RE) == 0){RandomEffect = NULL
 #Extract random slope names
 
 PS_RS = PS_sd %>% 
-  rename_with(~ str_replace_all(., "__", "_")) %>% 
-  select(!ends_with("Intercept"))
+  tidyverse::rename_with(~ tidyverse::str_replace_all(., "__", "_")) %>% 
+  tidyverse::select(!tidyverse::ends_with("Intercept"))
 
 if(ncol(PS_RS) == 0){RandomSlope = NULL
 } else {
@@ -336,22 +345,27 @@ RandomSlope = gsub(paste0(RandomEffect, "_"), "", RandomSlope)
 
 #Rename columns for tidying the data
 PS = PS %>% 
-  rename_with(~str_remove_all(., "^b_")) %>% 
-  rename_with(~str_remove_all(., "sd_")) %>% 
-  rename_with(~str_replace_all(., "__", "_")) %>% 
-  rename_with(~str_remove_all(., "_Intercept")) 
+  tidyverse::rename_with(~tidyverse::str_remove_all(., "^b_")) %>% 
+  tidyverse::rename_with(~tidyverse::str_remove_all(., "sd_")) %>% 
+  tidyverse::rename_with(~tidyverse::str_replace_all(., "__", "_")) %>% 
+  tidyverse::rename_with(~tidyverse::str_remove_all(., "_Intercept")) 
 
 
 # Variance in fixed effects
 
 ## Create a dataframe with the values used by the model for fixed effects
+if(!is.null(RandomEffect)){
   FixedEffectData = Data %>% 
-  select(c(setdiff(colnames(Data), RandomEffect))) %>% 
-  select(-1)  #Removing the response variable
+  tidyverse::select(c(setdiff(colnames(Data), RandomEffect))) %>% 
+  tidyverse::select(-1)  #Removing the response variable
+} else {
+  FixedEffectData = Data %>% 
+  tidyverse::select(-1)  #Removing the response variable
+  }
   
 ## Specific for covariates with of character class 
 suppressWarnings({  CharactersFE = FixedEffectData%>%
-  select(-one_of(FixedEffect)) })
+  tidyverse::select(-tidyverse::one_of(FixedEffect)) })
   
   if(ncol(CharactersFE) == 0){
     
@@ -363,15 +377,15 @@ unique_values = unique(CharactersFE[[i]])
 for (j in unique_values) {
 
   CharactersFE = CharactersFE %>% 
-    mutate(!!paste(j) := if_else(CharactersFE[[i]] == j, 1,0)) %>% 
-    rename(!!paste0(i, j) := paste(j)) 
+    tidyverse::mutate(!!paste(j) := tidyverse::if_else(CharactersFE[[i]] == j, 1,0)) %>% 
+    tidyverse::rename(!!paste0(i, j) := paste(j)) 
   
 }
 CharactersFE = CharactersFE 
 }
 
-FixedEffectData = bind_cols(FixedEffectData,CharactersFE) %>% 
-  select_if(~ is.numeric(.))
+FixedEffectData = tidyverse::bind_cols(FixedEffectData,CharactersFE) %>% 
+  tidyverse::select_if(~ is.numeric(.))
 }
 
 ## Calculate estimated variances for each fixed effect
@@ -379,7 +393,7 @@ FixedEffectData = bind_cols(FixedEffectData,CharactersFE) %>%
 for (i in colnames(FixedEffectData)){
   if (i %in% colnames(PS)) {
         PS = PS %>% 
-           mutate(!!paste0("var_", i) := get(paste0(i))*
+           tidyverse::mutate(!!paste0("var_", i) := get(paste0(i))*
                var(FixedEffectData[[paste0(i)]]))
   
   }
@@ -389,7 +403,7 @@ for (i in colnames(FixedEffectData)){
 FixedEffectNames = intersect(names(PS), paste0("var_", names(FixedEffectData)))
 
 PS = PS %>% 
-mutate(var_FixedEffects = rowSums(across(all_of(FixedEffectNames)), na.rm = TRUE))
+tidyverse::mutate(var_FixedEffects = rowSums(tidyverse::across(tidyverse::all_of(FixedEffectNames)), na.rm = TRUE))
   
   
 # Calculate the estimated variances in random slope
@@ -398,7 +412,7 @@ if(!is.null(RandomSlope)){
   
   
   PS = PS %>% 
-  mutate(!!paste0("var_", RandomEffect, "_", RandomSlope) := (get(paste0(RandomEffect, "_", RandomSlope))^2 *
+  tidyverse::mutate(!!paste0("var_", RandomEffect, "_", RandomSlope) := (get(paste0(RandomEffect, "_", RandomSlope))^2 *
                   var(FixedEffectData[[RandomSlope]])) +
                 
                  (get(paste0(RandomEffect,"_", RandomSlope))^2 *
@@ -410,7 +424,7 @@ if(!is.null(RandomSlope)){
 # Variances in random effect
 if(!is.null(RandomEffect)){
 PS = PS %>% 
-  mutate(!!paste0("var_", RandomEffect) := 
+  tidyverse::mutate(!!paste0("var_", RandomEffect) := 
            
         # for models without random slopes
           ifelse(RandomSlope == FALSE, 
@@ -431,19 +445,19 @@ PS = PS %>%
 # Residual variance
 if(Family == "gaussian"){
 PS = PS %>% 
-  mutate(residual = sigma^2)
+  tidyverse::mutate(residual = sigma^2)
 
 } else {
   if(Family == "binomial"){
 
     PS = PS %>% 
-      mutate(residual = observationID^2 + (pi^2/3))
+      tidyverse::mutate(residual = observationID^2 + (pi^2/3))
 
     } else {
      if(Family== "poisson") {
        
       PS = PS %>% 
-        mutate(residual =  observationID^2 + 
+        tidyverse::mutate(residual =  observationID^2 + 
                                     log(1/exp(Intercept)+1))
      
      } else {
@@ -456,63 +470,89 @@ PS = PS %>%
   }
 
 # Total phenotypic variance
-  
+if(!is.null(RandomEffect)){
 PS = PS %>% 
-    mutate(total_pv = var_FixedEffects + 
+    tidyverse::mutate(total_pv = var_FixedEffects + 
            get(paste0("var_", RandomEffect)) + 
            residual) 
 
+} else {
+PS = PS %>% 
+    tidyverse::mutate(total_pv = var_FixedEffects + 
+           residual)   
+}
 
 
 # calculate R2 for fixed effects
 
 for (i in FixedEffectNames){
         PS = PS %>% 
-           mutate(!!paste0("R2_", i) := get(paste0(i))/total_pv)
+           tidyverse::mutate(!!paste0("R2_", i) := get(paste0(i))/total_pv)
 }
 
 PS = PS %>% 
-mutate(R2_FixedEffects = rowSums(across(all_of(paste0("R2_", FixedEffectNames))), na.rm = TRUE))%>%          rename_with(~str_replace_all(., "_var_", "_"), contains("_var_"))
+tidyverse::mutate(R2_FixedEffects = rowSums(tidyverse::across(tidyverse::all_of(paste0("R2_", FixedEffectNames))), na.rm = TRUE))%>%          tidyverse::rename_with(~tidyverse::str_replace_all(., "_var_", "_"), tidyverse::contains("_var_"))
 
 # calculate R2 for random slopes
     if(!is.null(RandomSlope)){
       
       PS = PS %>%
-        mutate(!!paste0("R2_", RandomEffect, "_", RandomSlope) := 
+        tidyverse::mutate(!!paste0("R2_", RandomEffect, "_", RandomSlope) := 
                    get(paste0("var_", RandomEffect, "_", RandomSlope))/total_pv)
       } 
   
 
 # calculate R2 for random effect
-
+if(!is.null(RandomEffect)){
 PS = PS %>% 
-  mutate(!!paste0("R2_",RandomEffect) := 
-             get(paste0("var_", RandomEffect))/total_pv) %>% 
-
+  tidyverse::mutate(!!paste0("R2_",RandomEffect) := 
+             get(paste0("var_", RandomEffect))/total_pv) 
+}
 # Residual
-  mutate(R2_residual = 
+PS = PS %>% 
+  tidyverse::mutate(R2_residual = 
              residual/total_pv)
 
 
 output = PS %>% 
-  select(-all_of(RandomEffect)) %>% 
-  select(-starts_with("var_")) %>% 
-  select(-total_pv) %>% 
-  select(-residual)
+  tidyverse::select(-tidyverse::all_of(RandomEffect)) %>% 
+  tidyverse::select(-tidyverse::starts_with("var_")) %>% 
+  tidyverse::select(-total_pv) %>% 
+  tidyverse::select(-residual)
 
-return(print(output))   
-}   
+
+
+
+EstSummary = posterior::summarise_draws(output) %>% 
+  tidyverse::select(variable, mean, median, sd) 
+  
+  
+#Highest probability density interval
+HPDInt = as.data.frame(coda::HPDinterval(mcmcr::as.mcmc(output, combine_chains = TRUE))) %>% 
+  tidyverse::rownames_to_column(var = "variable")
+
+EstSummary = tidyverse::left_join(EstSummary, HPDInt, by = "variable") %>%
+  tidyverse::mutate(tidyverse::across(where(is.numeric), round, 3)) %>% 
+  tidyverse::rename(lower_HPD = lower, upper_HPD = upper) 
+
+
+
+return(print(EstSummary))   
+
+}
+
 
 
 ```
 
+### Examples
 ```{r examples-var_decomp}
 
 #var_decomp(mod_RS)
 
 ```
 
-
+### Tests
 ```{r test-var_decomp}
 #var_decomp(mod)
 #var_decomp(mod_RE)
@@ -520,7 +560,7 @@ return(print(output))
 ```
 
 
-
+# Inflate
 ```{r development-inflate, eval=FALSE}
 # Execute in the console directly - keep eval=FALSE to avoid infinite loop
 fusen::inflate(flat_file = "dev/VarDecomp_package.Rmd", vignette_name = "Vignette")
