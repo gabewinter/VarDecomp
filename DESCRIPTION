@@ -20,6 +20,7 @@ Imports:
     posterior,
     stats,
     stringr,
+    tibble,
     tidyselect
 Suggests: 
     knitr,

@@ -265,7 +265,7 @@ EstSummary = posterior::summarise_draws(output) %>%
   
 #Highest probability density interval
 HPDInt = as.data.frame(coda::HPDinterval(mcmcr::as.mcmc(output, combine_chains = TRUE))) %>% 
-  dplyr::rownames_to_column(var = "variable")
+  tibble::rownames_to_column(var = "variable")
 
 EstSummary = dplyr::left_join(EstSummary, HPDInt, by = "variable") %>%
   dplyr::mutate(dplyr::across(where(is.numeric), round, 3)) %>% 
