@@ -549,7 +549,6 @@ return(print(EstSummary))
 ```{r examples-var_decomp}
 
 #var_decomp(mod_RS)
-
 ```
 
 ### Tests
