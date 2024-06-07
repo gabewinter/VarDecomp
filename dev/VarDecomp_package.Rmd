@@ -102,7 +102,7 @@ Data = Data %>%
 # Construct model formula if binomial family 
 if(Family == "binomial"){
 
-bfform = 
+  bfform = 
     
     if(is.null(RandomEffect)) {
       paste0(Response, " | trials( ", Trials, ") ~ ", paste(FixedEffect, collapse = " + "), " + (1|observationID)")
@@ -547,7 +547,6 @@ return(print(EstSummary))
 
 ### Examples
 ```{r examples-var_decomp}
-
 #var_decomp(mod_RS)
 ```
 
