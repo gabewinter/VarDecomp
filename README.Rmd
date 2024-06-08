@@ -49,7 +49,7 @@ mod = brms_model(Chainset = "long",
            Response = "mass", 
            FixedEffect = c("sex","height"), 
            RandomEffect = "species", 
-           RandomSlope = "height", 
+           RandomSlope = "height", q
            Family = "gaussian", 
            Data = md, 
           Seed = 0405)

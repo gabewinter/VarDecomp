@@ -1,6 +1,6 @@
 Package: VarDecomp
 Title: Variance Decomposition For Brms Models
-Version: 0.0.0.9000
+Version: 0.0.1
 Authors@R: 
     person("Gabe", "Winter", , "gabewinter@gmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0001-5984-9410"))
