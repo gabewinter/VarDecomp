@@ -42,12 +42,21 @@ stopifnot("`Response` must be a string" =
               inherits(Response, "character"))
 
 if(Family == "binomial"){
-stopifnot("Family 'binomial' requires an integer response variable." =
-              inherits(Response, "integer"))}
+  Successes = Data[[Response]]
+  stopifnot("Family 'binomial' requires an integer response variable." =inherits(Successes, "integer"))
+}
 
+if(Family == "binomial"){
+  Attempts = Data[[Trials]]
+  stopifnot("Family 'binomial' requires an integer trial variable." =inherits(Attempts, "integer"))
+  }
+
+  
 if(Family == "poisson"){
-stopifnot("Family 'poisson' requires an integer response variable." =
-              inherits(Response, "integer"))}
+  Resp = Data[[Response]]
+  stopifnot("Family 'poisson' requires an integer response variable." =inherits(Resp, "integer"))
+}
+
 
 stopifnot("`FixedEffect` must be a string" =               
               inherits(FixedEffect, "character"))
