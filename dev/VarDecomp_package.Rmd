@@ -10,7 +10,7 @@ editor_options:
 ```{r development-load}
 # Load already included functions if relevant
 pkgload::load_all(export_all = FALSE)
-options(rmarkdown.html_vignette.check_title = FALSE)
+
 ```
 
 
@@ -433,7 +433,7 @@ PS = PS %>%
   dplyr::mutate(!!paste0("var_", RandomEffect) := 
            
         # for models without random slopes
-          ifelse(RandomSlope == FALSE, 
+          ifelse(is.null(RandomSlope), 
                  get(paste0(RandomEffect))^2,
         
         # for models with random slope (in Holger's paper on random slopes)
@@ -567,5 +567,6 @@ return(print(EstSummary))
 # Inflate
 ```{r development-inflate, eval=FALSE}
 # Execute in the console directly - keep eval=FALSE to avoid infinite loop
+options(rmarkdown.html_vignette.check_title = FALSE)
 fusen::inflate(flat_file = "dev/VarDecomp_package.Rmd", vignette_name = "Vignette")
 ```
