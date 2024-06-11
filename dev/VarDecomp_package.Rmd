@@ -433,7 +433,7 @@ PS = PS %>%
   dplyr::mutate(!!paste0("var_", RandomEffect) := 
            
         # for models without random slopes
-          ifelse(RandomSlope == FALSE, 
+          ifelse(is.null(RandomSlope), 
                  get(paste0(RandomEffect))^2,
         
         # for models with random slope (in Holger's paper on random slopes)
