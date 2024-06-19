@@ -10,10 +10,11 @@ brms_model(
   FixedEffect,
   RandomEffect = NULL,
   RandomSlope = NULL,
-  Chainset,
+  Chainset = 1,
   Family = "gaussian",
-  Seed = sample(1000:9999, 1),
-  Trials = NA
+  Seed = NULL,
+  Trials = NA,
+  PriorSamples = TRUE
 )
 }
 \arguments{
@@ -27,13 +28,15 @@ brms_model(
 
 \item{RandomSlope}{String with the name of the column in Data containing the covariate to be added as a random slope (e.g. "height"). The current package version allows the use of a single random slope.}
 
-\item{Chainset}{String to define the number of iterations. Start with "test" (warmup=10; iter=110; thin=10; chains=2) and increase as needed until convergence: "long"(warmup=15000; iter=30000; thin=15; chains=2); "longer"(warmup=30000; iter=60000; thin=30; chains=2); "longest" (warmup=60000; iter=120000; thin=60; chains=2).}
+\item{Chainset}{Defines the number of iterations. Start with Chainset = 1 and increase as needed until convergence. The value of chainset is multiplied by 15000 in warmup, 30000 in iterations and 15 in thin intervale. For quick tests use Chainset = 0 (warmup=10; iter=110; thin=10; chains=2)}
 
 \item{Family}{String to define the family function in the brms model. Current supported families: "gaussian", "binomial", "poisson".}
 
 \item{Seed}{Numeric and optional. Set a seed in order to repeat the results from the model when running it more than once.}
 
-\item{Trials}{The total number of trials in a binomial model. The number of successes should be inputed on Response.}
+\item{Trials}{The total number of trials in a binomial model. The number of successes should be imputed on Response.}
+
+\item{PriorSamples}{Logical value that defines if brmsfit will contain the priors used. Default is set to \code{TRUE}, which included the priors in the brmsfit.}
 }
 \value{
 Returns a brmsfit
@@ -46,7 +49,17 @@ Run a brms model
 # With random slope
 md = dplyr::starwars
 
-mod = brms_model(Chainset = "long", 
+# Centering variables
+md = md \%>\% 
+  dplyr::select(mass, sex, height, species) \%>\% 
+  dplyr::mutate(mass = log(mass),
+         sex = dplyr::recode(sex, "male" = 1, 
+                      "female" = -1, 
+                      "hermaphroditic" = 0,
+                      "none" = as.numeric(NA)))
+  
+  
+mod = brms_model(Chainset = 2, 
            Response = "mass", 
            FixedEffect = c("sex","height"), 
            RandomEffect = "species", 

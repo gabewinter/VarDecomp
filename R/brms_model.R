@@ -8,10 +8,11 @@
 #' @param FixedEffect String with the name of the column in Data containing the fixed effect variable (e.g. "height"). To add multiple fixed effects, use c() (e.g. c("height", "sex")). 
 #' @param RandomEffect String with the name of the column in Data containing the random effect variable (e.g. "species"). The current package version allows the use of a single random effect.
 #' @param RandomSlope String with the name of the column in Data containing the covariate to be added as a random slope (e.g. "height"). The current package version allows the use of a single random slope.
-#' @param Chainset String to define the number of iterations. Start with "test" (warmup=10; iter=110; thin=10; chains=2) and increase as needed until convergence: "long"(warmup=15000; iter=30000; thin=15; chains=2); "longer"(warmup=30000; iter=60000; thin=30; chains=2); "longest" (warmup=60000; iter=120000; thin=60; chains=2).
+#' @param Chainset Defines the number of iterations. Start with Chainset = 1 and increase as needed until convergence. The value of chainset is multiplied by 15000 in warmup, 30000 in iterations and 15 in thin intervale. For quick tests use Chainset = 0 (warmup=10; iter=110; thin=10; chains=2) 
 #' @param Family String to define the family function in the brms model. Current supported families: "gaussian", "binomial", "poisson".
 #' @param Seed Numeric and optional. Set a seed in order to repeat the results from the model when running it more than once. 
-#' @param Trials The total number of trials in a binomial model. The number of successes should be inputed on Response.
+#' @param Trials The total number of trials in a binomial model. The number of successes should be imputed on Response.
+#' @param PriorSamples Logical value that defines if brmsfit will contain the priors used. Default is set to `TRUE`, which included the priors in the brmsfit. 
 #'
 #' @return Returns a brmsfit
 #' @export 
@@ -21,7 +22,17 @@
 #' # With random slope
 #' md = dplyr::starwars
 #'
-#' mod = brms_model(Chainset = "long", 
+#' # Centering variables
+#' md = md %>% 
+#'   dplyr::select(mass, sex, height, species) %>% 
+#'   dplyr::mutate(mass = log(mass),
+#'          sex = dplyr::recode(sex, "male" = 1, 
+#'                       "female" = -1, 
+#'                       "hermaphroditic" = 0,
+#'                       "none" = as.numeric(NA)))
+#'   
+#'   
+#' mod = brms_model(Chainset = 2, 
 #'            Response = "mass", 
 #'            FixedEffect = c("sex","height"), 
 #'            RandomEffect = "species", 
@@ -34,7 +45,8 @@
 #'
 #' plot(mod)
 #'
-brms_model = function(Data, Response, FixedEffect, RandomEffect = NULL, RandomSlope = NULL, Chainset, Family = "gaussian", Seed = sample(1000:9999, 1), Trials = NA){
+
+brms_model = function(Data, Response, FixedEffect, RandomEffect = NULL, RandomSlope = NULL, Chainset = 1, Family = "gaussian", Seed = NULL, Trials = NA, PriorSamples = TRUE){
 stopifnot("`Data` must be a data frame" =               
               inherits(Data, "data.frame"))
   
@@ -67,8 +79,8 @@ if(!is.null(RandomEffect)) {stopifnot("`RandomEffect` must be a string" =
 if(!is.null(RandomSlope)){stopifnot("`RandomSlope` must be a string" =               
               inherits(RandomSlope, "character"))}
 
-stopifnot("`Chainset` must be a string (options are 'test', 'long, 'longer', 'longest')" =               
-              inherits(Chainset, "character"))
+stopifnot("`Chainset` must be a numeric value" =               
+              inherits(Chainset, "numeric"))
 
 stopifnot("`Family` must be a string" =               
               inherits(Family, "character"))
@@ -76,17 +88,26 @@ stopifnot("`Family` must be a string" =
 if(Family == "binomial" && is.na(Trials)){
 stop("Binomial models require the total number of trials (use `Trial =` for inputing the corresponding variable) and a response variable with the number of successes (use `Response =` for inputing the variable with the count of successes).")}
 
-
-stopifnot("`Seed` must be a string" =               
+if(is.null(Seed)){
+ Seed = sample(1000:9999, 1)
+} else {
+stopifnot("`Seed` must be numeric" =               
               inherits(Seed, "numeric"))
+  } 
+
+stopifnot("`PriorSamples` must be logical" =               
+              inherits(PriorSamples, "logical"))
+
 
 testfunction()
   
-if(Chainset=="longest"){warmup=60000; iter=120000; thin=60; chains=2}
-if(Chainset=="longer"){warmup=30000; iter=60000; thin=30; chains=2}
-if(Chainset=="long"){warmup=15000; iter=30000; thin=15; chains=2}
-if(Chainset=="test"){warmup=10; iter=110; thin=10; chains=2}
-
+# Setting chains 
+if(Chainset==0){Warmup=10; Iter=110; Thin=10; Chains=2
+} else {
+Warmup=15000*Chainset
+Iter=30000*Chainset
+Thin=15*Chainset
+Chains=2}
 
 # Add an observation ID for models of binomial or poisson families
 if(Family == "binomial" | Family == "poisson"){
@@ -156,20 +177,23 @@ bfform =
 }
 }
 
-mod =  brms::brm(brms::bf(stats::as.formula(bfform)),
+  mod =  brms::brm(brms::bf(stats::as.formula(bfform)),
                   family = Family,
                   data = Data, 
-                  warmup = warmup,
-                  iter = iter, 
-                  thin=thin, 
-                  chains = chains, 
+                  warmup = Warmup,
+                  iter = Iter, 
+                  thin=Thin, 
+                  chains = Chains, 
                   init = "random", 
                   seed = Seed, 
                   cores = parallel::detectCores(), 
                   control = list(adapt_delta = 0.999), 
-                  sample_prior = TRUE)
+                  sample_prior = PriorSamples)
 
 brmsfit = mod
+
+if(max(tidybayes::summarise_draws(mod)$rhat) > 1.1){
+warning("Model did not converge. Try increasing the value of `Chainset`.")}
 
 return(brmsfit)
 

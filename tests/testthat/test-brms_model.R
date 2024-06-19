@@ -3,28 +3,33 @@
 
 md = dplyr::starwars
 
+# Centering variables
+md = md %>% 
+  dplyr::select(mass, sex, height, species) %>% 
+  dplyr::mutate(mass = log(mass),
+         sex = dplyr::recode(sex, "male" = 1, 
+                      "female" = -1, 
+                      "hermaphroditic" = 0,
+                      "none" = as.numeric(NA)))
+
 
 # Without random effects
 
-mod = brms_model(Chainset = "long", 
-           Response = "mass", 
+mod = brms_model(Response = "mass", 
            FixedEffect = c("sex","height"), 
            Family = "gaussian", 
-           Data = md, 
-          Seed = 0405)
+           Data = md)
 
 print(mod)
 
 plot(mod)
 
 # With random effect
-mod_RE = brms_model(Chainset = "long", 
-           Response = "mass", 
+mod_RE = brms_model(Response = "mass", 
            FixedEffect = c("sex","height"), 
            RandomEffect = "species", 
            Family = "gaussian", 
-           Data = md, 
-           Seed = 0405)
+           Data = md)
 
 print(mod_RE)
 
@@ -32,14 +37,12 @@ plot(mod_RE)
 
 
 # With random slope
-mod_RS = brms_model(Chainset = "long", 
-           Response = "mass", 
+mod_RS = brms_model(Response = "mass", 
            FixedEffect = c("sex","height"), 
            RandomEffect = "species", 
            RandomSlope = "height",
            Family = "gaussian", 
-           Data = md, 
-          Seed = 0405)
+           Data = md)
 
 print(mod_RS)
 

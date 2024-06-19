@@ -34,15 +34,17 @@ print(paste("No problem", sample(emojis, size = 1)))
 #' @param FixedEffect String with the name of the column in Data containing the fixed effect variable (e.g. "height"). To add multiple fixed effects, use c() (e.g. c("height", "sex")). 
 #' @param RandomEffect String with the name of the column in Data containing the random effect variable (e.g. "species"). The current package version allows the use of a single random effect.
 #' @param RandomSlope String with the name of the column in Data containing the covariate to be added as a random slope (e.g. "height"). The current package version allows the use of a single random slope.
-#' @param Chainset String to define the number of iterations. Start with "test" (warmup=10; iter=110; thin=10; chains=2) and increase as needed until convergence: "long"(warmup=15000; iter=30000; thin=15; chains=2); "longer"(warmup=30000; iter=60000; thin=30; chains=2); "longest" (warmup=60000; iter=120000; thin=60; chains=2).
+#' @param Chainset Defines the number of iterations. Start with Chainset = 1 and increase as needed until convergence. The value of chainset is multiplied by 15000 in warmup, 30000 in iterations and 15 in thin intervale. For quick tests use Chainset = 0 (warmup=10; iter=110; thin=10; chains=2) 
 #' @param Family String to define the family function in the brms model. Current supported families: "gaussian", "binomial", "poisson".
 #' @param Seed Numeric and optional. Set a seed in order to repeat the results from the model when running it more than once. 
-#' @param Trials The total number of trials in a binomial model. The number of successes should be inputed on Response.
+#' @param Trials The total number of trials in a binomial model. The number of successes should be imputed on Response.
+#' @param PriorSamples Logical value that defines if brmsfit will contain the priors used. Default is set to `TRUE`, which included the priors in the brmsfit. 
 #'
 #' @return Returns a brmsfit
 #' @export 
 #'
-brms_model = function(Data, Response, FixedEffect, RandomEffect = NULL, RandomSlope = NULL, Chainset, Family = "gaussian", Seed = sample(1000:9999, 1), Trials = NA){
+
+brms_model = function(Data, Response, FixedEffect, RandomEffect = NULL, RandomSlope = NULL, Chainset = 1, Family = "gaussian", Seed = NULL, Trials = NA, PriorSamples = TRUE){
 stopifnot("`Data` must be a data frame" =               
               inherits(Data, "data.frame"))
   
@@ -75,8 +77,8 @@ if(!is.null(RandomEffect)) {stopifnot("`RandomEffect` must be a string" =
 if(!is.null(RandomSlope)){stopifnot("`RandomSlope` must be a string" =               
               inherits(RandomSlope, "character"))}
 
-stopifnot("`Chainset` must be a string (options are 'test', 'long, 'longer', 'longest')" =               
-              inherits(Chainset, "character"))
+stopifnot("`Chainset` must be a numeric value" =               
+              inherits(Chainset, "numeric"))
 
 stopifnot("`Family` must be a string" =               
               inherits(Family, "character"))
@@ -84,17 +86,26 @@ stopifnot("`Family` must be a string" =
 if(Family == "binomial" && is.na(Trials)){
 stop("Binomial models require the total number of trials (use `Trial =` for inputing the corresponding variable) and a response variable with the number of successes (use `Response =` for inputing the variable with the count of successes).")}
 
-
-stopifnot("`Seed` must be a string" =               
+if(is.null(Seed)){
+ Seed = sample(1000:9999, 1)
+} else {
+stopifnot("`Seed` must be numeric" =               
               inherits(Seed, "numeric"))
+  } 
+
+stopifnot("`PriorSamples` must be logical" =               
+              inherits(PriorSamples, "logical"))
+
 
 testfunction()
   
-if(Chainset=="longest"){warmup=60000; iter=120000; thin=60; chains=2}
-if(Chainset=="longer"){warmup=30000; iter=60000; thin=30; chains=2}
-if(Chainset=="long"){warmup=15000; iter=30000; thin=15; chains=2}
-if(Chainset=="test"){warmup=10; iter=110; thin=10; chains=2}
-
+# Setting chains 
+if(Chainset==0){Warmup=10; Iter=110; Thin=10; Chains=2
+} else {
+Warmup=15000*Chainset
+Iter=30000*Chainset
+Thin=15*Chainset
+Chains=2}
 
 # Add an observation ID for models of binomial or poisson families
 if(Family == "binomial" | Family == "poisson"){
@@ -164,20 +175,23 @@ bfform =
 }
 }
 
-mod =  brms::brm(brms::bf(stats::as.formula(bfform)),
+  mod =  brms::brm(brms::bf(stats::as.formula(bfform)),
                   family = Family,
                   data = Data, 
-                  warmup = warmup,
-                  iter = iter, 
-                  thin=thin, 
-                  chains = chains, 
+                  warmup = Warmup,
+                  iter = Iter, 
+                  thin=Thin, 
+                  chains = Chains, 
                   init = "random", 
                   seed = Seed, 
                   cores = parallel::detectCores(), 
                   control = list(adapt_delta = 0.999), 
-                  sample_prior = TRUE)
+                  sample_prior = PriorSamples)
 
 brmsfit = mod
+
+if(max(tidybayes::summarise_draws(mod)$rhat) > 1.1){
+warning("Model did not converge. Try increasing the value of `Chainset`.")}
 
 return(brmsfit)
 
@@ -191,7 +205,17 @@ return(brmsfit)
 # With random slope
 md = dplyr::starwars
 
-mod = brms_model(Chainset = "long", 
+# Centering variables
+md = md %>% 
+  dplyr::select(mass, sex, height, species) %>% 
+  dplyr::mutate(mass = log(mass),
+         sex = dplyr::recode(sex, "male" = 1, 
+                      "female" = -1, 
+                      "hermaphroditic" = 0,
+                      "none" = as.numeric(NA)))
+  
+  
+mod = brms_model(Chainset = 2, 
            Response = "mass", 
            FixedEffect = c("sex","height"), 
            RandomEffect = "species", 
@@ -211,28 +235,33 @@ plot(mod)
 
 md = dplyr::starwars
 
+# Centering variables
+md = md %>% 
+  dplyr::select(mass, sex, height, species) %>% 
+  dplyr::mutate(mass = log(mass),
+         sex = dplyr::recode(sex, "male" = 1, 
+                      "female" = -1, 
+                      "hermaphroditic" = 0,
+                      "none" = as.numeric(NA)))
+
 
 # Without random effects
 
-mod = brms_model(Chainset = "long", 
-           Response = "mass", 
+mod = brms_model(Response = "mass", 
            FixedEffect = c("sex","height"), 
            Family = "gaussian", 
-           Data = md, 
-          Seed = 0405)
+           Data = md)
 
 print(mod)
 
 plot(mod)
 
 # With random effect
-mod_RE = brms_model(Chainset = "long", 
-           Response = "mass", 
+mod_RE = brms_model(Response = "mass", 
            FixedEffect = c("sex","height"), 
            RandomEffect = "species", 
            Family = "gaussian", 
-           Data = md, 
-           Seed = 0405)
+           Data = md)
 
 print(mod_RE)
 
@@ -240,14 +269,12 @@ plot(mod_RE)
 
 
 # With random slope
-mod_RS = brms_model(Chainset = "long", 
-           Response = "mass", 
+mod_RS = brms_model(Response = "mass", 
            FixedEffect = c("sex","height"), 
            RandomEffect = "species", 
            RandomSlope = "height",
            Family = "gaussian", 
-           Data = md, 
-          Seed = 0405)
+           Data = md)
 
 print(mod_RS)
 
@@ -258,15 +285,39 @@ plot(mod_RS)
 ```
 
 ```{r dev, eval=FALSE}
-save(mod, file="mod.RData")
-save(mod_RE, file="mod_RE.RData")
-save(mod_RS, file="mod_RS.RData")
+#save(mod, file="mod.RData")
+#save(mod_RE, file="mod_RE.RData")
+#save(mod_RS, file="mod_RS.RData")
 
-load(file="mod.RData")
-load(file="mod_RE.RData")
-load(file="mod_RS.RData")
+#load(file="mod.RData")
+#load(file="mod_RE.RData")
+#load(file="mod_RS.RData")
 ```
 
+```{r dev}
+# Testing with real data
+data_RN_1012_sheet2 <- readxl::read_excel("C:/Users/Gabe/Desktop/EvideceSynthesis/03_RandomSlopes/01_Analyses/RN_1012/published_dataset/data_RN_1012.xlsx",sheet = "compare sacs 1 and 2")
+
+load(file="C:/Users/Gabe/Desktop/EvideceSynthesis/03_RandomSlopes/01_Analyses/RN_1012/mod_proportion_staying_RS_VarDecomp.RData")
+
+mdSac12 = data_RN_1012_sheet2%>%
+  rename("web_volume" = "web vol1",
+         "n_juveniles" = "Emerging juv1",
+         "n_philopatric" = "number in web 1") %>%
+  mutate(ID = str_replace_all(ID, " ", "_")) %>% 
+  mutate(observationID = as.factor(row_number())) %>% 
+  select(ID, observationID, sac, web_volume, n_juveniles, n_philopatric) %>% 
+
+#center fixed effect variables to 0
+  mutate(sacC = recode(sac,
+                      "1" = 0, 
+                      "2" = 1),
+         n_philopatric = as.integer(n_philopatric),
+         n_juveniles = as.integer(n_juveniles))
+
+var_decomp(mod_proportion_staying_RS)
+
+```
 
 ________
 
@@ -307,19 +358,23 @@ PS_b = PS %>%
   dplyr::rename_with(~ stringr::str_remove(., "^b_")) %>%  
   dplyr::select(!Intercept)
 
+
+  
 FixedEffect = colnames(PS_b)
+
 
 #Extract random effect names
 PS_sd = PS %>% 
   dplyr::select(dplyr::starts_with("sd_")) %>% 
   dplyr::rename_with(~ stringr::str_remove(., "^sd_"))
 
-if(Family == "binomial" | Family == "poisson"){
-
   PS_RE = PS_sd %>% 
   dplyr::select(dplyr::ends_with("Intercept")) %>% 
-  dplyr::select(!dplyr::contains("observationID")) %>% 
+  dplyr::select(-dplyr::contains("observationID")) %>% 
   dplyr::rename_with(~ stringr::str_remove(., "__Intercept"))
+
+if(ncol(PS_RE) != 0){
+if(Family == "binomial" | Family == "poisson"){
 
 } else {
 
@@ -332,7 +387,7 @@ if(ncol(PS_RE) == 0){RandomEffect = NULL
 } else {
   RandomEffect = colnames(PS_RE)
 }
-
+}
 
 #Extract random slope names
 
@@ -363,15 +418,30 @@ PS = PS %>%
 if(!is.null(RandomEffect)){
   FixedEffectData = Data %>% 
   dplyr::select(c(setdiff(colnames(Data), RandomEffect))) %>% 
-  dplyr::select(-1)  #Removing the response variable
+  dplyr::select(-1) #Removing the response variable
+  
+    
+  #Removing the response variable
 } else {
   FixedEffectData = Data %>% 
   dplyr::select(-1)  #Removing the response variable
+  
   }
   
+if(Family == "binomial" | Family == "poisson"){
+  FixedEffectData = FixedEffectData %>% 
+    dplyr::select(-observationID)
+  }
+  
+  if(Family == "binomial"){
+    FixedEffectData = FixedEffectData %>% 
+      dplyr::select(-1)} # Removing the 'trials' variable
+
 ## Specific for covariates with of character class 
-suppressWarnings({  CharactersFE = FixedEffectData%>%
-  dplyr::select(-dplyr::one_of(FixedEffect)) })
+suppressWarnings({  
+  CharactersFE = FixedEffectData%>%
+  dplyr::select(-dplyr::one_of(FixedEffect)) 
+  })
   
   if(ncol(CharactersFE) == 0){
     
@@ -395,22 +465,25 @@ FixedEffectData = dplyr::bind_cols(FixedEffectData,CharactersFE) %>%
 }
 
 ## Calculate estimated variances for each fixed effect
-
 for (i in colnames(FixedEffectData)){
   if (i %in% colnames(PS)) {
-        PS = PS %>% 
-           dplyr::mutate(!!paste0("var_", i) := get(paste0(i))*
-               var(FixedEffectData[[paste0(i)]]))
   
+    PS[[paste0("var_", i)]] = 0
+        
+    for (j in 1:length(PS[[paste0("var_", i)]])){
+      PS[[paste0("var_", i)]][j] = var(PS[[i]][j] * FixedEffectData[[i]]) 
   }
   }
+}
 
+## Calculate total variance in fixed effects
+  
 # Total variance in fixed effects
 FixedEffectNames = intersect(names(PS), paste0("var_", names(FixedEffectData)))
 
 PS = PS %>% 
 dplyr::mutate(var_FixedEffects = rowSums(dplyr::across(tidyselect::all_of(FixedEffectNames)), na.rm = TRUE))
-  
+    
   
 # Calculate the estimated variances in random slope
 
@@ -422,22 +495,27 @@ if(!is.null(RandomSlope)){
                   var(FixedEffectData[[RandomSlope]])) +
                 
                  (get(paste0(RandomEffect,"_", RandomSlope))^2 *
-                  mean(FixedEffectData[[RandomSlope]])))
+                  mean(FixedEffectData[[RandomSlope]])^2))
   }
 
 
            
 # Variances in random effect
 if(!is.null(RandomEffect)){
+  
+  # for models without random slopes
+  if(is.null(RandomSlope)){ 
 PS = PS %>% 
   dplyr::mutate(!!paste0("var_", RandomEffect) := 
-           
-        # for models without random slopes
-          ifelse(is.null(RandomSlope), 
-                 get(paste0(RandomEffect))^2,
+     
+                             get(paste0(RandomEffect))^2)
+                } else {
+  
         
         # for models with random slope (in Holger's paper on random slopes)
-                 (get(paste0(RandomEffect))^2) +
+                 PS = PS %>% 
+  dplyr::mutate(!!paste0("var_", RandomEffect) := 
+                  (get(paste0(RandomEffect))^2) +
                   
               (get(paste0("var_", RandomEffect, "_", RandomSlope))) +
                         
@@ -445,8 +523,10 @@ PS = PS %>%
                             RandomSlope))) *
                    get(paste0(RandomEffect)) *
                    get(paste0(RandomEffect,"_", RandomSlope)) *
-                   2 *  mean(FixedEffectData[[RandomSlope]])))
+                   2 *  mean(FixedEffectData[[RandomSlope]]))
+                }
 }
+
                             
 # Residual variance
 if(Family == "gaussian"){
@@ -497,8 +577,10 @@ for (i in FixedEffectNames){
 }
 
 PS = PS %>% 
-dplyr::mutate(R2_FixedEffects = rowSums(dplyr::across(tidyselect::all_of(paste0("R2_", FixedEffectNames))), na.rm = TRUE))%>%          dplyr::rename_with(~stringr::str_replace_all(., "_var_", "_"), dplyr::contains("_var_"))
-
+  dplyr::rename_with(~ stringr::str_replace(., "_var_", "_")) %>% 
+  dplyr::mutate(R2_sum_fixed_effects = var_FixedEffects/ total_pv) 
+                
+      
 # calculate R2 for random slopes
     if(!is.null(RandomSlope)){
       
@@ -526,7 +608,11 @@ output = PS %>%
   dplyr::select(-total_pv) %>% 
   dplyr::select(-residual)
 
-
+if(Family == "binomial" | Family == "poisson"){
+  output = output %>% 
+  select(-observationID)
+  
+}
 
 
 EstSummary = posterior::summarise_draws(output) %>% 
@@ -537,17 +623,14 @@ EstSummary = posterior::summarise_draws(output) %>%
 HPDInt = as.data.frame(coda::HPDinterval(mcmcr::as.mcmc(output, combine_chains = TRUE))) %>% 
   tibble::rownames_to_column(var = "variable")
 
-EstSummary = dplyr::left_join(EstSummary, HPDInt, by = "variable") %>%
+  EstSummary = dplyr::left_join(EstSummary, HPDInt, by = "variable") %>% 
   dplyr::mutate(dplyr::across(where(is.numeric), round, 3)) %>% 
   dplyr::rename(lower_HPD = lower, upper_HPD = upper) 
 
 
-
-return(print(EstSummary))   
+return(EstSummary)   
 
 }
-
-
 
 ```
 

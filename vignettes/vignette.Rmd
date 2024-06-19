@@ -29,7 +29,17 @@ library(VarDecomp)
 # With random slope
 md = dplyr::starwars
 
-mod = brms_model(Chainset = "long", 
+# Centering variables
+md = md %>% 
+  dplyr::select(mass, sex, height, species) %>% 
+  dplyr::mutate(mass = log(mass),
+         sex = dplyr::recode(sex, "male" = 1, 
+                      "female" = -1, 
+                      "hermaphroditic" = 0,
+                      "none" = as.numeric(NA)))
+  
+  
+mod = brms_model(Chainset = 2, 
            Response = "mass", 
            FixedEffect = c("sex","height"), 
            RandomEffect = "species", 

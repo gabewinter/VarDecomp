@@ -37,19 +37,23 @@ PS_b = PS %>%
   dplyr::rename_with(~ stringr::str_remove(., "^b_")) %>%  
   dplyr::select(!Intercept)
 
+
+  
 FixedEffect = colnames(PS_b)
+
 
 #Extract random effect names
 PS_sd = PS %>% 
   dplyr::select(dplyr::starts_with("sd_")) %>% 
   dplyr::rename_with(~ stringr::str_remove(., "^sd_"))
 
-if(Family == "binomial" | Family == "poisson"){
-
   PS_RE = PS_sd %>% 
   dplyr::select(dplyr::ends_with("Intercept")) %>% 
-  dplyr::select(!dplyr::contains("observationID")) %>% 
+  dplyr::select(-dplyr::contains("observationID")) %>% 
   dplyr::rename_with(~ stringr::str_remove(., "__Intercept"))
+
+if(ncol(PS_RE) != 0){
+if(Family == "binomial" | Family == "poisson"){
 
 } else {
 
@@ -62,7 +66,7 @@ if(ncol(PS_RE) == 0){RandomEffect = NULL
 } else {
   RandomEffect = colnames(PS_RE)
 }
-
+}
 
 #Extract random slope names
 
@@ -93,15 +97,30 @@ PS = PS %>%
 if(!is.null(RandomEffect)){
   FixedEffectData = Data %>% 
   dplyr::select(c(setdiff(colnames(Data), RandomEffect))) %>% 
-  dplyr::select(-1)  #Removing the response variable
+  dplyr::select(-1) #Removing the response variable
+  
+    
+  #Removing the response variable
 } else {
   FixedEffectData = Data %>% 
   dplyr::select(-1)  #Removing the response variable
+  
   }
   
+if(Family == "binomial" | Family == "poisson"){
+  FixedEffectData = FixedEffectData %>% 
+    dplyr::select(-observationID)
+  }
+  
+  if(Family == "binomial"){
+    FixedEffectData = FixedEffectData %>% 
+      dplyr::select(-1)} # Removing the 'trials' variable
+
 ## Specific for covariates with of character class 
-suppressWarnings({  CharactersFE = FixedEffectData%>%
-  dplyr::select(-dplyr::one_of(FixedEffect)) })
+suppressWarnings({  
+  CharactersFE = FixedEffectData%>%
+  dplyr::select(-dplyr::one_of(FixedEffect)) 
+  })
   
   if(ncol(CharactersFE) == 0){
     
@@ -125,22 +144,25 @@ FixedEffectData = dplyr::bind_cols(FixedEffectData,CharactersFE) %>%
 }
 
 ## Calculate estimated variances for each fixed effect
-
 for (i in colnames(FixedEffectData)){
   if (i %in% colnames(PS)) {
-        PS = PS %>% 
-           dplyr::mutate(!!paste0("var_", i) := get(paste0(i))*
-               var(FixedEffectData[[paste0(i)]]))
   
+    PS[[paste0("var_", i)]] = 0
+        
+    for (j in 1:length(PS[[paste0("var_", i)]])){
+      PS[[paste0("var_", i)]][j] = var(PS[[i]][j] * FixedEffectData[[i]]) 
   }
   }
+}
 
+## Calculate total variance in fixed effects
+  
 # Total variance in fixed effects
 FixedEffectNames = intersect(names(PS), paste0("var_", names(FixedEffectData)))
 
 PS = PS %>% 
 dplyr::mutate(var_FixedEffects = rowSums(dplyr::across(tidyselect::all_of(FixedEffectNames)), na.rm = TRUE))
-  
+    
   
 # Calculate the estimated variances in random slope
 
@@ -152,22 +174,27 @@ if(!is.null(RandomSlope)){
                   var(FixedEffectData[[RandomSlope]])) +
                 
                  (get(paste0(RandomEffect,"_", RandomSlope))^2 *
-                  mean(FixedEffectData[[RandomSlope]])))
+                  mean(FixedEffectData[[RandomSlope]])^2))
   }
 
 
            
 # Variances in random effect
 if(!is.null(RandomEffect)){
+  
+  # for models without random slopes
+  if(is.null(RandomSlope)){ 
 PS = PS %>% 
   dplyr::mutate(!!paste0("var_", RandomEffect) := 
-           
-        # for models without random slopes
-          ifelse(is.null(RandomSlope), 
-                 get(paste0(RandomEffect))^2,
+     
+                             get(paste0(RandomEffect))^2)
+                } else {
+  
         
         # for models with random slope (in Holger's paper on random slopes)
-                 (get(paste0(RandomEffect))^2) +
+                 PS = PS %>% 
+  dplyr::mutate(!!paste0("var_", RandomEffect) := 
+                  (get(paste0(RandomEffect))^2) +
                   
               (get(paste0("var_", RandomEffect, "_", RandomSlope))) +
                         
@@ -175,8 +202,10 @@ PS = PS %>%
                             RandomSlope))) *
                    get(paste0(RandomEffect)) *
                    get(paste0(RandomEffect,"_", RandomSlope)) *
-                   2 *  mean(FixedEffectData[[RandomSlope]])))
+                   2 *  mean(FixedEffectData[[RandomSlope]]))
+                }
 }
+
                             
 # Residual variance
 if(Family == "gaussian"){
@@ -227,8 +256,10 @@ for (i in FixedEffectNames){
 }
 
 PS = PS %>% 
-dplyr::mutate(R2_FixedEffects = rowSums(dplyr::across(tidyselect::all_of(paste0("R2_", FixedEffectNames))), na.rm = TRUE))%>%          dplyr::rename_with(~stringr::str_replace_all(., "_var_", "_"), dplyr::contains("_var_"))
-
+  dplyr::rename_with(~ stringr::str_replace(., "_var_", "_")) %>% 
+  dplyr::mutate(R2_sum_fixed_effects = var_FixedEffects/ total_pv) 
+                
+      
 # calculate R2 for random slopes
     if(!is.null(RandomSlope)){
       
@@ -256,7 +287,11 @@ output = PS %>%
   dplyr::select(-total_pv) %>% 
   dplyr::select(-residual)
 
-
+if(Family == "binomial" | Family == "poisson"){
+  output = output %>% 
+  select(-observationID)
+  
+}
 
 
 EstSummary = posterior::summarise_draws(output) %>% 
@@ -267,15 +302,12 @@ EstSummary = posterior::summarise_draws(output) %>%
 HPDInt = as.data.frame(coda::HPDinterval(mcmcr::as.mcmc(output, combine_chains = TRUE))) %>% 
   tibble::rownames_to_column(var = "variable")
 
-EstSummary = dplyr::left_join(EstSummary, HPDInt, by = "variable") %>%
+  EstSummary = dplyr::left_join(EstSummary, HPDInt, by = "variable") %>% 
   dplyr::mutate(dplyr::across(where(is.numeric), round, 3)) %>% 
   dplyr::rename(lower_HPD = lower, upper_HPD = upper) 
 
 
-
-return(print(EstSummary))   
+return(EstSummary)   
 
 }
-
-
 

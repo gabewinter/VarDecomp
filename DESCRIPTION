@@ -21,6 +21,7 @@ Imports:
     stats,
     stringr,
     tibble,
+    tidybayes,
     tidyselect
 Suggests: 
     knitr,
