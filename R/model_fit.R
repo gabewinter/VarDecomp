@@ -41,7 +41,7 @@ ppGroup = rstanarm::pp_check(brmsfit, type = "violin_grouped",group= Group)}
 if(Prior == TRUE){
 priordraws = brms::prior_draws(brmsfit) %>% 
   dplyr::select(tidyselect::starts_with("sd_")) %>%  
-  dplyr::pivot_longer(cols = 1, names_to = "variable", values_to = "value")%>%
+  tidyr::pivot_longer(cols = 1, names_to = "variable", values_to = "value")%>%
   tibble::add_column(name = "prior")
 
 posteriordraws = posterior::as_draws_df(brmsfit) %>% 

@@ -5,11 +5,15 @@ editor_options:
   chunk_output_type: console
   
 ---
+```{r, include=FALSE}
+options(rmarkdown.html_vignette.check_title = FALSE)
+```
 
 
 ```{r development-load}
 # Load already included functions if relevant
 pkgload::load_all(export_all = FALSE)
+
 
 ```
 
@@ -888,6 +892,5 @@ var_decomp(mod_proportion_staying_RS)
 
 ```{r development-inflate, eval=FALSE}
 # Execute in the console directly - keep eval=FALSE to avoid infinite loop
-options(rmarkdown.html_vignette.check_title = FALSE)
 fusen::inflate(flat_file = "dev/VarDecomp_package.Rmd", vignette_name = "Vignette")
 ```

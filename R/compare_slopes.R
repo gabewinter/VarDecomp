@@ -3,7 +3,7 @@
 
 #' Compare slope values of different brms models
 #'
-#' @param brmsfit A list of brms models to be compared
+#' @param ... brms models to be compared
 #' 
 #' @param Slope A string containing the name of the covariate to have the slopes compared between models
 #'

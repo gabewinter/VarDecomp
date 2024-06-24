@@ -7,9 +7,9 @@
 compare_slopes(..., Slope)
 }
 \arguments{
-\item{Slope}{A string containing the name of the covariate to have the slopes compared between models}
+\item{...}{brms models to be compared}
 
-\item{brmsfit}{A list of brms models to be compared}
+\item{Slope}{A string containing the name of the covariate to have the slopes compared between models}
 }
 \value{
 Returns a table of values with the log(slope model 1/slope model 2)
