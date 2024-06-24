@@ -46,7 +46,6 @@ Run a brms model
 }
 \examples{
 
-# With random slope
 md = dplyr::starwars
 
 # Centering variables

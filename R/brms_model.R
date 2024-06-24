@@ -19,7 +19,6 @@
 #'
 #' @examples
 #'
-#' # With random slope
 #' md = dplyr::starwars
 #'
 #' # Centering variables
@@ -98,6 +97,13 @@ stopifnot("`Seed` must be numeric" =
 stopifnot("`PriorSamples` must be logical" =               
               inherits(PriorSamples, "logical"))
 
+
+testfunction = function(){
+
+emojis = c("\U1F600", "\U1F604", "\U1F601", "\U1F643", "\U1F609", "\U1F60A", "\U1F929", "\U1F917", "\U1F92D", "\U1F973", "\U1F920", "\U1F978", "\U1F60E", "\U1F913", "\U1F47D", "\U1F638", "\U1F596", "\U1F44C", "\U270C", "\U1F44D", "\U1F44F", "\U1F64C", "\U1F40C", "\U1F41B", "\U1F41E", "\U1F997")  
+
+print(paste("No problem", sample(emojis, size = 1)))
+}
 
 testfunction()
   

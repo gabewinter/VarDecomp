@@ -9,9 +9,31 @@
 #' @export
 #'
 #' @examples
-#' #var_decomp(mod_RS)
+#'
+#' md = dplyr::starwars
+#'
+#' # Centering variables
+#' md = md %>% 
+#'   dplyr::select(mass, sex, species) %>% 
+#'   dplyr::mutate(mass = log(mass),
+#'          sex = dplyr::recode(sex, "male" = 1, 
+#'                       "female" = -1, 
+#'                       "hermaphroditic" = 0,
+#'                       "none" = as.numeric(NA)))
+#'   
+#'   
+#' mod = brms_model(Response = "mass", 
+#'            FixedEffect = "sex", 
+#'            RandomEffect = "species",
+#'            Family = "gaussian", 
+#'            Data = md)
+#'
+#' var_decomp(mod)
 var_decomp = function(brmsfit){
 
+  stopifnot("Input must be a brmsfit" =               
+              inherits(brmsfit, "brmsfit"))
+  
 # Extract original data
   Data = brmsfit$data
   

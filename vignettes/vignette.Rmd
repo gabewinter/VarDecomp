@@ -22,11 +22,8 @@ library(VarDecomp)
 
 # brms_model: function for running brms models
 
-### Examples
-
 ```{r examples-brms_model, warning = FALSE, message = FALSE}
 
-# With random slope
 md = dplyr::starwars
 
 # Centering variables
@@ -54,20 +51,76 @@ plot(mod)
 
 ```
 
-### Tests
-
 ________
 
 
 # var_decomp = function for variance decomposition
 
-### Examples
-
 ```{r examples-var_decomp}
-#var_decomp(mod_RS)
+
+md = dplyr::starwars
+
+# Centering variables
+md = md %>% 
+  dplyr::select(mass, sex, species) %>% 
+  dplyr::mutate(mass = log(mass),
+         sex = dplyr::recode(sex, "male" = 1, 
+                      "female" = -1, 
+                      "hermaphroditic" = 0,
+                      "none" = as.numeric(NA)))
+  
+  
+mod = brms_model(Response = "mass", 
+           FixedEffect = "sex", 
+           RandomEffect = "species",
+           Family = "gaussian", 
+           Data = md)
+
+var_decomp(mod)
 ```
 
-### Tests
+________
 
-# Inflate
+
+# compare_slopes: function for comparing slope values of different models
+
+```{r examples-compare_slopes}
+
+md = dplyr::starwars
+
+# Centering variables
+md = md %>% 
+  dplyr::select(mass, sex, height, species) %>% 
+  dplyr::mutate(mass = log(mass),
+         sex = dplyr::recode(sex, "male" = 1, 
+                      "female" = -1, 
+                      "hermaphroditic" = 0,
+                      "none" = as.numeric(NA)))
+  
+  
+mod1 = brms_model(Chainset = 0,
+                  Response = "mass", 
+           FixedEffect = "sex", 
+           Family = "gaussian", 
+           Data = md)
+
+mod2 = brms_model(Chainset = 0,
+                  Response = "mass", 
+           FixedEffect = "sex",
+           RandomEffect = "species",
+           RandomSlope = "sex",
+           Family = "gaussian", 
+           Data = md)
+
+compare_slopes(mod1, mod2, Slope = "sex")
+```
+
+________
+
+
+# model_fit = function for performing model fit checks
+
+```{r examples-model_fit}
+
+```
 

@@ -2,5 +2,7 @@
 
 export("%>%")
 export(brms_model)
+export(compare_slopes)
+export(model_fit)
 export(var_decomp)
 importFrom(magrittr,"%>%")

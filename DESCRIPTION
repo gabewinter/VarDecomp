@@ -11,17 +11,21 @@ License: MIT + file LICENSE
 URL: https://github.com/gabewinter/VarDecomp
 BugReports: https://github.com/gabewinter/VarDecomp/issues
 Imports: 
+    bayesplot,
     brms,
     coda,
     dplyr,
+    ggplot2,
     magrittr,
     mcmcr,
     parallel,
     posterior,
+    rstanarm,
     stats,
     stringr,
     tibble,
     tidybayes,
+    tidyr,
     tidyselect
 Suggests: 
     knitr,

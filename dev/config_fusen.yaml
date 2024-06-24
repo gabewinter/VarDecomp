@@ -3,11 +3,13 @@ VarDecomp_package.Rmd:
   state: active
   R:
   - R/brms_model.R
-  - R/testfunction.R
+  - R/compare_slopes.R
+  - R/model_fit.R
   - R/var_decomp.R
   tests:
   - tests/testthat/test-brms_model.R
   - tests/testthat/test-var_decomp.R
+  - tests/testthat/test-compare_slopes.R
   vignettes: vignettes/vignette.Rmd
   inflate:
     flat_file: dev/VarDecomp_package.Rmd
