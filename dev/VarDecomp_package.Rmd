@@ -819,7 +819,7 @@ traceplot = bayesplot::mcmc_trace(posterior::as_draws_df(brmsfit),
            facet_args = list(ncol = 2), 
            size = 0.15) +
 
-nd = nrows(as.data.frame(brmsfit))
+nd = nrow(as.data.frame(brmsfit))
 
 # Posterior predictive checks
 ppDens = rstanarm::pp_check(brmsfit, type = "dens_overlay", ndraws = (nd*0.2)) 
