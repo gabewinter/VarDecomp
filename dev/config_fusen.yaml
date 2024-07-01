@@ -10,6 +10,7 @@ VarDecomp_package.Rmd:
   - tests/testthat/test-brms_model.R
   - tests/testthat/test-var_decomp.R
   - tests/testthat/test-compare_slopes.R
+  - tests/testthat/test-model_fit.R
   vignettes: vignettes/vignette.Rmd
   inflate:
     flat_file: dev/VarDecomp_package.Rmd

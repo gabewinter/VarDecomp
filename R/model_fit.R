@@ -9,6 +9,28 @@
 #' @return Returns a list containing (a) the maximum R-hat value, (b) the minimum effective sample size, (c) traceplots, (d) posterior predictive check plots, and (e) prior and posterior sample plots (if priors are available).
 #' @export 
 #' 
+#' @examples
+#' md = dplyr::starwars
+#'
+#' # Centering variables
+#' md = md %>% 
+#'   dplyr::select(mass, sex, height, species) %>% 
+#'   dplyr::mutate(mass = log(mass),
+#'          sex = dplyr::recode(sex, "male" = 1, 
+#'                       "female" = -1, 
+#'                       "hermaphroditic" = 0,
+#'                       "none" = as.numeric(NA)))
+#'
+#'
+#' # Without random effects
+#'
+#' mod = brms_model(Chainset = 0,
+#'                  Response = "mass", 
+#'                  FixedEffect = c("sex","height"), 
+#'                  Family = "gaussian", 
+#'                  Data = md)
+#'
+#' model_fit(mod)
 model_fit = function(brmsfit, Group = NULL, Prior = FALSE){
 
 

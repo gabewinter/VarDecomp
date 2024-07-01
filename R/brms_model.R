@@ -19,30 +19,30 @@
 #'
 #' @examples
 #'
-#' #md = dplyr::starwars
+#' md = dplyr::starwars
 #'
 #' # Centering variables
-#' #md = md %>% 
-#' #  dplyr::select(mass, sex, height, species) %>% 
-#' #  dplyr::mutate(mass = log(mass),
-#' #         sex = dplyr::recode(sex, "male" = 1, 
-#' #                      "female" = -1, 
-#' #                      "hermaphroditic" = 0,
-#' #                      "none" = as.numeric(NA)))
+#' md = md %>% 
+#'   dplyr::select(mass, sex, height, species) %>% 
+#'   dplyr::mutate(mass = log(mass),
+#'          sex = dplyr::recode(sex, "male" = 1, 
+#'                       "female" = -1, 
+#'                       "hermaphroditic" = 0,
+#'                       "none" = as.numeric(NA)))
 #'   
 #'   
-#' #mod = brms_model(Chainset = 2, 
-#' #           Response = "mass", 
-#' #           FixedEffect = c("sex","height"), 
-#' #           RandomEffect = "species", 
-#' #           RandomSlope = "height",
-#' #           Family = "gaussian", 
-#' #           Data = md, 
-#' #           Seed = 0405)
+#' mod = brms_model(Chainset = 2, 
+#'            Response = "mass", 
+#'            FixedEffect = c("sex","height"), 
+#'            RandomEffect = "species", 
+#'            RandomSlope = "height",
+#'            Family = "gaussian", 
+#'            Data = md, 
+#'            Seed = 0405)
 #'
-#' #print(mod)
+#' print(mod)
 #'
-#' #plot(mod)
+#' plot(mod)
 #'
 
 brms_model = function(Data, Response, FixedEffect, RandomEffect = NULL, RandomSlope = NULL, Chainset = 1, Family = "gaussian", Seed = NULL, Trials = NA, PriorSamples = TRUE){
