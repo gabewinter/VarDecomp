@@ -54,7 +54,7 @@ priorposterior= dplyr::bind_rows(priordraws,posteriordraws) %>%
   dplyr::mutate(value=log(value))
 
 priorsample = 
-  ggplot2::ggplot(data=priorposterior, aes(x=value, fill = name, color = name))+
+  ggplot2::ggplot(data=priorposterior, ggplot2::aes(x=value, fill = name, color = name))+
   ggplot2::geom_density(alpha=0.6, size=0.8)+
   ggplot2::scale_fill_manual(values=c("#B3CDE0","#8ECAE6"))+
   ggplot2::scale_color_manual(values=c("#B3CDE0","#8ECAE6"))+

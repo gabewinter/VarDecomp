@@ -12,33 +12,33 @@
 #'
 #' @examples
 #'
-#' md = dplyr::starwars
+#' #md = dplyr::starwars
 #'
 #' # Centering variables
-#' md = md %>% 
-#'   dplyr::select(mass, sex, height, species) %>% 
-#'   dplyr::mutate(mass = log(mass),
-#'          sex = dplyr::recode(sex, "male" = 1, 
-#'                       "female" = -1, 
-#'                       "hermaphroditic" = 0,
-#'                       "none" = as.numeric(NA)))
+#' #md = md %>% 
+#' #  dplyr::select(mass, sex, height, species) %>% 
+#' #  dplyr::mutate(mass = log(mass),
+#' #         sex = dplyr::recode(sex, "male" = 1, 
+#' #                      "female" = -1, 
+#' #                      "hermaphroditic" = 0,
+#' #                      "none" = as.numeric(NA)))
 #'   
 #'   
-#' mod1 = brms_model(Chainset = 0,
-#'                   Response = "mass", 
-#'            FixedEffect = "sex", 
-#'            Family = "gaussian", 
-#'            Data = md)
+#' #mod1 = brms_model(Chainset = 0,
+#' #                  Response = "mass", 
+#' #           FixedEffect = "sex", 
+#' #           Family = "gaussian", 
+#' #           Data = md)
 #'
-#' mod2 = brms_model(Chainset = 0,
-#'                   Response = "mass", 
-#'            FixedEffect = "sex",
-#'            RandomEffect = "species",
-#'            RandomSlope = "sex",
-#'            Family = "gaussian", 
-#'            Data = md)
+#' #mod2 = brms_model(Chainset = 0,
+#' #                  Response = "mass", 
+#' #           FixedEffect = "sex",
+#' #           RandomEffect = "species",
+#' #           RandomSlope = "sex",
+#' #           Family = "gaussian", 
+#' #           Data = md)
 #'
-#' compare_slopes(mod1, mod2, Slope = "sex")
+#' #compare_slopes(mod1, mod2, Slope = "sex")
 
 compare_slopes = function(..., Slope){
 
