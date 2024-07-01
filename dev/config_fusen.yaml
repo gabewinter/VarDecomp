@@ -13,7 +13,7 @@ VarDecomp_package.Rmd:
   vignettes: vignettes/vignette.Rmd
   inflate:
     flat_file: dev/VarDecomp_package.Rmd
-    vignette_name: Vignette
+    vignette_name: vignette
     open_vignette: true
     check: true
     document: true
