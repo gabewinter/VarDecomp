@@ -203,82 +203,85 @@ return(brmsfit)
 
 ```{r examples-brms_model, warning=FALSE, message=FALSE}
 
-#md = dplyr::starwars
+md = dplyr::starwars
 
 # Centering variables
-#md = md %>% 
-#  dplyr::select(mass, sex, height, species) %>% 
-#  dplyr::mutate(mass = log(mass),
-#         sex = dplyr::recode(sex, "male" = 1, 
-#                      "female" = -1, 
-#                      "hermaphroditic" = 0,
-#                      "none" = as.numeric(NA)))
+md = md %>% 
+  dplyr::select(mass, sex, height, species) %>% 
+  dplyr::mutate(mass = log(mass),
+         sex = dplyr::recode(sex, "male" = 1, 
+                      "female" = -1, 
+                      "hermaphroditic" = 0,
+                      "none" = as.numeric(NA)))
   
   
-#mod = brms_model(Chainset = 2, 
-#           Response = "mass", 
-#           FixedEffect = c("sex","height"), 
-#           RandomEffect = "species", 
-#           RandomSlope = "height",
-#           Family = "gaussian", 
-#           Data = md, 
-#           Seed = 0405)
+mod = brms_model(Chainset = 2, 
+           Response = "mass", 
+           FixedEffect = c("sex","height"), 
+           RandomEffect = "species", 
+           RandomSlope = "height",
+           Family = "gaussian", 
+           Data = md, 
+           Seed = 0405)
 
-#print(mod)
+print(mod)
 
-#plot(mod)
+plot(mod)
 
 ```
 
 
 ```{r test-brms_model}
 
-#md = dplyr::starwars
+md = dplyr::starwars
 
 # Centering variables
-#md = md %>% 
-#  dplyr::select(mass, sex, height, species) %>% 
-#  dplyr::mutate(mass = log(mass),
-#         sex = dplyr::recode(sex, "male" = 1, 
-#                      "female" = -1, 
-#                      "hermaphroditic" = 0,
-#                      "none" = as.numeric(NA)))
+md = md %>% 
+  dplyr::select(mass, sex, height, species) %>% 
+  dplyr::mutate(mass = log(mass),
+         sex = dplyr::recode(sex, "male" = 1, 
+                      "female" = -1, 
+                      "hermaphroditic" = 0,
+                      "none" = as.numeric(NA)))
 
 
 # Without random effects
 
-#mod = brms_model(Response = "mass", 
-#           FixedEffect = c("sex","height"), 
-#           Family = "gaussian", 
-#           Data = md)
+mod = brms_model(Chainset = 0,
+                 Response = "mass", 
+                 FixedEffect = c("sex","height"), 
+                 Family = "gaussian", 
+                 Data = md)
 
-#print(mod)
+print(mod)
 
-#plot(mod)
+plot(mod)
 
 # With random effect
-#mod_RE = brms_model(Response = "mass", 
-#           FixedEffect = c("sex","height"), 
-#           RandomEffect = "species", 
-#           Family = "gaussian", 
-#           Data = md)
+mod_RE = brms_model(Chainset = 0,
+                     Response = "mass", 
+                     FixedEffect = c("sex","height"), 
+                     RandomEffect = "species", 
+                     Family = "gaussian", 
+                     Data = md)
 
-#print(mod_RE)
+print(mod_RE)
 
-#plot(mod_RE)
+plot(mod_RE)
 
 
 # With random slope
-#mod_RS = brms_model(Response = "mass", 
-#           FixedEffect = c("sex","height"), 
-#           RandomEffect = "species", 
-#           RandomSlope = "height",
-#           Family = "gaussian", 
-#           Data = md)
+mod_RS = brms_model(Chainset = 0,
+                     Response = "mass", 
+                     FixedEffect = c("sex","height"), 
+                     RandomEffect = "species", 
+                     RandomSlope = "height",
+                     Family = "gaussian", 
+                     Data = md)
 
-#print(mod_RS)
+print(mod_RS)
 
-#plot(mod_RS)
+plot(mod_RS)
 
 
 
@@ -633,39 +636,73 @@ return(EstSummary)
 
 ```{r examples-var_decomp}
 
-#md = dplyr::starwars
+md = dplyr::starwars
 
 # Centering variables
-#md = md %>% 
-#  dplyr::select(mass, sex, species) %>% 
-#  dplyr::mutate(mass = log(mass),
-#         sex = dplyr::recode(sex, "male" = 1, 
-#                      "female" = -1, 
-#                      "hermaphroditic" = 0,
-#                      "none" = as.numeric(NA)))
+md = md %>% 
+  dplyr::select(mass, sex, species) %>% 
+  dplyr::mutate(mass = log(mass),
+         sex = dplyr::recode(sex, "male" = 1, 
+                      "female" = -1, 
+                      "hermaphroditic" = 0,
+                      "none" = as.numeric(NA)))
   
   
-#mod = brms_model(Response = "mass", 
-#           FixedEffect = "sex", 
-#           RandomEffect = "species",
-#           Family = "gaussian", 
-#           Data = md)
+mod = brms_model(Chainset = 0,
+                 Response = "mass", 
+                 FixedEffect = "sex", 
+                 RandomEffect = "species",
+                 Family = "gaussian", 
+                 Data = md)
 
-#var_decomp(mod)
+var_decomp(mod)
 ```
 
 
 ```{r test-var_decomp}
-#load(file="mod.RData")
-#var_decomp(mod)
+md = dplyr::starwars
+
+# Centering variables
+md = md %>% 
+  dplyr::select(mass, sex, height, species) %>% 
+  dplyr::mutate(mass = log(mass),
+         sex = dplyr::recode(sex, "male" = 1, 
+                      "female" = -1, 
+                      "hermaphroditic" = 0,
+                      "none" = as.numeric(NA)))
 
 
-#load(file="mod_RE.RData")
-#var_decomp(mod_RE)
+# Without random effects
 
+mod = brms_model(Chainset = 0,
+                 Response = "mass", 
+                 FixedEffect = c("sex","height"), 
+                 Family = "gaussian", 
+                 Data = md)
 
-#load(file="mod_RS.RData")
-#var_decomp(mod_RS)
+var_decomp(mod)
+
+# With random effect
+mod_RE = brms_model(Chainset = 0,
+                     Response = "mass", 
+                     FixedEffect = c("sex","height"), 
+                     RandomEffect = "species", 
+                     Family = "gaussian", 
+                     Data = md)
+
+var_decomp(mod_RE)
+
+# With random slope
+mod_RS = brms_model(Chainset = 0,
+                     Response = "mass", 
+                     FixedEffect = c("sex","height"), 
+                     RandomEffect = "species", 
+                     RandomSlope = "height",
+                     Family = "gaussian", 
+                     Data = md)
+
+var_decomp(mod_RS)
+
 ```
 
 ________
@@ -716,33 +753,33 @@ return(lnR)
 
 ```{r examples-compare_slopes}
 
-#md = dplyr::starwars
+md = dplyr::starwars
 
 # Centering variables
-#md = md %>% 
-#  dplyr::select(mass, sex, height, species) %>% 
-#  dplyr::mutate(mass = log(mass),
-#         sex = dplyr::recode(sex, "male" = 1, 
-#                      "female" = -1, 
-#                      "hermaphroditic" = 0,
-#                      "none" = as.numeric(NA)))
+md = md %>% 
+  dplyr::select(mass, sex, height, species) %>% 
+  dplyr::mutate(mass = log(mass),
+         sex = dplyr::recode(sex, "male" = 1, 
+                      "female" = -1, 
+                      "hermaphroditic" = 0,
+                      "none" = as.numeric(NA)))
   
   
-#mod1 = brms_model(Chainset = 0,
-#                  Response = "mass", 
-#           FixedEffect = "sex", 
-#           Family = "gaussian", 
-#           Data = md)
+mod1 = brms_model(Chainset = 0,
+                   Response = "mass", 
+                   FixedEffect = "sex", 
+                   Family = "gaussian", 
+                   Data = md)
 
-#mod2 = brms_model(Chainset = 0,
-#                  Response = "mass", 
-#           FixedEffect = "sex",
-#           RandomEffect = "species",
-#           RandomSlope = "sex",
-#           Family = "gaussian", 
-#           Data = md)
+mod2 = brms_model(Chainset = 0,
+                   Response = "mass", 
+                   FixedEffect = "sex",
+                   RandomEffect = "species",
+                   RandomSlope = "sex",
+                   Family = "gaussian", 
+                   Data = md)
 
-#compare_slopes(mod1, mod2, Slope = "sex")
+compare_slopes(mod1, mod2, Slope = "sex")
 ```
 
 
@@ -855,40 +892,75 @@ if(is.null(Group)){
 
 
 ```{r examples-model_fit}
+md = dplyr::starwars
 
+# Centering variables
+md = md %>% 
+  dplyr::select(mass, sex, height, species) %>% 
+  dplyr::mutate(mass = log(mass),
+         sex = dplyr::recode(sex, "male" = 1, 
+                      "female" = -1, 
+                      "hermaphroditic" = 0,
+                      "none" = as.numeric(NA)))
+
+
+# Without random effects
+
+mod = brms_model(Chainset = 0,
+                 Response = "mass", 
+                 FixedEffect = c("sex","height"), 
+                 Family = "gaussian", 
+                 Data = md)
+
+model_fit(mod)
 ```
 
 
 ```{r test-model_fit}
+md = dplyr::starwars
+
+# Centering variables
+md = md %>% 
+  dplyr::select(mass, sex, height, species) %>% 
+  dplyr::mutate(mass = log(mass),
+         sex = dplyr::recode(sex, "male" = 1, 
+                      "female" = -1, 
+                      "hermaphroditic" = 0,
+                      "none" = as.numeric(NA)))
+
+
+# Without random effects
+
+mod = brms_model(Chainset = 0,
+                 Response = "mass", 
+                 FixedEffect = c("sex","height"), 
+                 Family = "gaussian", 
+                 Data = md)
+
+model_fit(mod)
+
+# With random effect
+mod_RE = brms_model(Chainset = 0,
+                     Response = "mass", 
+                     FixedEffect = c("sex","height"), 
+                     RandomEffect = "species", 
+                     Family = "gaussian", 
+                     Data = md)
+
+model_fit(mod_RE)
+
+# With random slope
+mod_RS = brms_model(Chainset = 0,
+                     Response = "mass", 
+                     FixedEffect = c("sex","height"), 
+                     RandomEffect = "species", 
+                     RandomSlope = "height",
+                     Family = "gaussian", 
+                     Data = md)
+
+model_fit(mod_RS)
 
 ```
-
-
-```{r dev, eval=FALSE}
-# Testing with real data
-data_RN_1012_sheet2 <- readxl::read_excel("C:/Users/Gabe/Desktop/EvideceSynthesis/03_RandomSlopes/01_Analyses/RN_1012/published_dataset/data_RN_1012.xlsx",sheet = "compare sacs 1 and 2")
-
-load(file="C:/Users/Gabe/Desktop/EvideceSynthesis/03_RandomSlopes/01_Analyses/RN_1012/mod_proportion_staying_RS_VarDecomp.RData")
-
-mdSac12 = data_RN_1012_sheet2%>%
-  rename("web_volume" = "web vol1",
-         "n_juveniles" = "Emerging juv1",
-         "n_philopatric" = "number in web 1") %>%
-  mutate(ID = str_replace_all(ID, " ", "_")) %>% 
-  mutate(observationID = as.factor(row_number())) %>% 
-  select(ID, observationID, sac, web_volume, n_juveniles, n_philopatric) %>% 
-
-#center fixed effect variables to 0
-  mutate(sacC = recode(sac,
-                      "1" = 0, 
-                      "2" = 1),
-         n_philopatric = as.integer(n_philopatric),
-         n_juveniles = as.integer(n_juveniles))
-
-var_decomp(mod_proportion_staying_RS)
-
-```
-
 
 ```{r development-inflate, eval=FALSE}
 # Execute in the console directly - keep eval=FALSE to avoid infinite loop
