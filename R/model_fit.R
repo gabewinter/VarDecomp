@@ -7,6 +7,7 @@
 #' @param Prior A logical argument defining whether the `brmsfit` contains prior samples. If set to `TRUE` it will produce plots comparing the log distributions of priors and posterior samples for each covariate. 
 #'
 #' @return Returns a list containing (a) the maximum R-hat value, (b) the minimum effective sample size, (c) traceplots, (d) posterior predictive check plots, and (e) prior and posterior sample plots (if priors are available).
+#' @import ggplot2
 #' @export 
 #' 
 #' @examples
@@ -49,7 +50,7 @@ traceplot = bayesplot::mcmc_trace(posterior::as_draws_df(brmsfit),
            facet_args = list(ncol = 2), 
            size = 0.15) +
 
-nd = nrows(as.data.frame(brmsfit))
+nd = nrow(as.data.frame(brmsfit))
 
 # Posterior predictive checks
 ppDens = rstanarm::pp_check(brmsfit, type = "dens_overlay", ndraws = (nd*0.2)) 
@@ -76,8 +77,10 @@ posteriordraws = posterior::as_draws_df(brmsfit) %>%
 priorposterior= dplyr::bind_rows(priordraws,posteriordraws) %>% 
   dplyr::mutate(value=log(value))
 
+
+
 priorsample = 
-  ggplot2::ggplot(data=priorposterior, ggplot2::aes(x=value, fill = name, color = name))+
+  ggplot2::ggplot(priorposterior, ggplot2::aes(value, fill = name, color = name)) +
   ggplot2::geom_density(alpha=0.6, size=0.8)+
   ggplot2::scale_fill_manual(values=c("#B3CDE0","#8ECAE6"))+
   ggplot2::scale_color_manual(values=c("#B3CDE0","#8ECAE6"))+
