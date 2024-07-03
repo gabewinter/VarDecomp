@@ -38,7 +38,8 @@ mod = brms_model(Chainset = 0,
                  Response = "mass", 
                  FixedEffect = c("sex","height"), 
                  Family = "gaussian", 
-                 Data = md)
+                 Data = md,
+                 PriorSamples = TRUE)
 
-model_fit(mod)
+model_fit(mod, Group = "sex", Prior = TRUE)
 }

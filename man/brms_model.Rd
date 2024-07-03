@@ -36,7 +36,7 @@ brms_model(
 
 \item{Trials}{The total number of trials in a binomial model. The number of successes should be imputed on Response.}
 
-\item{PriorSamples}{Logical value that defines if brmsfit will contain the priors used. Default is set to \code{TRUE}, which included the priors in the brmsfit.}
+\item{PriorSamples}{Logical value that defines if brmsfit will contain the priors used. Default is set to \code{FALSE}, which does not includ the priors in the brmsfit.}
 }
 \value{
 Returns a brmsfit
@@ -58,7 +58,7 @@ md = md \%>\%
                       "none" = as.numeric(NA)))
   
   
-mod = brms_model(Chainset = 2, 
+mod = brms_model(Chainset = 0, 
            Response = "mass", 
            FixedEffect = c("sex","height"), 
            RandomEffect = "species", 

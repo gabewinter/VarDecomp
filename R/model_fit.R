@@ -7,7 +7,6 @@
 #' @param Prior A logical argument defining whether the `brmsfit` contains prior samples. If set to `TRUE` it will produce plots comparing the log distributions of priors and posterior samples for each covariate. 
 #'
 #' @return Returns a list containing (a) the maximum R-hat value, (b) the minimum effective sample size, (c) traceplots, (d) posterior predictive check plots, and (e) prior and posterior sample plots (if priors are available).
-#' @import ggplot2
 #' @export 
 #' 
 #' @examples
@@ -29,9 +28,10 @@
 #'                  Response = "mass", 
 #'                  FixedEffect = c("sex","height"), 
 #'                  Family = "gaussian", 
-#'                  Data = md)
+#'                  Data = md,
+#'                  PriorSamples = TRUE)
 #'
-#' model_fit(mod)
+#' model_fit(mod, Group = "sex", Prior = TRUE)
 model_fit = function(brmsfit, Group = NULL, Prior = FALSE){
 
 
@@ -48,7 +48,7 @@ traceplot = bayesplot::mcmc_trace(posterior::as_draws_df(brmsfit),
                        -tidyselect::contains("prior")),
            np = bayesplot::nuts_params(brmsfit),
            facet_args = list(ncol = 2), 
-           size = 0.15) +
+           size = 0.15) 
 
 nd = nrow(as.data.frame(brmsfit))
 
@@ -64,59 +64,77 @@ ppGroup = rstanarm::pp_check(brmsfit, type = "violin_grouped",group= Group)}
 # Prior samples
 if(Prior == TRUE){
 priordraws = brms::prior_draws(brmsfit) %>% 
-  dplyr::select(tidyselect::starts_with("sd_")) %>%  
-  tidyr::pivot_longer(cols = 1, names_to = "variable", values_to = "value")%>%
+  dplyr::select(tidyselect::starts_with("sd_"))  
+  
+if(length(priordraws)==0){
+  priorsample = "No prior samples to plot"
+}else{
+ priordraws = priordraws %>% 
+ tidyr::pivot_longer(cols = 1, names_to = "variable", values_to = "value")%>%
   tibble::add_column(name = "prior")
 
-posteriordraws = posterior::as_draws_df(brmsfit) %>% 
-    dplyr::select(tidyselect::starts_with("sd")) %>% 
-    dplyr::rename_with(stringr::str_remove(~stringr::str_remove_all(., "__Intercept"))) %>% 
+posteriordraws = as.data.frame(brmsfit) %>% 
+    dplyr::select(tidyselect::starts_with("sd")) %>%
+    dplyr::select(tidyselect::contains("Intercept")) %>%
+    dplyr::rename_with(~ stringr::str_remove_all(., "__Intercept")) %>% 
   tidyr::gather(key = "variable", value = "value") %>%
   tibble::add_column(name = "posterior")
 
 priorposterior= dplyr::bind_rows(priordraws,posteriordraws) %>% 
-  dplyr::mutate(value=log(value))
+  dplyr::mutate(value=log(value)) %>% 
+  dplyr::rename_with(~ stringr::str_remove_all(., "sd_"))
 
 
 
 priorsample = 
   ggplot2::ggplot(priorposterior, ggplot2::aes(value, fill = name, color = name)) +
-  ggplot2::geom_density(alpha=0.6, size=0.8)+
-  ggplot2::scale_fill_manual(values=c("#B3CDE0","#8ECAE6"))+
-  ggplot2::scale_color_manual(values=c("#B3CDE0","#8ECAE6"))+
-  ggplot2::theme_classic()
+  ggplot2::geom_density(alpha=0.6, linewidth=0.8) +
+  ggplot2::scale_fill_manual(values=c("#B3CDE0","#8ECAE6")) +
+  ggplot2::scale_color_manual(values=c("#B3CDE0","#8ECAE6")) +
+  ggplot2::theme_test()+
+  ggplot2::facet_wrap(~variable)
+ 
+}
+
 }
 
 
 if(is.null(Group)){
-  if(is.null(Prior)){
-  return(list(convergence,
+  if(isFALSE(Prior)){
+  output = list(convergence,
             traceplot,
             ppDens, 
-            ppLoo))
+            ppLoo)
+  names(output) = c("R-hat and Effective sample size", "Traceplots plot", "Posterior predictive check - Density overlay plot", "Posterior predictive check - LOO-PIT-QQ plot")
   }else{
-        return(list(convergence,
+    output = list(convergence,
             traceplot,
             ppDens, 
             ppLoo, 
-            priorsample))
+            priorsample)
+      names(output) = c("R-hat and Effective sample size", "Traceplots plot", "Posterior predictive check - Density overlay plot", "Posterior predictive check - LOO-PIT-QQ plot","Prior samples plot") 
     }
 }else{
-  if(is.null(Prior)){
-    return(list(convergence,
+  if(isFALSE(Prior)){
+
+    output = list(convergence,
             traceplot,
             ppDens, 
             ppLoo, 
-            ppGroup))
+            ppGroup)
+      names(output) = c("R-hat and Effective sample size", "Traceplots plot", "Posterior predictive check - Density overlay plot", "Posterior predictive check - LOO-PIT-QQ plot", "Posterior predictive check - Group density overlay plot")
   }else{
-      return(list(convergence,
+      output = list(convergence,
             traceplot,
             ppDens, 
             ppLoo, 
             ppGroup, 
-            priorsample))
+            priorsample)
+      
+       names(output) = c("R-hat and Effective sample size", "Traceplots plot", "Posterior predictive check - Density overlay plot", "Posterior predictive check - LOO-PIT-QQ plot", "Posterior predictive check - Group density overlay plot", "Prior samples plot")
   }
-  }
+}
 
+return(output)
   
 }

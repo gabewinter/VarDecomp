@@ -70,39 +70,48 @@ PS_sd = PS %>%
   dplyr::select(dplyr::starts_with("sd_")) %>% 
   dplyr::rename_with(~ stringr::str_remove(., "^sd_"))
 
+if(length(PS_sd) == 0){
+  
+  RandomEffect = NULL
+  } else{
+
+  if(Family == "binomial" | Family == "poisson"){
+
   PS_RE = PS_sd %>% 
   dplyr::select(dplyr::ends_with("Intercept")) %>% 
   dplyr::select(-dplyr::contains("observationID")) %>% 
   dplyr::rename_with(~ stringr::str_remove(., "__Intercept"))
-
-if(ncol(PS_RE) != 0){
-if(Family == "binomial" | Family == "poisson"){
-
-} else {
+  RandomEffect = colnames(PS_RE)
+  
+}else{
 
 PS_RE = PS_sd %>% 
   dplyr::select(dplyr::ends_with("Intercept")) %>% 
   dplyr::rename_with(~ stringr::str_remove(., "__Intercept"))
-}
-
-if(ncol(PS_RE) == 0){RandomEffect = NULL
-} else {
   RandomEffect = colnames(PS_RE)
 }
 }
 
+
+
 #Extract random slope names
+
+if(!is.null(RandomEffect)){
 
 PS_RS = PS_sd %>% 
   dplyr::rename_with(~ stringr::str_replace_all(., "__", "_")) %>% 
   dplyr::select(!dplyr::ends_with("Intercept"))
 
-if(ncol(PS_RS) == 0){RandomSlope = NULL
-} else {
-  RandomSlope = colnames(PS_RS)
-RandomSlope = gsub(paste0(RandomEffect, "_"), "", RandomSlope)
-}
+if(length(PS_RS) == 0){
   
+  RandomSlope = NULL
+
+  } else {
+  RandomSlope = colnames(PS_RS)
+  RandomSlope = gsub(paste0(RandomEffect, "_"), "",
+                     RandomSlope)
+}
+} 
 
 
 
@@ -117,22 +126,32 @@ PS = PS %>%
 # Variance in fixed effects
 
 ## Create a dataframe with the values used by the model for fixed effects
-if(!is.null(RandomEffect)){
+if(is.null(RandomEffect)){
+  
+  if(Family == "binomial" | Family == "poisson"){
+  FixedEffectData = Data %>%
+  dplyr::select(-observationID) %>% 
+  dplyr::select(-1)  #Removing the response variable
+
+  } else {
+  FixedEffectData = Data %>% 
+  dplyr::select(-1)  #Removing the response variable
+  }  
+
+  } else {
+    if(Family == "binomial" | Family == "poisson"){
+      
+  FixedEffectData = Data %>% 
+  dplyr::select(c(setdiff(colnames(Data), RandomEffect))) %>% 
+  dplyr::select(-observationID) %>% 
+  dplyr::select(-1) #Removing the response variable
+  
+    } else {
   FixedEffectData = Data %>% 
   dplyr::select(c(setdiff(colnames(Data), RandomEffect))) %>% 
   dplyr::select(-1) #Removing the response variable
-  
-    
-  #Removing the response variable
-} else {
-  FixedEffectData = Data %>% 
-  dplyr::select(-1)  #Removing the response variable
-  
-  }
-  
-if(Family == "binomial" | Family == "poisson"){
-  FixedEffectData = FixedEffectData %>% 
-    dplyr::select(-observationID)
+
+      
   }
   
   if(Family == "binomial"){
@@ -315,7 +334,7 @@ if(Family == "binomial" | Family == "poisson"){
   select(-observationID)
   
 }
-
+}
 
 EstSummary = posterior::summarise_draws(output) %>% 
   dplyr::select(variable, mean, median, sd) 
@@ -326,10 +345,10 @@ HPDInt = as.data.frame(coda::HPDinterval(mcmcr::as.mcmc(output, combine_chains =
   tibble::rownames_to_column(var = "variable")
 
   EstSummary = dplyr::left_join(EstSummary, HPDInt, by = "variable") %>% 
-  dplyr::mutate(dplyr::across(where(is.numeric), round, 3)) %>% 
-  dplyr::rename(lower_HPD = lower, upper_HPD = upper) 
-
-
+  dplyr::mutate(dplyr::across(where(is.numeric), \(x) round(x, 3))) %>% 
+  dplyr::rename(lower_HPD = lower, upper_HPD = upper) %>% 
+        dplyr::filter(!grepl("sigma", variable))
+  
 return(EstSummary)   
 
 }

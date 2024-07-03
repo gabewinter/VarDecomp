@@ -12,7 +12,7 @@
 #' @param Family String to define the family function in the brms model. Current supported families: "gaussian", "binomial", "poisson".
 #' @param Seed Numeric and optional. Set a seed in order to repeat the results from the model when running it more than once. 
 #' @param Trials The total number of trials in a binomial model. The number of successes should be imputed on Response.
-#' @param PriorSamples Logical value that defines if brmsfit will contain the priors used. Default is set to `TRUE`, which included the priors in the brmsfit. 
+#' @param PriorSamples Logical value that defines if brmsfit will contain the priors used. Default is set to `FALSE`, which does not includ the priors in the brmsfit. 
 #'
 #' @return Returns a brmsfit
 #' @export 
@@ -31,7 +31,7 @@
 #'                       "none" = as.numeric(NA)))
 #'   
 #'   
-#' mod = brms_model(Chainset = 2, 
+#' mod = brms_model(Chainset = 0, 
 #'            Response = "mass", 
 #'            FixedEffect = c("sex","height"), 
 #'            RandomEffect = "species", 

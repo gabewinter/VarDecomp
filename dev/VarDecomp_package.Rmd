@@ -7,6 +7,7 @@ editor_options:
 ---
 ```{r development, include=FALSE}
 options(rmarkdown.html_vignette.check_title = FALSE)
+library(ggplot2)
 ```
 
 
@@ -16,9 +17,6 @@ pkgload::load_all(export_all = FALSE)
 
 ```
 
-```{r}
-library(ggplot2)
-```
 
 # brms_model: function for running brms models
 
@@ -35,7 +33,7 @@ library(ggplot2)
 #' @param Family String to define the family function in the brms model. Current supported families: "gaussian", "binomial", "poisson".
 #' @param Seed Numeric and optional. Set a seed in order to repeat the results from the model when running it more than once. 
 #' @param Trials The total number of trials in a binomial model. The number of successes should be imputed on Response.
-#' @param PriorSamples Logical value that defines if brmsfit will contain the priors used. Default is set to `TRUE`, which included the priors in the brmsfit. 
+#' @param PriorSamples Logical value that defines if brmsfit will contain the priors used. Default is set to `FALSE`, which does not includ the priors in the brmsfit. 
 #'
 #' @return Returns a brmsfit
 #' @export 
@@ -218,7 +216,7 @@ md = md %>%
                       "none" = as.numeric(NA)))
   
   
-mod = brms_model(Chainset = 2, 
+mod = brms_model(Chainset = 0, 
            Response = "mass", 
            FixedEffect = c("sex","height"), 
            RandomEffect = "species", 
@@ -293,30 +291,6 @@ plot(mod_RS)
 #save(mod_RS, file="mod_RS.RData")
 ```
 
-```{r dev, eval=FALSE}
-# Testing with real data
-data_RN_1012_sheet2 <- readxl::read_excel("C:/Users/Gabe/Desktop/EvideceSynthesis/03_RandomSlopes/01_Analyses/RN_1012/published_dataset/data_RN_1012.xlsx",sheet = "compare sacs 1 and 2")
-
-load(file="C:/Users/Gabe/Desktop/EvideceSynthesis/03_RandomSlopes/01_Analyses/RN_1012/mod_proportion_staying_RS_VarDecomp.RData")
-
-mdSac12 = data_RN_1012_sheet2%>%
-  rename("web_volume" = "web vol1",
-         "n_juveniles" = "Emerging juv1",
-         "n_philopatric" = "number in web 1") %>%
-  mutate(ID = str_replace_all(ID, " ", "_")) %>% 
-  mutate(observationID = as.factor(row_number())) %>% 
-  select(ID, observationID, sac, web_volume, n_juveniles, n_philopatric) %>% 
-
-#center fixed effect variables to 0
-  mutate(sacC = recode(sac,
-                      "1" = 0, 
-                      "2" = 1),
-         n_philopatric = as.integer(n_philopatric),
-         n_juveniles = as.integer(n_juveniles))
-
-var_decomp(mod_proportion_staying_RS)
-
-```
 
 ________
 
@@ -370,39 +344,48 @@ PS_sd = PS %>%
   dplyr::select(dplyr::starts_with("sd_")) %>% 
   dplyr::rename_with(~ stringr::str_remove(., "^sd_"))
 
+if(length(PS_sd) == 0){
+  
+  RandomEffect = NULL
+  } else{
+
+  if(Family == "binomial" | Family == "poisson"){
+
   PS_RE = PS_sd %>% 
   dplyr::select(dplyr::ends_with("Intercept")) %>% 
   dplyr::select(-dplyr::contains("observationID")) %>% 
   dplyr::rename_with(~ stringr::str_remove(., "__Intercept"))
-
-if(ncol(PS_RE) != 0){
-if(Family == "binomial" | Family == "poisson"){
-
-} else {
+  RandomEffect = colnames(PS_RE)
+  
+}else{
 
 PS_RE = PS_sd %>% 
   dplyr::select(dplyr::ends_with("Intercept")) %>% 
   dplyr::rename_with(~ stringr::str_remove(., "__Intercept"))
-}
-
-if(ncol(PS_RE) == 0){RandomEffect = NULL
-} else {
   RandomEffect = colnames(PS_RE)
 }
 }
 
+
+
 #Extract random slope names
+
+if(!is.null(RandomEffect)){
 
 PS_RS = PS_sd %>% 
   dplyr::rename_with(~ stringr::str_replace_all(., "__", "_")) %>% 
   dplyr::select(!dplyr::ends_with("Intercept"))
 
-if(ncol(PS_RS) == 0){RandomSlope = NULL
-} else {
-  RandomSlope = colnames(PS_RS)
-RandomSlope = gsub(paste0(RandomEffect, "_"), "", RandomSlope)
-}
+if(length(PS_RS) == 0){
   
+  RandomSlope = NULL
+
+  } else {
+  RandomSlope = colnames(PS_RS)
+  RandomSlope = gsub(paste0(RandomEffect, "_"), "",
+                     RandomSlope)
+}
+} 
 
 
 
@@ -417,22 +400,32 @@ PS = PS %>%
 # Variance in fixed effects
 
 ## Create a dataframe with the values used by the model for fixed effects
-if(!is.null(RandomEffect)){
+if(is.null(RandomEffect)){
+  
+  if(Family == "binomial" | Family == "poisson"){
+  FixedEffectData = Data %>%
+  dplyr::select(-observationID) %>% 
+  dplyr::select(-1)  #Removing the response variable
+
+  } else {
+  FixedEffectData = Data %>% 
+  dplyr::select(-1)  #Removing the response variable
+  }  
+
+  } else {
+    if(Family == "binomial" | Family == "poisson"){
+      
+  FixedEffectData = Data %>% 
+  dplyr::select(c(setdiff(colnames(Data), RandomEffect))) %>% 
+  dplyr::select(-observationID) %>% 
+  dplyr::select(-1) #Removing the response variable
+  
+    } else {
   FixedEffectData = Data %>% 
   dplyr::select(c(setdiff(colnames(Data), RandomEffect))) %>% 
   dplyr::select(-1) #Removing the response variable
-  
-    
-  #Removing the response variable
-} else {
-  FixedEffectData = Data %>% 
-  dplyr::select(-1)  #Removing the response variable
-  
-  }
-  
-if(Family == "binomial" | Family == "poisson"){
-  FixedEffectData = FixedEffectData %>% 
-    dplyr::select(-observationID)
+
+      
   }
   
   if(Family == "binomial"){
@@ -615,7 +608,7 @@ if(Family == "binomial" | Family == "poisson"){
   select(-observationID)
   
 }
-
+}
 
 EstSummary = posterior::summarise_draws(output) %>% 
   dplyr::select(variable, mean, median, sd) 
@@ -626,10 +619,10 @@ HPDInt = as.data.frame(coda::HPDinterval(mcmcr::as.mcmc(output, combine_chains =
   tibble::rownames_to_column(var = "variable")
 
   EstSummary = dplyr::left_join(EstSummary, HPDInt, by = "variable") %>% 
-  dplyr::mutate(dplyr::across(where(is.numeric), round, 3)) %>% 
-  dplyr::rename(lower_HPD = lower, upper_HPD = upper) 
-
-
+  dplyr::mutate(dplyr::across(where(is.numeric), \(x) round(x, 3))) %>% 
+  dplyr::rename(lower_HPD = lower, upper_HPD = upper) %>% 
+        dplyr::filter(!grepl("sigma", variable))
+  
 return(EstSummary)   
 
 }
@@ -802,7 +795,6 @@ ________
 #' @param Prior A logical argument defining whether the `brmsfit` contains prior samples. If set to `TRUE` it will produce plots comparing the log distributions of priors and posterior samples for each covariate. 
 #'
 #' @return Returns a list containing (a) the maximum R-hat value, (b) the minimum effective sample size, (c) traceplots, (d) posterior predictive check plots, and (e) prior and posterior sample plots (if priors are available).
-#' @importFrom ggplot2 +
 #' @export 
 #' 
 model_fit = function(brmsfit, Group = NULL, Prior = FALSE){
@@ -821,7 +813,7 @@ traceplot = bayesplot::mcmc_trace(posterior::as_draws_df(brmsfit),
                        -tidyselect::contains("prior")),
            np = bayesplot::nuts_params(brmsfit),
            facet_args = list(ncol = 2), 
-           size = 0.15) +
+           size = 0.15) 
 
 nd = nrow(as.data.frame(brmsfit))
 
@@ -837,60 +829,78 @@ ppGroup = rstanarm::pp_check(brmsfit, type = "violin_grouped",group= Group)}
 # Prior samples
 if(Prior == TRUE){
 priordraws = brms::prior_draws(brmsfit) %>% 
-  dplyr::select(tidyselect::starts_with("sd_")) %>%  
-  tidyr::pivot_longer(cols = 1, names_to = "variable", values_to = "value")%>%
+  dplyr::select(tidyselect::starts_with("sd_"))  
+  
+if(length(priordraws)==0){
+  priorsample = "No prior samples to plot"
+}else{
+ priordraws = priordraws %>% 
+ tidyr::pivot_longer(cols = 1, names_to = "variable", values_to = "value")%>%
   tibble::add_column(name = "prior")
 
-posteriordraws = posterior::as_draws_df(brmsfit) %>% 
-    dplyr::select(tidyselect::starts_with("sd")) %>% 
-    dplyr::rename_with(stringr::str_remove(~stringr::str_remove_all(., "__Intercept"))) %>% 
+posteriordraws = as.data.frame(brmsfit) %>% 
+    dplyr::select(tidyselect::starts_with("sd")) %>%
+    dplyr::select(tidyselect::contains("Intercept")) %>%
+    dplyr::rename_with(~ stringr::str_remove_all(., "__Intercept")) %>% 
   tidyr::gather(key = "variable", value = "value") %>%
   tibble::add_column(name = "posterior")
 
 priorposterior= dplyr::bind_rows(priordraws,posteriordraws) %>% 
-  dplyr::mutate(value=log(value))
+  dplyr::mutate(value=log(value)) %>% 
+  dplyr::rename_with(~ stringr::str_remove_all(., "sd_"))
 
 
 
 priorsample = 
   ggplot2::ggplot(priorposterior, ggplot2::aes(value, fill = name, color = name)) +
-  ggplot2::geom_density(alpha=0.6, size=0.8)+
-  ggplot2::scale_fill_manual(values=c("#B3CDE0","#8ECAE6"))+
-  ggplot2::scale_color_manual(values=c("#B3CDE0","#8ECAE6"))+
-  ggplot2::theme_classic()
+  ggplot2::geom_density(alpha=0.6, linewidth=0.8) +
+  ggplot2::scale_fill_manual(values=c("#B3CDE0","#8ECAE6")) +
+  ggplot2::scale_color_manual(values=c("#B3CDE0","#8ECAE6")) +
+  ggplot2::theme_test()+
+  ggplot2::facet_wrap(~variable)
+ 
+}
+
 }
 
 
 if(is.null(Group)){
-  if(is.null(Prior)){
-  return(list(convergence,
+  if(isFALSE(Prior)){
+  output = list(convergence,
             traceplot,
             ppDens, 
-            ppLoo))
+            ppLoo)
+  names(output) = c("R-hat and Effective sample size", "Traceplots plot", "Posterior predictive check - Density overlay plot", "Posterior predictive check - LOO-PIT-QQ plot")
   }else{
-        return(list(convergence,
+    output = list(convergence,
             traceplot,
             ppDens, 
             ppLoo, 
-            priorsample))
+            priorsample)
+      names(output) = c("R-hat and Effective sample size", "Traceplots plot", "Posterior predictive check - Density overlay plot", "Posterior predictive check - LOO-PIT-QQ plot","Prior samples plot") 
     }
 }else{
-  if(is.null(Prior)){
-    return(list(convergence,
+  if(isFALSE(Prior)){
+
+    output = list(convergence,
             traceplot,
             ppDens, 
             ppLoo, 
-            ppGroup))
+            ppGroup)
+      names(output) = c("R-hat and Effective sample size", "Traceplots plot", "Posterior predictive check - Density overlay plot", "Posterior predictive check - LOO-PIT-QQ plot", "Posterior predictive check - Group density overlay plot")
   }else{
-      return(list(convergence,
+      output = list(convergence,
             traceplot,
             ppDens, 
             ppLoo, 
             ppGroup, 
-            priorsample))
+            priorsample)
+      
+       names(output) = c("R-hat and Effective sample size", "Traceplots plot", "Posterior predictive check - Density overlay plot", "Posterior predictive check - LOO-PIT-QQ plot", "Posterior predictive check - Group density overlay plot", "Prior samples plot")
   }
-  }
+}
 
+return(output)
   
 }
 ```
@@ -917,9 +927,10 @@ mod = brms_model(Chainset = 0,
                  Response = "mass", 
                  FixedEffect = c("sex","height"), 
                  Family = "gaussian", 
-                 Data = md)
+                 Data = md,
+                 PriorSamples = TRUE)
 
-model_fit(mod)
+model_fit(mod, Group = "sex", Prior = TRUE)
 ```
 
 
