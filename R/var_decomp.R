@@ -70,11 +70,11 @@ PS_sd = PS %>%
   dplyr::select(dplyr::starts_with("sd_")) %>% 
   dplyr::rename_with(~ stringr::str_remove(., "^sd_"))
 
-if(length(PS_sd) == 0){
-  
-  RandomEffect = NULL
-  } else{
 
+RandomEffect = NULL
+  
+if(length(PS_sd) > 0){
+  
   if(Family == "binomial" | Family == "poisson"){
 
   PS_RE = PS_sd %>% 
@@ -95,19 +95,18 @@ PS_RE = PS_sd %>%
 
 
 #Extract random slope names
-
+RandomSlope = NULL
+ 
 if(!is.null(RandomEffect)){
-
+  
 PS_RS = PS_sd %>% 
   dplyr::rename_with(~ stringr::str_replace_all(., "__", "_")) %>% 
   dplyr::select(!dplyr::ends_with("Intercept"))
 
-if(length(PS_RS) == 0){
-  
-  RandomSlope = NULL
+if(length(PS_RS) > 0){
 
-  } else {
   RandomSlope = colnames(PS_RS)
+
   RandomSlope = gsub(paste0(RandomEffect, "_"), "",
                      RandomSlope)
 }
@@ -139,6 +138,7 @@ if(is.null(RandomEffect)){
   }  
 
   } else {
+    
     if(Family == "binomial" | Family == "poisson"){
       
   FixedEffectData = Data %>% 
@@ -152,6 +152,7 @@ if(is.null(RandomEffect)){
   dplyr::select(-1) #Removing the response variable
 
       
+    }
   }
   
   if(Family == "binomial"){
@@ -166,7 +167,7 @@ suppressWarnings({
   
   if(ncol(CharactersFE) == 0){
     
-  } else{
+  } else {
   
 for(i in colnames(CharactersFE)){
 unique_values = unique(CharactersFE[[i]])
@@ -334,7 +335,7 @@ if(Family == "binomial" | Family == "poisson"){
   select(-observationID)
   
 }
-}
+
 
 EstSummary = posterior::summarise_draws(output) %>% 
   dplyr::select(variable, mean, median, sd) 
