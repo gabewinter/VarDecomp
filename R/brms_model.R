@@ -15,6 +15,7 @@
 #' @param PriorSamples Logical value that defines if brmsfit will contain the priors used. Default is set to `FALSE`, which does not includ the priors in the brmsfit. 
 #'
 #' @return Returns a brmsfit
+#' @import BH
 #' @export 
 #'
 #' @examples
