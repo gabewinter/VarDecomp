@@ -36,7 +36,7 @@ md = md %>%
                       "none" = as.numeric(NA)))
   
   
-mod = brms_model(Chainset= 2, 
+mod = brms_model(Chainset = 0, 
            Response = "mass", 
            FixedEffect = c("sex","height"), 
            RandomEffect = "species", 
@@ -70,7 +70,7 @@ md = md %>%
                       "none" = as.numeric(NA)))
   
   
-mod = brms_model(Chainset= 2,
+mod = brms_model(Chainset = 0,
                  Response = "mass", 
                  FixedEffect = "sex", 
                  RandomEffect = "species",
@@ -99,13 +99,13 @@ md = md %>%
                       "none" = as.numeric(NA)))
   
   
-mod1 = brms_model(Chainset= 2,
+mod1 = brms_model(Chainset = 0,
                    Response = "mass", 
                    FixedEffect = "sex", 
                    Family = "gaussian", 
                    Data = md)
 
-mod2 = brms_model(Chainset= 2,
+mod2 = brms_model(Chainset = 0,
                    Response = "mass", 
                    FixedEffect = "sex",
                    RandomEffect = "species",
@@ -136,7 +136,7 @@ md = md %>%
 
 # Without random effects
 
-mod = brms_model(Chainset= 2,
+mod = brms_model(Chainset = 0,
                  Response = "mass", 
                  FixedEffect = c("sex","height"), 
                  Family = "gaussian", 

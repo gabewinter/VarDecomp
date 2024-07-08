@@ -24,7 +24,7 @@
 #'
 #' # Without random effects
 #'
-#' mod = brms_model(Chainset= 2,
+#' mod = brms_model(Chainset = 0,
 #'                  Response = "mass", 
 #'                  FixedEffect = c("sex","height"), 
 #'                  Family = "gaussian", 

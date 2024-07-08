@@ -22,7 +22,7 @@
 #'                       "none" = as.numeric(NA)))
 #'   
 #'   
-#' mod = brms_model(Chainset= 2,
+#' mod = brms_model(Chainset = 0,
 #'                  Response = "mass", 
 #'                  FixedEffect = "sex", 
 #'                  RandomEffect = "species",

@@ -28,6 +28,8 @@ brms_model(
 
 \item{RandomSlope}{String with the name of the column in Data containing the covariate to be added as a random slope (e.g. "height"). The current package version allows the use of a single random slope.}
 
+\item{Chainset}{Defines the number of iterations. Start with Chainset = 1 and increase as needed until convergence. The value of Chainsetis multiplied by 15000 in warmup, 30000 in iterations and 15 in thin intervale. For quick tests use Chainset = 0 (warmup=10; iter=110; thin=10; chains=2)}
+
 \item{Family}{String to define the family function in the brms model. Current supported families: "gaussian", "binomial", "poisson".}
 
 \item{Seed}{Numeric and optional. Set a seed in order to repeat the results from the model when running it more than once.}
@@ -35,8 +37,6 @@ brms_model(
 \item{Trials}{The total number of trials in a binomial model. The number of successes should be imputed on Response.}
 
 \item{PriorSamples}{Logical value that defines if brmsfit will contain the priors used. Default is set to \code{FALSE}, which does not includ the priors in the brmsfit.}
-
-\item{ChainsetDefines}{the number of iterations. Start with Chainset= 1 and increase as needed until convergence. The value of Chainsetis multiplied by 15000 in warmup, 30000 in iterations and 15 in thin intervale. For quick tests use Chainset= 2 (warmup=10; iter=110; thin=10; chains=2)}
 }
 \value{
 Returns a brmsfit
@@ -58,7 +58,7 @@ md = md \%>\%
                       "none" = as.numeric(NA)))
   
   
-mod = brms_model(Chainset= 2, 
+mod = brms_model(Chainset = 0, 
            Response = "mass", 
            FixedEffect = c("sex","height"), 
            RandomEffect = "species", 
