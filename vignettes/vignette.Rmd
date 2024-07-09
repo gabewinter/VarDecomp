@@ -146,3 +146,10 @@ mod = brms_model(Chainset = 0,
 model_fit(mod, Group = "sex", Prior = TRUE)
 ```
 
+# brms_cov_model: function for running brms models with a covariance matrix (such as animal models)
+
+```{r examples-brms_cov_model, warning = FALSE, message = FALSE}
+ 
+
+```
+

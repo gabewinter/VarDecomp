@@ -32,7 +32,8 @@ Imports:
 Suggests: 
     knitr,
     rmarkdown,
-    testthat
+    testthat,
+    tidyverse
 VignetteBuilder: 
     knitr
 Config/fusen/version: 0.5.2
