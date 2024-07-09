@@ -35,7 +35,7 @@
 #'                       "none" = as.numeric(NA)))
 #'   
 #'   
-#' mod = brms_model(Chainset = 0, 
+#' mod = brms_model(Chainset = 2, 
 #'            Response = "mass", 
 #'            FixedEffect = c("sex","height"), 
 #'            RandomEffect = "species", 

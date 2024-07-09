@@ -225,7 +225,7 @@ md = md %>%
                       "none" = as.numeric(NA)))
   
   
-mod = brms_model(Chainset = 0, 
+mod = brms_model(Chainset = 2, 
            Response = "mass", 
            FixedEffect = c("sex","height"), 
            RandomEffect = "species", 
@@ -257,7 +257,7 @@ md = md %>%
 
 # Without random effects
 
-mod = brms_model(Chainset = 0,
+mod = brms_model(Chainset = 2,
                  Response = "mass", 
                  FixedEffect = c("sex","height"), 
                  Family = "gaussian", 
@@ -268,7 +268,7 @@ print(mod)
 plot(mod)
 
 # With random effect
-mod_RE = brms_model(Chainset = 0,
+mod_RE = brms_model(Chainset = 2,
                      Response = "mass", 
                      FixedEffect = c("sex","height"), 
                      RandomEffect = "species", 
@@ -281,7 +281,7 @@ plot(mod_RE)
 
 
 # With random slope
-mod_RS = brms_model(Chainset = 0,
+mod_RS = brms_model(Chainset = 2,
                      Response = "mass", 
                      FixedEffect = c("sex","height"), 
                      RandomEffect = "species", 
@@ -654,7 +654,7 @@ md = md %>%
                       "none" = as.numeric(NA)))
   
   
-mod = brms_model(Chainset = 0,
+mod = brms_model(Chainset = 2,
                  Response = "mass", 
                  FixedEffect = "sex", 
                  RandomEffect = "species",
@@ -680,7 +680,7 @@ md = md %>%
 
 # Without random effects
 
-mod = brms_model(Chainset = 0,
+mod = brms_model(Chainset = 2,
                  Response = "mass", 
                  FixedEffect = c("sex","height"), 
                  Family = "gaussian", 
@@ -689,7 +689,7 @@ mod = brms_model(Chainset = 0,
 var_decomp(mod)
 
 # With random effect
-mod_RE = brms_model(Chainset = 0,
+mod_RE = brms_model(Chainset = 2,
                      Response = "mass", 
                      FixedEffect = c("sex","height"), 
                      RandomEffect = "species", 
@@ -699,7 +699,7 @@ mod_RE = brms_model(Chainset = 0,
 var_decomp(mod_RE)
 
 # With random slope
-mod_RS = brms_model(Chainset = 0,
+mod_RS = brms_model(Chainset = 2,
                      Response = "mass", 
                      FixedEffect = c("sex","height"), 
                      RandomEffect = "species", 
@@ -771,13 +771,13 @@ md = md %>%
                       "none" = as.numeric(NA)))
   
   
-mod1 = brms_model(Chainset = 0,
+mod1 = brms_model(Chainset = 2,
                    Response = "mass", 
                    FixedEffect = "sex", 
                    Family = "gaussian", 
                    Data = md)
 
-mod2 = brms_model(Chainset = 0,
+mod2 = brms_model(Chainset = 2,
                    Response = "mass", 
                    FixedEffect = "sex",
                    RandomEffect = "species",
@@ -933,7 +933,7 @@ md = md %>%
 
 # Without random effects
 
-mod = brms_model(Chainset = 0,
+mod = brms_model(Chainset = 2,
                  Response = "mass", 
                  FixedEffect = c("sex","height"), 
                  Family = "gaussian", 
@@ -959,7 +959,7 @@ md = md %>%
 
 # Without random effects
 
-mod = brms_model(Chainset = 0,
+mod = brms_model(Chainset = 2,
                  Response = "mass", 
                  FixedEffect = c("sex","height"), 
                  Family = "gaussian", 
@@ -968,7 +968,7 @@ mod = brms_model(Chainset = 0,
 model_fit(mod)
 
 # With random effect
-mod_RE = brms_model(Chainset = 0,
+mod_RE = brms_model(Chainset = 2,
                      Response = "mass", 
                      FixedEffect = c("sex","height"), 
                      RandomEffect = "species", 
@@ -978,7 +978,7 @@ mod_RE = brms_model(Chainset = 0,
 model_fit(mod_RE)
 
 # With random slope
-mod_RS = brms_model(Chainset = 0,
+mod_RS = brms_model(Chainset = 2,
                      Response = "mass", 
                      FixedEffect = c("sex","height"), 
                      RandomEffect = "species", 

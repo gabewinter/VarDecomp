@@ -24,13 +24,13 @@
 #'                       "none" = as.numeric(NA)))
 #'   
 #'   
-#' mod1 = brms_model(Chainset = 0,
+#' mod1 = brms_model(Chainset = 2,
 #'                    Response = "mass", 
 #'                    FixedEffect = "sex", 
 #'                    Family = "gaussian", 
 #'                    Data = md)
 #'
-#' mod2 = brms_model(Chainset = 0,
+#' mod2 = brms_model(Chainset = 2,
 #'                    Response = "mass", 
 #'                    FixedEffect = "sex",
 #'                    RandomEffect = "species",
