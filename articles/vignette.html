@@ -12,14 +12,13 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
 <script src="../pkgdown.js"></script><meta property="og:title" content="vignette">
-<meta property="og:description" content="VarDecomp">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 <![endif]-->
 </head>
 <body data-spy="scroll" data-target="#toc">
-    
+
 
     <div class="container template-article">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -45,7 +44,7 @@
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Articles
-     
+
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
@@ -62,7 +61,7 @@
 <li>
   <a href="https://github.com/gabewinter/VarDecomp/" class="external-link">
     <span class="fab fa-github fa-lg"></span>
-     
+
   </a>
 </li>
       </ul>
@@ -73,7 +72,7 @@
 </div>
 <!--/.navbar -->
 
-      
+
 
       </header><div class="row">
   <div class="col-md-9 contents">
@@ -81,7 +80,7 @@
       <h1 data-toc-skip>vignette</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/gabewinter/VarDecomp/blob/HEAD/vignettes/vignette.Rmd" class="external-link"><code>vignettes/vignette.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/gabewinter/VarDecomp/blob/main/vignettes/vignette.Rmd" class="external-link"><code>vignettes/vignette.Rmd</code></a></small>
       <div class="hidden name"><code>vignette.Rmd</code></div>
 
     </div>
@@ -96,30 +95,75 @@
 </h2>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
-<span><span class="co">#md = dplyr::starwars</span></span>
+<span><span class="va">md</span> <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="va"><a href="https://dplyr.tidyverse.org/reference/starwars.html" class="external-link">starwars</a></span></span>
 <span></span>
 <span><span class="co"># Centering variables</span></span>
-<span><span class="co">#md = md %&gt;% </span></span>
-<span><span class="co">#  dplyr::select(mass, sex, height, species) %&gt;% </span></span>
-<span><span class="co">#  dplyr::mutate(mass = log(mass),</span></span>
-<span><span class="co">#         sex = dplyr::recode(sex, "male" = 1, </span></span>
-<span><span class="co">#                      "female" = -1, </span></span>
-<span><span class="co">#                      "hermaphroditic" = 0,</span></span>
-<span><span class="co">#                      "none" = as.numeric(NA)))</span></span>
+<span><span class="va">md</span> <span class="op">=</span> <span class="va">md</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">mass</span>, <span class="va">sex</span>, <span class="va">height</span>, <span class="va">species</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>mass <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">mass</span><span class="op">)</span>,</span>
+<span>         sex <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/recode.html" class="external-link">recode</a></span><span class="op">(</span><span class="va">sex</span>, <span class="st">"male"</span> <span class="op">=</span> <span class="fl">1</span>, </span>
+<span>                      <span class="st">"female"</span> <span class="op">=</span> <span class="op">-</span><span class="fl">1</span>, </span>
+<span>                      <span class="st">"hermaphroditic"</span> <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>                      <span class="st">"none"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="cn">NA</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span>  </span>
 <span>  </span>
-<span><span class="co">#mod = brms_model(Chainset = 2, </span></span>
-<span><span class="co">#           Response = "mass", </span></span>
-<span><span class="co">#           FixedEffect = c("sex","height"), </span></span>
-<span><span class="co">#           RandomEffect = "species", </span></span>
-<span><span class="co">#           RandomSlope = "height",</span></span>
-<span><span class="co">#           Family = "gaussian", </span></span>
-<span><span class="co">#           Data = md, </span></span>
-<span><span class="co">#           Seed = 0405)</span></span>
+<span><span class="va">mod</span> <span class="op">=</span> <span class="fu"><a href="../reference/brms_model.html">brms_model</a></span><span class="op">(</span>Chainset <span class="op">=</span> <span class="fl">0</span>, </span>
+<span>           Response <span class="op">=</span> <span class="st">"mass"</span>, </span>
+<span>           FixedEffect <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"sex"</span>,<span class="st">"height"</span><span class="op">)</span>, </span>
+<span>           RandomEffect <span class="op">=</span> <span class="st">"species"</span>, </span>
+<span>           RandomSlope <span class="op">=</span> <span class="st">"height"</span>,</span>
+<span>           Family <span class="op">=</span> <span class="st">"gaussian"</span>, </span>
+<span>           Data <span class="op">=</span> <span class="va">md</span>, </span>
+<span>           Seed <span class="op">=</span> <span class="fl">0405</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "No problem 😎"</span></span>
+<span><span class="co">#&gt; Running /opt/R/4.4.1/lib/R/bin/R CMD SHLIB foo.c</span></span>
+<span><span class="co">#&gt; using C compiler: ‘gcc (Ubuntu 11.4.0-1ubuntu1~22.04) 11.4.0’</span></span>
+<span><span class="co">#&gt; gcc -I"/opt/R/4.4.1/lib/R/include" -DNDEBUG   -I"/home/runner/work/_temp/Library/Rcpp/include/"  -I"/home/runner/work/_temp/Library/RcppEigen/include/"  -I"/home/runner/work/_temp/Library/RcppEigen/include/unsupported"  -I"/home/runner/work/_temp/Library/BH/include" -I"/home/runner/work/_temp/Library/StanHeaders/include/src/"  -I"/home/runner/work/_temp/Library/StanHeaders/include/"  -I"/home/runner/work/_temp/Library/RcppParallel/include/"  -I"/home/runner/work/_temp/Library/rstan/include" -DEIGEN_NO_DEBUG  -DBOOST_DISABLE_ASSERTS  -DBOOST_PENDING_INTEGER_LOG2_HPP  -DSTAN_THREADS  -DUSE_STANC3 -DSTRICT_R_HEADERS  -DBOOST_PHOENIX_NO_VARIADIC_EXPRESSION  -D_HAS_AUTO_PTR_ETC=0  -include '/home/runner/work/_temp/Library/StanHeaders/include/stan/math/prim/fun/Eigen.hpp'  -D_REENTRANT -DRCPP_PARALLEL_USE_TBB=1   -I/usr/local/include    -fpic  -g -O2  -c foo.c -o foo.o</span></span>
+<span><span class="co">#&gt; In file included from /home/runner/work/_temp/Library/RcppEigen/include/Eigen/Core:19,</span></span>
+<span><span class="co">#&gt;                  from /home/runner/work/_temp/Library/RcppEigen/include/Eigen/Dense:1,</span></span>
+<span><span class="co">#&gt;                  from /home/runner/work/_temp/Library/StanHeaders/include/stan/math/prim/fun/Eigen.hpp:22,</span></span>
+<span><span class="co">#&gt;                  from &lt;command-line&gt;:</span></span>
+<span><span class="co">#&gt; /home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/util/Macros.h:679:10: fatal error: cmath: No such file or directory</span></span>
+<span><span class="co">#&gt;   679 | #include &lt;cmath&gt;</span></span>
+<span><span class="co">#&gt;       |          ^~~~~~~</span></span>
+<span><span class="co">#&gt; compilation terminated.</span></span>
+<span><span class="co">#&gt; make: *** [/opt/R/4.4.1/lib/R/etc/Makeconf:195: foo.o] Error 1</span></span>
 <span></span>
-<span><span class="co">#print(mod)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">mod</span><span class="op">)</span></span>
+<span><span class="co">#&gt;  Family: gaussian </span></span>
+<span><span class="co">#&gt;   Links: mu = identity; sigma = identity </span></span>
+<span><span class="co">#&gt; Formula: mass ~ sex + height + (1 + height | species) </span></span>
+<span><span class="co">#&gt;    Data: Data (Number of observations: 52) </span></span>
+<span><span class="co">#&gt;   Draws: 2 chains, each with iter = 110; warmup = 10; thin = 10;</span></span>
+<span><span class="co">#&gt;          total post-warmup draws = 20</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Multilevel Hyperparameters:</span></span>
+<span><span class="co">#&gt; ~species (Number of levels: 30) </span></span>
+<span><span class="co">#&gt;                       Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS</span></span>
+<span><span class="co">#&gt; sd(Intercept)             0.35      0.23     0.01     0.85 0.96       10</span></span>
+<span><span class="co">#&gt; sd(height)                0.04      0.13     0.00     0.34 0.98       10</span></span>
+<span><span class="co">#&gt; cor(Intercept,height)     0.06      0.54    -0.87     0.91 1.18       10</span></span>
+<span><span class="co">#&gt;                       Tail_ESS</span></span>
+<span><span class="co">#&gt; sd(Intercept)               10</span></span>
+<span><span class="co">#&gt; sd(height)                  10</span></span>
+<span><span class="co">#&gt; cor(Intercept,height)       10</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Regression Coefficients:</span></span>
+<span><span class="co">#&gt;           Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS</span></span>
+<span><span class="co">#&gt; Intercept    -5.04     62.24  -130.10    58.84 1.11       10       10</span></span>
+<span><span class="co">#&gt; sex          -0.03      0.42    -1.03     0.20 1.10       10       10</span></span>
+<span><span class="co">#&gt; height        0.05      0.35    -0.33     0.75 1.07       10       10</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Further Distributional Parameters:</span></span>
+<span><span class="co">#&gt;       Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS</span></span>
+<span><span class="co">#&gt; sigma     1.17      3.25     0.27     8.87 1.40       10       10</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Draws were sampled using sampling(NUTS). For each parameter, Bulk_ESS</span></span>
+<span><span class="co">#&gt; and Tail_ESS are effective sample size measures, and Rhat is the potential</span></span>
+<span><span class="co">#&gt; scale reduction factor on split chains (at convergence, Rhat = 1).</span></span>
 <span></span>
-<span><span class="co">#plot(mod)</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">mod</span><span class="op">)</span></span></code></pre></div>
+<p><img src="vignette_files/figure-html/examples-brms_model-1.png" width="700"><img src="vignette_files/figure-html/examples-brms_model-2.png" width="700"></p>
 <hr>
 </div>
 <div class="section level2">
@@ -127,25 +171,71 @@
 </h2>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
-<span><span class="co">#md = dplyr::starwars</span></span>
+<span><span class="va">md</span> <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="va"><a href="https://dplyr.tidyverse.org/reference/starwars.html" class="external-link">starwars</a></span></span>
 <span></span>
 <span><span class="co"># Centering variables</span></span>
-<span><span class="co">#md = md %&gt;% </span></span>
-<span><span class="co">#  dplyr::select(mass, sex, species) %&gt;% </span></span>
-<span><span class="co">#  dplyr::mutate(mass = log(mass),</span></span>
-<span><span class="co">#         sex = dplyr::recode(sex, "male" = 1, </span></span>
-<span><span class="co">#                      "female" = -1, </span></span>
-<span><span class="co">#                      "hermaphroditic" = 0,</span></span>
-<span><span class="co">#                      "none" = as.numeric(NA)))</span></span>
+<span><span class="va">md</span> <span class="op">=</span> <span class="va">md</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">mass</span>, <span class="va">sex</span>, <span class="va">species</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>mass <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">mass</span><span class="op">)</span>,</span>
+<span>         sex <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/recode.html" class="external-link">recode</a></span><span class="op">(</span><span class="va">sex</span>, <span class="st">"male"</span> <span class="op">=</span> <span class="fl">1</span>, </span>
+<span>                      <span class="st">"female"</span> <span class="op">=</span> <span class="op">-</span><span class="fl">1</span>, </span>
+<span>                      <span class="st">"hermaphroditic"</span> <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>                      <span class="st">"none"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="cn">NA</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span>  </span>
 <span>  </span>
-<span><span class="co">#mod = brms_model(Response = "mass", </span></span>
-<span><span class="co">#           FixedEffect = "sex", </span></span>
-<span><span class="co">#           RandomEffect = "species",</span></span>
-<span><span class="co">#           Family = "gaussian", </span></span>
-<span><span class="co">#           Data = md)</span></span>
+<span><span class="va">mod</span> <span class="op">=</span> <span class="fu"><a href="../reference/brms_model.html">brms_model</a></span><span class="op">(</span>Chainset <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>                 Response <span class="op">=</span> <span class="st">"mass"</span>, </span>
+<span>                 FixedEffect <span class="op">=</span> <span class="st">"sex"</span>, </span>
+<span>                 RandomEffect <span class="op">=</span> <span class="st">"species"</span>,</span>
+<span>                 Family <span class="op">=</span> <span class="st">"gaussian"</span>, </span>
+<span>                 Data <span class="op">=</span> <span class="va">md</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "No problem 🥳"</span></span>
+<span><span class="co">#&gt; Warning: Rows containing NAs were excluded from the model.</span></span>
+<span><span class="co">#&gt; Compiling Stan program...</span></span>
+<span><span class="co">#&gt; Trying to compile a simple C file</span></span>
+<span><span class="co">#&gt; Running /opt/R/4.4.1/lib/R/bin/R CMD SHLIB foo.c</span></span>
+<span><span class="co">#&gt; using C compiler: ‘gcc (Ubuntu 11.4.0-1ubuntu1~22.04) 11.4.0’</span></span>
+<span><span class="co">#&gt; gcc -I"/opt/R/4.4.1/lib/R/include" -DNDEBUG   -I"/home/runner/work/_temp/Library/Rcpp/include/"  -I"/home/runner/work/_temp/Library/RcppEigen/include/"  -I"/home/runner/work/_temp/Library/RcppEigen/include/unsupported"  -I"/home/runner/work/_temp/Library/BH/include" -I"/home/runner/work/_temp/Library/StanHeaders/include/src/"  -I"/home/runner/work/_temp/Library/StanHeaders/include/"  -I"/home/runner/work/_temp/Library/RcppParallel/include/"  -I"/home/runner/work/_temp/Library/rstan/include" -DEIGEN_NO_DEBUG  -DBOOST_DISABLE_ASSERTS  -DBOOST_PENDING_INTEGER_LOG2_HPP  -DSTAN_THREADS  -DUSE_STANC3 -DSTRICT_R_HEADERS  -DBOOST_PHOENIX_NO_VARIADIC_EXPRESSION  -D_HAS_AUTO_PTR_ETC=0  -include '/home/runner/work/_temp/Library/StanHeaders/include/stan/math/prim/fun/Eigen.hpp'  -D_REENTRANT -DRCPP_PARALLEL_USE_TBB=1   -I/usr/local/include    -fpic  -g -O2  -c foo.c -o foo.o</span></span>
+<span><span class="co">#&gt; In file included from /home/runner/work/_temp/Library/RcppEigen/include/Eigen/Core:19,</span></span>
+<span><span class="co">#&gt;                  from /home/runner/work/_temp/Library/RcppEigen/include/Eigen/Dense:1,</span></span>
+<span><span class="co">#&gt;                  from /home/runner/work/_temp/Library/StanHeaders/include/stan/math/prim/fun/Eigen.hpp:22,</span></span>
+<span><span class="co">#&gt;                  from &lt;command-line&gt;:</span></span>
+<span><span class="co">#&gt; /home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/util/Macros.h:679:10: fatal error: cmath: No such file or directory</span></span>
+<span><span class="co">#&gt;   679 | #include &lt;cmath&gt;</span></span>
+<span><span class="co">#&gt;       |          ^~~~~~~</span></span>
+<span><span class="co">#&gt; compilation terminated.</span></span>
+<span><span class="co">#&gt; make: *** [/opt/R/4.4.1/lib/R/etc/Makeconf:195: foo.o] Error 1</span></span>
+<span><span class="co">#&gt; Start sampling</span></span>
+<span><span class="co">#&gt; Warning: There were 3 transitions after warmup that exceeded the maximum treedepth. Increase max_treedepth above 10. See</span></span>
+<span><span class="co">#&gt; https://mc-stan.org/misc/warnings.html#maximum-treedepth-exceeded</span></span>
+<span><span class="co">#&gt; Warning: There were 2 chains where the estimated Bayesian Fraction of Missing Information was low. See</span></span>
+<span><span class="co">#&gt; https://mc-stan.org/misc/warnings.html#bfmi-low</span></span>
+<span><span class="co">#&gt; Warning: Examine the pairs() plot to diagnose sampling problems</span></span>
+<span><span class="co">#&gt; Warning: The largest R-hat is 1.62, indicating chains have not mixed.</span></span>
+<span><span class="co">#&gt; Running the chains for more iterations may help. See</span></span>
+<span><span class="co">#&gt; https://mc-stan.org/misc/warnings.html#r-hat</span></span>
+<span><span class="co">#&gt; Warning: Bulk Effective Samples Size (ESS) is too low, indicating posterior means and medians may be unreliable.</span></span>
+<span><span class="co">#&gt; Running the chains for more iterations may help. See</span></span>
+<span><span class="co">#&gt; https://mc-stan.org/misc/warnings.html#bulk-ess</span></span>
+<span><span class="co">#&gt; Warning: Tail Effective Samples Size (ESS) is too low, indicating posterior variances and tail quantiles may be unreliable.</span></span>
+<span><span class="co">#&gt; Running the chains for more iterations may help. See</span></span>
+<span><span class="co">#&gt; https://mc-stan.org/misc/warnings.html#tail-ess</span></span>
+<span><span class="co">#&gt; Warning in brms_model(Chainset = 0, Response = "mass", FixedEffect = "sex", :</span></span>
+<span><span class="co">#&gt; Model did not converge. Try increasing the value of `Chainset`.</span></span>
 <span></span>
-<span><span class="co">#var_decomp(mod)</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/var_decomp.html">var_decomp</a></span><span class="op">(</span><span class="va">mod</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Warning: The ESS has been capped to avoid unstable estimates.</span></span>
+<span><span class="co">#&gt; Warning: The ESS has been capped to avoid unstable estimates.</span></span>
+<span><span class="co">#&gt; Warning: The ESS has been capped to avoid unstable estimates.</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 6 × 6</span></span></span>
+<span><span class="co">#&gt;   variable              mean median    sd lower_HPD upper_HPD</span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> Intercept            4.13   4.11  0.235     3.78      4.72 </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> sex                  0.195  0.208 0.095    -<span style="color: #BB0000;">0.04</span>      0.357</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> R2_sex               0.043  0.041 0.032     0         0.134</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> R2_sum_fixed_effects 0.043  0.041 0.032     0         0.134</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> R2_species           0.765  0.907 0.322     0         0.956</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> R2_residual          0.192  0.046 0.319     0.023     0.975</span></span></code></pre></div>
 <hr>
 </div>
 <div class="section level2">
@@ -154,46 +244,197 @@ models<a class="anchor" aria-label="anchor" href="#compare_slopes-function-for-c
 </h2>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
-<span><span class="co">#md = dplyr::starwars</span></span>
+<span><span class="va">md</span> <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="va"><a href="https://dplyr.tidyverse.org/reference/starwars.html" class="external-link">starwars</a></span></span>
 <span></span>
 <span><span class="co"># Centering variables</span></span>
-<span><span class="co">#md = md %&gt;% </span></span>
-<span><span class="co">#  dplyr::select(mass, sex, height, species) %&gt;% </span></span>
-<span><span class="co">#  dplyr::mutate(mass = log(mass),</span></span>
-<span><span class="co">#         sex = dplyr::recode(sex, "male" = 1, </span></span>
-<span><span class="co">#                      "female" = -1, </span></span>
-<span><span class="co">#                      "hermaphroditic" = 0,</span></span>
-<span><span class="co">#                      "none" = as.numeric(NA)))</span></span>
+<span><span class="va">md</span> <span class="op">=</span> <span class="va">md</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">mass</span>, <span class="va">sex</span>, <span class="va">height</span>, <span class="va">species</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>mass <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">mass</span><span class="op">)</span>,</span>
+<span>         sex <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/recode.html" class="external-link">recode</a></span><span class="op">(</span><span class="va">sex</span>, <span class="st">"male"</span> <span class="op">=</span> <span class="fl">1</span>, </span>
+<span>                      <span class="st">"female"</span> <span class="op">=</span> <span class="op">-</span><span class="fl">1</span>, </span>
+<span>                      <span class="st">"hermaphroditic"</span> <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>                      <span class="st">"none"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="cn">NA</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span>  </span>
 <span>  </span>
-<span><span class="co">#mod1 = brms_model(Chainset = 0,</span></span>
-<span><span class="co">#                  Response = "mass", </span></span>
-<span><span class="co">#           FixedEffect = "sex", </span></span>
-<span><span class="co">#           Family = "gaussian", </span></span>
-<span><span class="co">#           Data = md)</span></span>
+<span><span class="va">mod1</span> <span class="op">=</span> <span class="fu"><a href="../reference/brms_model.html">brms_model</a></span><span class="op">(</span>Chainset <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>                   Response <span class="op">=</span> <span class="st">"mass"</span>, </span>
+<span>                   FixedEffect <span class="op">=</span> <span class="st">"sex"</span>, </span>
+<span>                   Family <span class="op">=</span> <span class="st">"gaussian"</span>, </span>
+<span>                   Data <span class="op">=</span> <span class="va">md</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "No problem 👌"</span></span>
+<span><span class="co">#&gt; Warning: Rows containing NAs were excluded from the model.</span></span>
+<span><span class="co">#&gt; Compiling Stan program...</span></span>
+<span><span class="co">#&gt; Trying to compile a simple C file</span></span>
+<span><span class="co">#&gt; Running /opt/R/4.4.1/lib/R/bin/R CMD SHLIB foo.c</span></span>
+<span><span class="co">#&gt; using C compiler: ‘gcc (Ubuntu 11.4.0-1ubuntu1~22.04) 11.4.0’</span></span>
+<span><span class="co">#&gt; gcc -I"/opt/R/4.4.1/lib/R/include" -DNDEBUG   -I"/home/runner/work/_temp/Library/Rcpp/include/"  -I"/home/runner/work/_temp/Library/RcppEigen/include/"  -I"/home/runner/work/_temp/Library/RcppEigen/include/unsupported"  -I"/home/runner/work/_temp/Library/BH/include" -I"/home/runner/work/_temp/Library/StanHeaders/include/src/"  -I"/home/runner/work/_temp/Library/StanHeaders/include/"  -I"/home/runner/work/_temp/Library/RcppParallel/include/"  -I"/home/runner/work/_temp/Library/rstan/include" -DEIGEN_NO_DEBUG  -DBOOST_DISABLE_ASSERTS  -DBOOST_PENDING_INTEGER_LOG2_HPP  -DSTAN_THREADS  -DUSE_STANC3 -DSTRICT_R_HEADERS  -DBOOST_PHOENIX_NO_VARIADIC_EXPRESSION  -D_HAS_AUTO_PTR_ETC=0  -include '/home/runner/work/_temp/Library/StanHeaders/include/stan/math/prim/fun/Eigen.hpp'  -D_REENTRANT -DRCPP_PARALLEL_USE_TBB=1   -I/usr/local/include    -fpic  -g -O2  -c foo.c -o foo.o</span></span>
+<span><span class="co">#&gt; In file included from /home/runner/work/_temp/Library/RcppEigen/include/Eigen/Core:19,</span></span>
+<span><span class="co">#&gt;                  from /home/runner/work/_temp/Library/RcppEigen/include/Eigen/Dense:1,</span></span>
+<span><span class="co">#&gt;                  from /home/runner/work/_temp/Library/StanHeaders/include/stan/math/prim/fun/Eigen.hpp:22,</span></span>
+<span><span class="co">#&gt;                  from &lt;command-line&gt;:</span></span>
+<span><span class="co">#&gt; /home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/util/Macros.h:679:10: fatal error: cmath: No such file or directory</span></span>
+<span><span class="co">#&gt;   679 | #include &lt;cmath&gt;</span></span>
+<span><span class="co">#&gt;       |          ^~~~~~~</span></span>
+<span><span class="co">#&gt; compilation terminated.</span></span>
+<span><span class="co">#&gt; make: *** [/opt/R/4.4.1/lib/R/etc/Makeconf:195: foo.o] Error 1</span></span>
+<span><span class="co">#&gt; Start sampling</span></span>
+<span><span class="co">#&gt; Warning: There were 1 chains where the estimated Bayesian Fraction of Missing Information was low. See</span></span>
+<span><span class="co">#&gt; https://mc-stan.org/misc/warnings.html#bfmi-low</span></span>
+<span><span class="co">#&gt; Warning: Examine the pairs() plot to diagnose sampling problems</span></span>
+<span><span class="co">#&gt; Warning: The largest R-hat is 1.21, indicating chains have not mixed.</span></span>
+<span><span class="co">#&gt; Running the chains for more iterations may help. See</span></span>
+<span><span class="co">#&gt; https://mc-stan.org/misc/warnings.html#r-hat</span></span>
+<span><span class="co">#&gt; Warning: Bulk Effective Samples Size (ESS) is too low, indicating posterior means and medians may be unreliable.</span></span>
+<span><span class="co">#&gt; Running the chains for more iterations may help. See</span></span>
+<span><span class="co">#&gt; https://mc-stan.org/misc/warnings.html#bulk-ess</span></span>
+<span><span class="co">#&gt; Warning: Tail Effective Samples Size (ESS) is too low, indicating posterior variances and tail quantiles may be unreliable.</span></span>
+<span><span class="co">#&gt; Running the chains for more iterations may help. See</span></span>
+<span><span class="co">#&gt; https://mc-stan.org/misc/warnings.html#tail-ess</span></span>
+<span><span class="co">#&gt; Warning in brms_model(Chainset = 0, Response = "mass", FixedEffect = "sex", :</span></span>
+<span><span class="co">#&gt; Model did not converge. Try increasing the value of `Chainset`.</span></span>
 <span></span>
-<span><span class="co">#mod2 = brms_model(Chainset = 0,</span></span>
-<span><span class="co">#                  Response = "mass", </span></span>
-<span><span class="co">#           FixedEffect = "sex",</span></span>
-<span><span class="co">#           RandomEffect = "species",</span></span>
-<span><span class="co">#           RandomSlope = "sex",</span></span>
-<span><span class="co">#           Family = "gaussian", </span></span>
-<span><span class="co">#           Data = md)</span></span>
+<span><span class="va">mod2</span> <span class="op">=</span> <span class="fu"><a href="../reference/brms_model.html">brms_model</a></span><span class="op">(</span>Chainset <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>                   Response <span class="op">=</span> <span class="st">"mass"</span>, </span>
+<span>                   FixedEffect <span class="op">=</span> <span class="st">"sex"</span>,</span>
+<span>                   RandomEffect <span class="op">=</span> <span class="st">"species"</span>,</span>
+<span>                   RandomSlope <span class="op">=</span> <span class="st">"sex"</span>,</span>
+<span>                   Family <span class="op">=</span> <span class="st">"gaussian"</span>, </span>
+<span>                   Data <span class="op">=</span> <span class="va">md</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "No problem 🥳"</span></span>
+<span><span class="co">#&gt; Warning: Rows containing NAs were excluded from the model.</span></span>
+<span><span class="co">#&gt; Compiling Stan program...</span></span>
+<span><span class="co">#&gt; Trying to compile a simple C file</span></span>
+<span><span class="co">#&gt; Running /opt/R/4.4.1/lib/R/bin/R CMD SHLIB foo.c</span></span>
+<span><span class="co">#&gt; using C compiler: ‘gcc (Ubuntu 11.4.0-1ubuntu1~22.04) 11.4.0’</span></span>
+<span><span class="co">#&gt; gcc -I"/opt/R/4.4.1/lib/R/include" -DNDEBUG   -I"/home/runner/work/_temp/Library/Rcpp/include/"  -I"/home/runner/work/_temp/Library/RcppEigen/include/"  -I"/home/runner/work/_temp/Library/RcppEigen/include/unsupported"  -I"/home/runner/work/_temp/Library/BH/include" -I"/home/runner/work/_temp/Library/StanHeaders/include/src/"  -I"/home/runner/work/_temp/Library/StanHeaders/include/"  -I"/home/runner/work/_temp/Library/RcppParallel/include/"  -I"/home/runner/work/_temp/Library/rstan/include" -DEIGEN_NO_DEBUG  -DBOOST_DISABLE_ASSERTS  -DBOOST_PENDING_INTEGER_LOG2_HPP  -DSTAN_THREADS  -DUSE_STANC3 -DSTRICT_R_HEADERS  -DBOOST_PHOENIX_NO_VARIADIC_EXPRESSION  -D_HAS_AUTO_PTR_ETC=0  -include '/home/runner/work/_temp/Library/StanHeaders/include/stan/math/prim/fun/Eigen.hpp'  -D_REENTRANT -DRCPP_PARALLEL_USE_TBB=1   -I/usr/local/include    -fpic  -g -O2  -c foo.c -o foo.o</span></span>
+<span><span class="co">#&gt; In file included from /home/runner/work/_temp/Library/RcppEigen/include/Eigen/Core:19,</span></span>
+<span><span class="co">#&gt;                  from /home/runner/work/_temp/Library/RcppEigen/include/Eigen/Dense:1,</span></span>
+<span><span class="co">#&gt;                  from /home/runner/work/_temp/Library/StanHeaders/include/stan/math/prim/fun/Eigen.hpp:22,</span></span>
+<span><span class="co">#&gt;                  from &lt;command-line&gt;:</span></span>
+<span><span class="co">#&gt; /home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/util/Macros.h:679:10: fatal error: cmath: No such file or directory</span></span>
+<span><span class="co">#&gt;   679 | #include &lt;cmath&gt;</span></span>
+<span><span class="co">#&gt;       |          ^~~~~~~</span></span>
+<span><span class="co">#&gt; compilation terminated.</span></span>
+<span><span class="co">#&gt; make: *** [/opt/R/4.4.1/lib/R/etc/Makeconf:195: foo.o] Error 1</span></span>
+<span><span class="co">#&gt; Start sampling</span></span>
+<span><span class="co">#&gt; Warning: There were 2 chains where the estimated Bayesian Fraction of Missing Information was low. See</span></span>
+<span><span class="co">#&gt; https://mc-stan.org/misc/warnings.html#bfmi-low</span></span>
+<span><span class="co">#&gt; Warning: Examine the pairs() plot to diagnose sampling problems</span></span>
+<span><span class="co">#&gt; Warning: The largest R-hat is 1.28, indicating chains have not mixed.</span></span>
+<span><span class="co">#&gt; Running the chains for more iterations may help. See</span></span>
+<span><span class="co">#&gt; https://mc-stan.org/misc/warnings.html#r-hat</span></span>
+<span><span class="co">#&gt; Warning: Bulk Effective Samples Size (ESS) is too low, indicating posterior means and medians may be unreliable.</span></span>
+<span><span class="co">#&gt; Running the chains for more iterations may help. See</span></span>
+<span><span class="co">#&gt; https://mc-stan.org/misc/warnings.html#bulk-ess</span></span>
+<span><span class="co">#&gt; Warning: Tail Effective Samples Size (ESS) is too low, indicating posterior variances and tail quantiles may be unreliable.</span></span>
+<span><span class="co">#&gt; Running the chains for more iterations may help. See</span></span>
+<span><span class="co">#&gt; https://mc-stan.org/misc/warnings.html#tail-ess</span></span>
+<span><span class="co">#&gt; Warning in brms_model(Chainset = 0, Response = "mass", FixedEffect = "sex", :</span></span>
+<span><span class="co">#&gt; Model did not converge. Try increasing the value of `Chainset`.</span></span>
 <span></span>
-<span><span class="co">#compare_slopes(mod1, mod2, Slope = "sex")</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/compare_slopes.html">compare_slopes</a></span><span class="op">(</span><span class="va">mod1</span>, <span class="va">mod2</span>, Slope <span class="op">=</span> <span class="st">"sex"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] 0.4487745</span></span></code></pre></div>
 <hr>
 </div>
 <div class="section level2">
 <h2 id="model_fit-function-for-performing-model-fit-checks">model_fit = function for performing model fit checks<a class="anchor" aria-label="anchor" href="#model_fit-function-for-performing-model-fit-checks"></a>
+</h2>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">md</span> <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="va"><a href="https://dplyr.tidyverse.org/reference/starwars.html" class="external-link">starwars</a></span></span>
+<span></span>
+<span><span class="co"># Centering variables</span></span>
+<span><span class="va">md</span> <span class="op">=</span> <span class="va">md</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">mass</span>, <span class="va">sex</span>, <span class="va">height</span>, <span class="va">species</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>mass <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">mass</span><span class="op">)</span>,</span>
+<span>         sex <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/recode.html" class="external-link">recode</a></span><span class="op">(</span><span class="va">sex</span>, <span class="st">"male"</span> <span class="op">=</span> <span class="fl">1</span>, </span>
+<span>                      <span class="st">"female"</span> <span class="op">=</span> <span class="op">-</span><span class="fl">1</span>, </span>
+<span>                      <span class="st">"hermaphroditic"</span> <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>                      <span class="st">"none"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="cn">NA</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span></span>
+<span><span class="co"># Without random effects</span></span>
+<span></span>
+<span><span class="va">mod</span> <span class="op">=</span> <span class="fu"><a href="../reference/brms_model.html">brms_model</a></span><span class="op">(</span>Chainset <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>                 Response <span class="op">=</span> <span class="st">"mass"</span>, </span>
+<span>                 FixedEffect <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"sex"</span>,<span class="st">"height"</span><span class="op">)</span>, </span>
+<span>                 Family <span class="op">=</span> <span class="st">"gaussian"</span>, </span>
+<span>                 Data <span class="op">=</span> <span class="va">md</span>,</span>
+<span>                 PriorSamples <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "No problem 🙌"</span></span>
+<span><span class="co">#&gt; Warning: Rows containing NAs were excluded from the model.</span></span>
+<span><span class="co">#&gt; Compiling Stan program...</span></span>
+<span><span class="co">#&gt; Trying to compile a simple C file</span></span>
+<span><span class="co">#&gt; Running /opt/R/4.4.1/lib/R/bin/R CMD SHLIB foo.c</span></span>
+<span><span class="co">#&gt; using C compiler: ‘gcc (Ubuntu 11.4.0-1ubuntu1~22.04) 11.4.0’</span></span>
+<span><span class="co">#&gt; gcc -I"/opt/R/4.4.1/lib/R/include" -DNDEBUG   -I"/home/runner/work/_temp/Library/Rcpp/include/"  -I"/home/runner/work/_temp/Library/RcppEigen/include/"  -I"/home/runner/work/_temp/Library/RcppEigen/include/unsupported"  -I"/home/runner/work/_temp/Library/BH/include" -I"/home/runner/work/_temp/Library/StanHeaders/include/src/"  -I"/home/runner/work/_temp/Library/StanHeaders/include/"  -I"/home/runner/work/_temp/Library/RcppParallel/include/"  -I"/home/runner/work/_temp/Library/rstan/include" -DEIGEN_NO_DEBUG  -DBOOST_DISABLE_ASSERTS  -DBOOST_PENDING_INTEGER_LOG2_HPP  -DSTAN_THREADS  -DUSE_STANC3 -DSTRICT_R_HEADERS  -DBOOST_PHOENIX_NO_VARIADIC_EXPRESSION  -D_HAS_AUTO_PTR_ETC=0  -include '/home/runner/work/_temp/Library/StanHeaders/include/stan/math/prim/fun/Eigen.hpp'  -D_REENTRANT -DRCPP_PARALLEL_USE_TBB=1   -I/usr/local/include    -fpic  -g -O2  -c foo.c -o foo.o</span></span>
+<span><span class="co">#&gt; In file included from /home/runner/work/_temp/Library/RcppEigen/include/Eigen/Core:19,</span></span>
+<span><span class="co">#&gt;                  from /home/runner/work/_temp/Library/RcppEigen/include/Eigen/Dense:1,</span></span>
+<span><span class="co">#&gt;                  from /home/runner/work/_temp/Library/StanHeaders/include/stan/math/prim/fun/Eigen.hpp:22,</span></span>
+<span><span class="co">#&gt;                  from &lt;command-line&gt;:</span></span>
+<span><span class="co">#&gt; /home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/util/Macros.h:679:10: fatal error: cmath: No such file or directory</span></span>
+<span><span class="co">#&gt;   679 | #include &lt;cmath&gt;</span></span>
+<span><span class="co">#&gt;       |          ^~~~~~~</span></span>
+<span><span class="co">#&gt; compilation terminated.</span></span>
+<span><span class="co">#&gt; make: *** [/opt/R/4.4.1/lib/R/etc/Makeconf:195: foo.o] Error 1</span></span>
+<span><span class="co">#&gt; Start sampling</span></span>
+<span><span class="co">#&gt; Warning: There were 2 chains where the estimated Bayesian Fraction of Missing Information was low. See</span></span>
+<span><span class="co">#&gt; https://mc-stan.org/misc/warnings.html#bfmi-low</span></span>
+<span><span class="co">#&gt; Warning: Examine the pairs() plot to diagnose sampling problems</span></span>
+<span><span class="co">#&gt; Warning: The largest R-hat is 1.72, indicating chains have not mixed.</span></span>
+<span><span class="co">#&gt; Running the chains for more iterations may help. See</span></span>
+<span><span class="co">#&gt; https://mc-stan.org/misc/warnings.html#r-hat</span></span>
+<span><span class="co">#&gt; Warning: Bulk Effective Samples Size (ESS) is too low, indicating posterior means and medians may be unreliable.</span></span>
+<span><span class="co">#&gt; Running the chains for more iterations may help. See</span></span>
+<span><span class="co">#&gt; https://mc-stan.org/misc/warnings.html#bulk-ess</span></span>
+<span><span class="co">#&gt; Warning: Tail Effective Samples Size (ESS) is too low, indicating posterior variances and tail quantiles may be unreliable.</span></span>
+<span><span class="co">#&gt; Running the chains for more iterations may help. See</span></span>
+<span><span class="co">#&gt; https://mc-stan.org/misc/warnings.html#tail-ess</span></span>
+<span><span class="co">#&gt; Warning in brms_model(Chainset = 0, Response = "mass", FixedEffect = c("sex", :</span></span>
+<span><span class="co">#&gt; Model did not converge. Try increasing the value of `Chainset`.</span></span>
+<span></span>
+<span><span class="fu"><a href="../reference/model_fit.html">model_fit</a></span><span class="op">(</span><span class="va">mod</span>, Group <span class="op">=</span> <span class="st">"sex"</span>, Prior <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="co">#&gt; No divergences to plot.</span></span>
+<span><span class="co">#&gt; Using all posterior draws for ppc type 'loo_pit_qq' by default.</span></span>
+<span><span class="co">#&gt; Warning: Not enough tail samples to fit the generalized Pareto distribution in some or all columns of matrix of log importance ratios. Skipping the following columns: 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, ... [42 more not printed].</span></span>
+<span><span class="co">#&gt; Warning: Some Pareto k diagnostic values are too high. See help('pareto-k-diagnostic') for details.</span></span>
+<span><span class="co">#&gt; Warning: Not enough tail samples to fit the generalized Pareto distribution in some or all columns of matrix of log importance ratios. Skipping the following columns: 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, ... [42 more not printed].</span></span>
+<span><span class="co">#&gt; Warning: Some Pareto k diagnostic values are too high. See help('pareto-k-diagnostic') for details.</span></span>
+<span><span class="co">#&gt; Using all posterior draws for ppc type 'violin_grouped' by default.</span></span>
+<span><span class="co">#&gt; $`R-hat and Effective sample size`</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 1 × 2</span></span></span>
+<span><span class="co">#&gt;    Rhat EffectiveSampleSize</span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>               <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span>  1.72                  10</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $`Traceplots plot`</span></span></code></pre></div>
+<p><img src="vignette_files/figure-html/examples-model_fit-1.png" width="700"></p>
+<pre><code><span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $`Posterior predictive check - Density overlay plot`</span></span></code></pre>
+<p><img src="vignette_files/figure-html/examples-model_fit-2.png" width="700"></p>
+<pre><code><span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $`Posterior predictive check - LOO-PIT-QQ plot`</span></span>
+<span><span class="co">#&gt; Warning: Removed 4 rows containing missing values or values outside the scale range</span></span>
+<span><span class="co">#&gt; (`geom_point()`).</span></span></code></pre>
+<p><img src="vignette_files/figure-html/examples-model_fit-3.png" width="700"></p>
+<pre><code><span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $`Posterior predictive check - Group density overlay plot`</span></span>
+<span><span class="co">#&gt; Warning: Groups with fewer than two datapoints have been dropped.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Set `drop = FALSE` to consider such groups for position adjustment purposes.</span></span></code></pre>
+<p><img src="vignette_files/figure-html/examples-model_fit-4.png" width="700"></p>
+<pre><code><span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $`Prior samples plot`</span></span>
+<span><span class="co">#&gt; [1] "No prior samples to plot"</span></span></code></pre>
+</div>
+<div class="section level2">
+<h2 id="brms_cov_model-function-for-running-brms-models-with-a-covariance-matrix-such-as-animal-models">brms_cov_model: function for running brms models with a covariance
+matrix (such as animal models)<a class="anchor" aria-label="anchor" href="#brms_cov_model-function-for-running-brms-models-with-a-covariance-matrix-such-as-animal-models"></a>
 </h2>
 </div>
   </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
 
-        <nav id="toc" data-toggle="toc"><h2 data-toc-skip>Contents</h2>
-    </nav>
-</div>
+      </div>
 
 </div>
 
@@ -206,16 +447,16 @@ models<a class="anchor" aria-label="anchor" href="#compare_slopes-function-for-c
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.9.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.0.</p>
 </div>
 
       </footer>
 </div>
 
-  
 
 
-  
+
+
 
   </body>
 </html>
