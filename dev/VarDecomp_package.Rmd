@@ -44,6 +44,7 @@ fusen::inflate(flat_file = "dev/VarDecomp_package.Rmd", vignette_name = "vignett
 #' @import BH
 #' @import brms
 #' @import rstan
+#' @import RcppEigen
 #' @export 
 #'
 
@@ -1010,6 +1011,7 @@ model_fit(mod_RS)
 #' @import BH
 #' @import brms
 #' @import rstan
+#' @import RcppEigen
 #' @export 
 #'
 

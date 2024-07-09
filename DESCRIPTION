@@ -21,6 +21,7 @@ Imports:
     mcmcr,
     parallel,
     posterior,
+    RcppEigen,
     rstan,
     rstanarm,
     stats,

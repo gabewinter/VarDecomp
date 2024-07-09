@@ -18,6 +18,7 @@
 #' @import BH
 #' @import brms
 #' @import rstan
+#' @import RcppEigen
 #' @export 
 #'
 
