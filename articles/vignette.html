@@ -107,7 +107,7 @@
 <span>                      <span class="st">"none"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="cn">NA</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span>  </span>
 <span>  </span>
-<span><span class="va">mod</span> <span class="op">=</span> <span class="fu"><a href="../reference/brms_model.html">brms_model</a></span><span class="op">(</span>Chainset <span class="op">=</span> <span class="fl">0</span>, </span>
+<span><span class="va">mod</span> <span class="op">=</span> <span class="fu"><a href="../reference/brms_model.html">brms_model</a></span><span class="op">(</span>Chainset <span class="op">=</span> <span class="fl">2</span>, </span>
 <span>           Response <span class="op">=</span> <span class="st">"mass"</span>, </span>
 <span>           FixedEffect <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"sex"</span>,<span class="st">"height"</span><span class="op">)</span>, </span>
 <span>           RandomEffect <span class="op">=</span> <span class="st">"species"</span>, </span>
@@ -134,29 +134,29 @@
 <span><span class="co">#&gt;   Links: mu = identity; sigma = identity </span></span>
 <span><span class="co">#&gt; Formula: mass ~ sex + height + (1 + height | species) </span></span>
 <span><span class="co">#&gt;    Data: Data (Number of observations: 52) </span></span>
-<span><span class="co">#&gt;   Draws: 2 chains, each with iter = 110; warmup = 10; thin = 10;</span></span>
-<span><span class="co">#&gt;          total post-warmup draws = 20</span></span>
+<span><span class="co">#&gt;   Draws: 2 chains, each with iter = 60000; warmup = 30000; thin = 30;</span></span>
+<span><span class="co">#&gt;          total post-warmup draws = 2000</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Multilevel Hyperparameters:</span></span>
 <span><span class="co">#&gt; ~species (Number of levels: 30) </span></span>
 <span><span class="co">#&gt;                       Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS</span></span>
-<span><span class="co">#&gt; sd(Intercept)             0.35      0.23     0.01     0.85 0.96       10</span></span>
-<span><span class="co">#&gt; sd(height)                0.04      0.13     0.00     0.34 0.98       10</span></span>
-<span><span class="co">#&gt; cor(Intercept,height)     0.06      0.54    -0.87     0.91 1.18       10</span></span>
+<span><span class="co">#&gt; sd(Intercept)             0.61      0.38     0.04     1.59 1.00     1983</span></span>
+<span><span class="co">#&gt; sd(height)                0.00      0.00     0.00     0.01 1.00     1958</span></span>
+<span><span class="co">#&gt; cor(Intercept,height)    -0.22      0.57    -0.98     0.92 1.00     1732</span></span>
 <span><span class="co">#&gt;                       Tail_ESS</span></span>
-<span><span class="co">#&gt; sd(Intercept)               10</span></span>
-<span><span class="co">#&gt; sd(height)                  10</span></span>
-<span><span class="co">#&gt; cor(Intercept,height)       10</span></span>
+<span><span class="co">#&gt; sd(Intercept)             1782</span></span>
+<span><span class="co">#&gt; sd(height)                1930</span></span>
+<span><span class="co">#&gt; cor(Intercept,height)     1693</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Regression Coefficients:</span></span>
 <span><span class="co">#&gt;           Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS</span></span>
-<span><span class="co">#&gt; Intercept    -5.04     62.24  -130.10    58.84 1.11       10       10</span></span>
-<span><span class="co">#&gt; sex          -0.03      0.42    -1.03     0.20 1.10       10       10</span></span>
-<span><span class="co">#&gt; height        0.05      0.35    -0.33     0.75 1.07       10       10</span></span>
+<span><span class="co">#&gt; Intercept     2.41      0.46     1.65     3.39 1.00     2036     1872</span></span>
+<span><span class="co">#&gt; sex           0.12      0.06     0.00     0.24 1.00     2207     2006</span></span>
+<span><span class="co">#&gt; height        0.01      0.00     0.00     0.02 1.00     2084     1854</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Further Distributional Parameters:</span></span>
 <span><span class="co">#&gt;       Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS</span></span>
-<span><span class="co">#&gt; sigma     1.17      3.25     0.27     8.87 1.40       10       10</span></span>
+<span><span class="co">#&gt; sigma     0.18      0.03     0.13     0.25 1.00     2063     1596</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Draws were sampled using sampling(NUTS). For each parameter, Bulk_ESS</span></span>
 <span><span class="co">#&gt; and Tail_ESS are effective sample size measures, and Rhat is the potential</span></span>
@@ -183,7 +183,7 @@
 <span>                      <span class="st">"none"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="cn">NA</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span>  </span>
 <span>  </span>
-<span><span class="va">mod</span> <span class="op">=</span> <span class="fu"><a href="../reference/brms_model.html">brms_model</a></span><span class="op">(</span>Chainset <span class="op">=</span> <span class="fl">0</span>,</span>
+<span><span class="va">mod</span> <span class="op">=</span> <span class="fu"><a href="../reference/brms_model.html">brms_model</a></span><span class="op">(</span>Chainset <span class="op">=</span> <span class="fl">2</span>,</span>
 <span>                 Response <span class="op">=</span> <span class="st">"mass"</span>, </span>
 <span>                 FixedEffect <span class="op">=</span> <span class="st">"sex"</span>, </span>
 <span>                 RandomEffect <span class="op">=</span> <span class="st">"species"</span>,</span>
@@ -206,36 +206,17 @@
 <span><span class="co">#&gt; compilation terminated.</span></span>
 <span><span class="co">#&gt; make: *** [/opt/R/4.4.1/lib/R/etc/Makeconf:195: foo.o] Error 1</span></span>
 <span><span class="co">#&gt; Start sampling</span></span>
-<span><span class="co">#&gt; Warning: There were 3 transitions after warmup that exceeded the maximum treedepth. Increase max_treedepth above 10. See</span></span>
-<span><span class="co">#&gt; https://mc-stan.org/misc/warnings.html#maximum-treedepth-exceeded</span></span>
-<span><span class="co">#&gt; Warning: There were 2 chains where the estimated Bayesian Fraction of Missing Information was low. See</span></span>
-<span><span class="co">#&gt; https://mc-stan.org/misc/warnings.html#bfmi-low</span></span>
-<span><span class="co">#&gt; Warning: Examine the pairs() plot to diagnose sampling problems</span></span>
-<span><span class="co">#&gt; Warning: The largest R-hat is 1.62, indicating chains have not mixed.</span></span>
-<span><span class="co">#&gt; Running the chains for more iterations may help. See</span></span>
-<span><span class="co">#&gt; https://mc-stan.org/misc/warnings.html#r-hat</span></span>
-<span><span class="co">#&gt; Warning: Bulk Effective Samples Size (ESS) is too low, indicating posterior means and medians may be unreliable.</span></span>
-<span><span class="co">#&gt; Running the chains for more iterations may help. See</span></span>
-<span><span class="co">#&gt; https://mc-stan.org/misc/warnings.html#bulk-ess</span></span>
-<span><span class="co">#&gt; Warning: Tail Effective Samples Size (ESS) is too low, indicating posterior variances and tail quantiles may be unreliable.</span></span>
-<span><span class="co">#&gt; Running the chains for more iterations may help. See</span></span>
-<span><span class="co">#&gt; https://mc-stan.org/misc/warnings.html#tail-ess</span></span>
-<span><span class="co">#&gt; Warning in brms_model(Chainset = 0, Response = "mass", FixedEffect = "sex", :</span></span>
-<span><span class="co">#&gt; Model did not converge. Try increasing the value of `Chainset`.</span></span>
 <span></span>
 <span><span class="fu"><a href="../reference/var_decomp.html">var_decomp</a></span><span class="op">(</span><span class="va">mod</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Warning: The ESS has been capped to avoid unstable estimates.</span></span>
-<span><span class="co">#&gt; Warning: The ESS has been capped to avoid unstable estimates.</span></span>
-<span><span class="co">#&gt; Warning: The ESS has been capped to avoid unstable estimates.</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 6 × 6</span></span></span>
 <span><span class="co">#&gt;   variable              mean median    sd lower_HPD upper_HPD</span></span>
 <span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> Intercept            4.13   4.11  0.235     3.78      4.72 </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> sex                  0.195  0.208 0.095    -<span style="color: #BB0000;">0.04</span>      0.357</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> R2_sex               0.043  0.041 0.032     0         0.134</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> R2_sum_fixed_effects 0.043  0.041 0.032     0         0.134</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> R2_species           0.765  0.907 0.322     0         0.956</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> R2_residual          0.192  0.046 0.319     0.023     0.975</span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> Intercept            4.12   4.12  0.158     3.84      4.47 </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> sex                  0.198  0.198 0.057     0.085     0.302</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> R2_sex               0.037  0.034 0.021     0.004     0.082</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> R2_sum_fixed_effects 0.037  0.034 0.021     0.004     0.082</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> R2_species           0.911  0.916 0.033     0.842     0.965</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> R2_residual          0.052  0.048 0.023     0.017     0.096</span></span></code></pre></div>
 <hr>
 </div>
 <div class="section level2">
@@ -256,7 +237,7 @@ models<a class="anchor" aria-label="anchor" href="#compare_slopes-function-for-c
 <span>                      <span class="st">"none"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="cn">NA</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span>  </span>
 <span>  </span>
-<span><span class="va">mod1</span> <span class="op">=</span> <span class="fu"><a href="../reference/brms_model.html">brms_model</a></span><span class="op">(</span>Chainset <span class="op">=</span> <span class="fl">0</span>,</span>
+<span><span class="va">mod1</span> <span class="op">=</span> <span class="fu"><a href="../reference/brms_model.html">brms_model</a></span><span class="op">(</span>Chainset <span class="op">=</span> <span class="fl">2</span>,</span>
 <span>                   Response <span class="op">=</span> <span class="st">"mass"</span>, </span>
 <span>                   FixedEffect <span class="op">=</span> <span class="st">"sex"</span>, </span>
 <span>                   Family <span class="op">=</span> <span class="st">"gaussian"</span>, </span>
@@ -278,22 +259,8 @@ models<a class="anchor" aria-label="anchor" href="#compare_slopes-function-for-c
 <span><span class="co">#&gt; compilation terminated.</span></span>
 <span><span class="co">#&gt; make: *** [/opt/R/4.4.1/lib/R/etc/Makeconf:195: foo.o] Error 1</span></span>
 <span><span class="co">#&gt; Start sampling</span></span>
-<span><span class="co">#&gt; Warning: There were 1 chains where the estimated Bayesian Fraction of Missing Information was low. See</span></span>
-<span><span class="co">#&gt; https://mc-stan.org/misc/warnings.html#bfmi-low</span></span>
-<span><span class="co">#&gt; Warning: Examine the pairs() plot to diagnose sampling problems</span></span>
-<span><span class="co">#&gt; Warning: The largest R-hat is 1.21, indicating chains have not mixed.</span></span>
-<span><span class="co">#&gt; Running the chains for more iterations may help. See</span></span>
-<span><span class="co">#&gt; https://mc-stan.org/misc/warnings.html#r-hat</span></span>
-<span><span class="co">#&gt; Warning: Bulk Effective Samples Size (ESS) is too low, indicating posterior means and medians may be unreliable.</span></span>
-<span><span class="co">#&gt; Running the chains for more iterations may help. See</span></span>
-<span><span class="co">#&gt; https://mc-stan.org/misc/warnings.html#bulk-ess</span></span>
-<span><span class="co">#&gt; Warning: Tail Effective Samples Size (ESS) is too low, indicating posterior variances and tail quantiles may be unreliable.</span></span>
-<span><span class="co">#&gt; Running the chains for more iterations may help. See</span></span>
-<span><span class="co">#&gt; https://mc-stan.org/misc/warnings.html#tail-ess</span></span>
-<span><span class="co">#&gt; Warning in brms_model(Chainset = 0, Response = "mass", FixedEffect = "sex", :</span></span>
-<span><span class="co">#&gt; Model did not converge. Try increasing the value of `Chainset`.</span></span>
 <span></span>
-<span><span class="va">mod2</span> <span class="op">=</span> <span class="fu"><a href="../reference/brms_model.html">brms_model</a></span><span class="op">(</span>Chainset <span class="op">=</span> <span class="fl">0</span>,</span>
+<span><span class="va">mod2</span> <span class="op">=</span> <span class="fu"><a href="../reference/brms_model.html">brms_model</a></span><span class="op">(</span>Chainset <span class="op">=</span> <span class="fl">2</span>,</span>
 <span>                   Response <span class="op">=</span> <span class="st">"mass"</span>, </span>
 <span>                   FixedEffect <span class="op">=</span> <span class="st">"sex"</span>,</span>
 <span>                   RandomEffect <span class="op">=</span> <span class="st">"species"</span>,</span>
@@ -317,23 +284,12 @@ models<a class="anchor" aria-label="anchor" href="#compare_slopes-function-for-c
 <span><span class="co">#&gt; compilation terminated.</span></span>
 <span><span class="co">#&gt; make: *** [/opt/R/4.4.1/lib/R/etc/Makeconf:195: foo.o] Error 1</span></span>
 <span><span class="co">#&gt; Start sampling</span></span>
-<span><span class="co">#&gt; Warning: There were 2 chains where the estimated Bayesian Fraction of Missing Information was low. See</span></span>
-<span><span class="co">#&gt; https://mc-stan.org/misc/warnings.html#bfmi-low</span></span>
+<span><span class="co">#&gt; Warning: There were 39 transitions after warmup that exceeded the maximum treedepth. Increase max_treedepth above 10. See</span></span>
+<span><span class="co">#&gt; https://mc-stan.org/misc/warnings.html#maximum-treedepth-exceeded</span></span>
 <span><span class="co">#&gt; Warning: Examine the pairs() plot to diagnose sampling problems</span></span>
-<span><span class="co">#&gt; Warning: The largest R-hat is 1.28, indicating chains have not mixed.</span></span>
-<span><span class="co">#&gt; Running the chains for more iterations may help. See</span></span>
-<span><span class="co">#&gt; https://mc-stan.org/misc/warnings.html#r-hat</span></span>
-<span><span class="co">#&gt; Warning: Bulk Effective Samples Size (ESS) is too low, indicating posterior means and medians may be unreliable.</span></span>
-<span><span class="co">#&gt; Running the chains for more iterations may help. See</span></span>
-<span><span class="co">#&gt; https://mc-stan.org/misc/warnings.html#bulk-ess</span></span>
-<span><span class="co">#&gt; Warning: Tail Effective Samples Size (ESS) is too low, indicating posterior variances and tail quantiles may be unreliable.</span></span>
-<span><span class="co">#&gt; Running the chains for more iterations may help. See</span></span>
-<span><span class="co">#&gt; https://mc-stan.org/misc/warnings.html#tail-ess</span></span>
-<span><span class="co">#&gt; Warning in brms_model(Chainset = 0, Response = "mass", FixedEffect = "sex", :</span></span>
-<span><span class="co">#&gt; Model did not converge. Try increasing the value of `Chainset`.</span></span>
 <span></span>
 <span><span class="fu"><a href="../reference/compare_slopes.html">compare_slopes</a></span><span class="op">(</span><span class="va">mod1</span>, <span class="va">mod2</span>, Slope <span class="op">=</span> <span class="st">"sex"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 0.4487745</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] 0.8692052</span></span></code></pre></div>
 <hr>
 </div>
 <div class="section level2">
@@ -354,7 +310,7 @@ models<a class="anchor" aria-label="anchor" href="#compare_slopes-function-for-c
 <span></span>
 <span><span class="co"># Without random effects</span></span>
 <span></span>
-<span><span class="va">mod</span> <span class="op">=</span> <span class="fu"><a href="../reference/brms_model.html">brms_model</a></span><span class="op">(</span>Chainset <span class="op">=</span> <span class="fl">0</span>,</span>
+<span><span class="va">mod</span> <span class="op">=</span> <span class="fu"><a href="../reference/brms_model.html">brms_model</a></span><span class="op">(</span>Chainset <span class="op">=</span> <span class="fl">2</span>,</span>
 <span>                 Response <span class="op">=</span> <span class="st">"mass"</span>, </span>
 <span>                 FixedEffect <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"sex"</span>,<span class="st">"height"</span><span class="op">)</span>, </span>
 <span>                 Family <span class="op">=</span> <span class="st">"gaussian"</span>, </span>
@@ -377,34 +333,18 @@ models<a class="anchor" aria-label="anchor" href="#compare_slopes-function-for-c
 <span><span class="co">#&gt; compilation terminated.</span></span>
 <span><span class="co">#&gt; make: *** [/opt/R/4.4.1/lib/R/etc/Makeconf:195: foo.o] Error 1</span></span>
 <span><span class="co">#&gt; Start sampling</span></span>
-<span><span class="co">#&gt; Warning: There were 2 chains where the estimated Bayesian Fraction of Missing Information was low. See</span></span>
-<span><span class="co">#&gt; https://mc-stan.org/misc/warnings.html#bfmi-low</span></span>
-<span><span class="co">#&gt; Warning: Examine the pairs() plot to diagnose sampling problems</span></span>
-<span><span class="co">#&gt; Warning: The largest R-hat is 1.72, indicating chains have not mixed.</span></span>
-<span><span class="co">#&gt; Running the chains for more iterations may help. See</span></span>
-<span><span class="co">#&gt; https://mc-stan.org/misc/warnings.html#r-hat</span></span>
-<span><span class="co">#&gt; Warning: Bulk Effective Samples Size (ESS) is too low, indicating posterior means and medians may be unreliable.</span></span>
-<span><span class="co">#&gt; Running the chains for more iterations may help. See</span></span>
-<span><span class="co">#&gt; https://mc-stan.org/misc/warnings.html#bulk-ess</span></span>
-<span><span class="co">#&gt; Warning: Tail Effective Samples Size (ESS) is too low, indicating posterior variances and tail quantiles may be unreliable.</span></span>
-<span><span class="co">#&gt; Running the chains for more iterations may help. See</span></span>
-<span><span class="co">#&gt; https://mc-stan.org/misc/warnings.html#tail-ess</span></span>
-<span><span class="co">#&gt; Warning in brms_model(Chainset = 0, Response = "mass", FixedEffect = c("sex", :</span></span>
-<span><span class="co">#&gt; Model did not converge. Try increasing the value of `Chainset`.</span></span>
 <span></span>
 <span><span class="fu"><a href="../reference/model_fit.html">model_fit</a></span><span class="op">(</span><span class="va">mod</span>, Group <span class="op">=</span> <span class="st">"sex"</span>, Prior <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="co">#&gt; No divergences to plot.</span></span>
 <span><span class="co">#&gt; Using all posterior draws for ppc type 'loo_pit_qq' by default.</span></span>
-<span><span class="co">#&gt; Warning: Not enough tail samples to fit the generalized Pareto distribution in some or all columns of matrix of log importance ratios. Skipping the following columns: 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, ... [42 more not printed].</span></span>
 <span><span class="co">#&gt; Warning: Some Pareto k diagnostic values are too high. See help('pareto-k-diagnostic') for details.</span></span>
-<span><span class="co">#&gt; Warning: Not enough tail samples to fit the generalized Pareto distribution in some or all columns of matrix of log importance ratios. Skipping the following columns: 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, ... [42 more not printed].</span></span>
 <span><span class="co">#&gt; Warning: Some Pareto k diagnostic values are too high. See help('pareto-k-diagnostic') for details.</span></span>
 <span><span class="co">#&gt; Using all posterior draws for ppc type 'violin_grouped' by default.</span></span>
 <span><span class="co">#&gt; $`R-hat and Effective sample size`</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 1 × 2</span></span></span>
 <span><span class="co">#&gt;    Rhat EffectiveSampleSize</span></span>
 <span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>               <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span>  1.72                  10</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span>  1.00               <span style="text-decoration: underline;">1</span>826.</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $`Traceplots plot`</span></span></code></pre></div>
 <p><img src="vignette_files/figure-html/examples-model_fit-1.png" width="700"></p>
@@ -413,7 +353,7 @@ models<a class="anchor" aria-label="anchor" href="#compare_slopes-function-for-c
 <p><img src="vignette_files/figure-html/examples-model_fit-2.png" width="700"></p>
 <pre><code><span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $`Posterior predictive check - LOO-PIT-QQ plot`</span></span>
-<span><span class="co">#&gt; Warning: Removed 4 rows containing missing values or values outside the scale range</span></span>
+<span><span class="co">#&gt; Warning: Removed 1 row containing missing values or values outside the scale range</span></span>
 <span><span class="co">#&gt; (`geom_point()`).</span></span></code></pre>
 <p><img src="vignette_files/figure-html/examples-model_fit-3.png" width="700"></p>
 <pre><code><span><span class="co">#&gt; </span></span>
