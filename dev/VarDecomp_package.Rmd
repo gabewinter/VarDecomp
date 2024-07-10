@@ -659,7 +659,7 @@ md = md %>%
                       "none" = as.numeric(NA)))
   
   
-mod = brms_model(Chainset = 1,
+mod = brms_model(Chainset = 2,
                  Response = "mass", 
                  FixedEffect = "sex", 
                  RandomEffect = "species",
@@ -704,7 +704,7 @@ mod_RE = brms_model(Chainset = 2,
 var_decomp(mod_RE)
 
 # With random slope
-mod_RS = brms_model(Chainset = 1,
+mod_RS = brms_model(Chainset = 2,
                      Response = "mass", 
                      FixedEffect = c("sex","height"), 
                      RandomEffect = "species", 

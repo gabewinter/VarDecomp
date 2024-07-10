@@ -209,6 +209,7 @@ dplyr::mutate(var_FixedEffects = rowSums(dplyr::across(tidyselect::all_of(FixedE
   
 # Calculate the estimated variances in random slope
 
+if(!is.null(RandomEffect)){
 if(!is.null(RandomSlope)){
   
   
@@ -220,7 +221,7 @@ if(!is.null(RandomSlope)){
                   mean(FixedEffectData[[RandomSlope]])^2))
   }
 
-
+}
            
 # Variances in random effect
 if(!is.null(RandomEffect)){
@@ -237,15 +238,19 @@ PS = PS %>%
         # for models with random slope (in Holger's paper on random slopes)
                  PS = PS %>% 
   dplyr::mutate(!!paste0("var_", RandomEffect) := 
-                  (get(paste0(RandomEffect))^2) +
                   
-              (get(paste0("var_", RandomEffect, "_", RandomSlope))) +
+                  get(paste0(RandomEffect))^2 +
+                  
+              get(paste0("var_", RandomEffect, "_", RandomSlope)) +
                         
-                (get(paste0("cor_", RandomEffect, "_",
-                            RandomSlope))) *
-                   get(paste0(RandomEffect)) *
-                   get(paste0(RandomEffect,"_", RandomSlope)) *
-                   2 *  mean(FixedEffectData[[RandomSlope]]))
+      2 * mean(FixedEffectData[[RandomSlope]]) *
+                   
+      get(paste0("cor_", RandomEffect, "_",
+                            RandomSlope)) *
+    
+      get(paste0(RandomEffect)) *
+      get(paste0(RandomEffect,"_", RandomSlope)) )
+
                 }
 }
 
