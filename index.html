@@ -99,28 +99,26 @@
 <h2 id="example">Example<a class="anchor" aria-label="anchor" href="#example"></a>
 </h2>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/gabewinter/VarDecomp" class="external-link">VarDecomp</a></span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">md</span> <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="va"><a href="https://dplyr.tidyverse.org/reference/starwars.html" class="external-link">starwars</a></span></span>
 <span></span>
-<span><span class="va">md</span> <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="va"><a href="https://dplyr.tidyverse.org/reference/starwars.html" class="external-link">starwars</a></span></span>
-<span></span>
-<span><span class="va">mod</span> <span class="op">=</span> <span class="fu"><a href="reference/brms_model.html">brms_model</a></span><span class="op">(</span>Chainset <span class="op">=</span> <span class="st">"long"</span>, </span>
+<span><span class="va">mod</span> <span class="op">=</span> <span class="fu">VarDecomp</span><span class="fu">::</span><span class="fu"><a href="reference/brms_model.html">brms_model</a></span><span class="op">(</span>Chainset <span class="op">=</span> <span class="fl">1</span>, </span>
 <span>           Response <span class="op">=</span> <span class="st">"mass"</span>, </span>
 <span>           FixedEffect <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"sex"</span>,<span class="st">"height"</span><span class="op">)</span>, </span>
 <span>           RandomEffect <span class="op">=</span> <span class="st">"species"</span>, </span>
 <span>           RandomSlope <span class="op">=</span> <span class="st">"height"</span>, </span>
 <span>           Family <span class="op">=</span> <span class="st">"gaussian"</span>, </span>
 <span>           Data <span class="op">=</span> <span class="va">md</span>, </span>
-<span>          Seed <span class="op">=</span> <span class="fl">0405</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "No problem 🤩"</span></span>
+<span>           Seed <span class="op">=</span> <span class="fl">0405</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "No problem 😄"</span></span>
 <span><span class="co">#&gt; Warning: Rows containing NAs were excluded from the model.</span></span>
 <span><span class="co">#&gt; Compiling Stan program...</span></span>
 <span><span class="co">#&gt; Start sampling</span></span>
 <span></span>
-<span><span class="fu"><a href="reference/var_decomp.html">var_decomp</a></span><span class="op">(</span><span class="va">mod</span><span class="op">)</span></span>
+<span><span class="fu">VarDecomp</span><span class="fu">::</span><span class="fu"><a href="reference/var_decomp.html">var_decomp</a></span><span class="op">(</span><span class="va">mod</span><span class="op">)</span></span>
 <span><span class="co">#&gt; New names:</span></span>
 <span><span class="co">#&gt; • `sex` -&gt; `sex...1`</span></span>
 <span><span class="co">#&gt; • `sex` -&gt; `sex...3`</span></span>
-<span><span class="co">#&gt; # A tibble: 16 × 6</span></span>
+<span><span class="co">#&gt; # A tibble: 15 × 6</span></span>
 <span><span class="co">#&gt;    variable                 mean   median     sd lower_HPD upper_HPD</span></span>
 <span><span class="co">#&gt;    &lt;chr&gt;                   &lt;dbl&gt;    &lt;dbl&gt;  &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;</span></span>
 <span><span class="co">#&gt;  1 Intercept             -53.2    -53.5   13.2     -79.2     -27.5  </span></span>
@@ -130,15 +128,40 @@
 <span><span class="co">#&gt;  5 height                  0.631    0.632  0.073     0.491     0.776</span></span>
 <span><span class="co">#&gt;  6 species_height          0.082    0.075  0.05      0         0.176</span></span>
 <span><span class="co">#&gt;  7 cor_species_height     -0.364   -0.545  0.573    -1         0.758</span></span>
-<span><span class="co">#&gt;  8 sigma                  14.5     14.4    1.93     10.9      18.2  </span></span>
-<span><span class="co">#&gt;  9 R2_height               0.816    0.82   0.049     0.719     0.909</span></span>
-<span><span class="co">#&gt; 10 R2_sexmale              0.004    0.004  0.001     0.001     0.006</span></span>
-<span><span class="co">#&gt; 11 R2_sexnone              0.002    0.002  0.001     0         0.004</span></span>
-<span><span class="co">#&gt; 12 R2_sexhermaphroditic    0.023    0.023  0.003     0.018     0.028</span></span>
-<span><span class="co">#&gt; 13 R2_FixedEffects         0.845    0.848  0.05      0.747     0.937</span></span>
-<span><span class="co">#&gt; 14 R2_species_height       0.014    0.008  0.019     0         0.049</span></span>
-<span><span class="co">#&gt; 15 R2_species             -0.06    -0.06   0.007    -0.074    -0.048</span></span>
-<span><span class="co">#&gt; 16 R2_residual             0.216    0.212  0.049     0.133     0.318</span></span></code></pre></div>
+<span><span class="co">#&gt;  8 R2_height               0.017    0.017  0.004     0.01      0.025</span></span>
+<span><span class="co">#&gt;  9 R2_sexmale              0.003    0.002  0.002     0         0.006</span></span>
+<span><span class="co">#&gt; 10 R2_sexnone              0.002    0.002  0.002     0         0.006</span></span>
+<span><span class="co">#&gt; 11 R2_sexhermaphroditic    0.966    0.966  0.006     0.953     0.976</span></span>
+<span><span class="co">#&gt; 12 R2_sum_fixed_effects    0.987    0.988  0.003     0.981     0.993</span></span>
+<span><span class="co">#&gt; 13 R2_species_height       0.01     0.006  0.012     0         0.033</span></span>
+<span><span class="co">#&gt; 14 R2_species              0.005    0.005  0.003     0         0.012</span></span>
+<span><span class="co">#&gt; 15 R2_residual             0.007    0.007  0.002     0.004     0.011</span></span>
+<span></span>
+<span><span class="fu">VarDecomp</span><span class="fu">::</span><span class="fu"><a href="reference/model_fit.html">model_fit</a></span><span class="op">(</span><span class="va">mod</span>, Group <span class="op">=</span> <span class="st">"sex"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; No divergences to plot.</span></span>
+<span><span class="co">#&gt; Using all posterior draws for ppc type 'loo_pit_qq' by default.</span></span>
+<span><span class="co">#&gt; Warning: Some Pareto k diagnostic values are too high. See help('pareto-k-diagnostic') for details.</span></span>
+<span><span class="co">#&gt; Warning: Some Pareto k diagnostic values are too high. See help('pareto-k-diagnostic') for details.</span></span>
+<span><span class="co">#&gt; Using all posterior draws for ppc type 'violin_grouped' by default.</span></span>
+<span><span class="co">#&gt; $`R-hat and Effective sample size`</span></span>
+<span><span class="co">#&gt; # A tibble: 1 × 2</span></span>
+<span><span class="co">#&gt;    Rhat EffectiveSampleSize</span></span>
+<span><span class="co">#&gt;   &lt;dbl&gt;               &lt;dbl&gt;</span></span>
+<span><span class="co">#&gt; 1  1.01               1744.</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $`Traceplots plot`</span></span></code></pre></div>
+<p><img src="reference/figures/README-example-1.png" width="100%"></p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="co">#&gt; $`Posterior predictive check - Density overlay plot`</span></span></code></pre></div>
+<p><img src="reference/figures/README-example-2.png" width="100%"></p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="co">#&gt; $`Posterior predictive check - LOO-PIT-QQ plot`</span></span></code></pre></div>
+<p><img src="reference/figures/README-example-3.png" width="100%"></p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="co">#&gt; $`Posterior predictive check - Group density overlay plot`</span></span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="co">#&gt; Warning: Groups with fewer than two datapoints have been dropped.</span></span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="co">#&gt; ℹ Set `drop = FALSE` to consider such groups for position adjustment purposes.</span></span></code></pre></div>
+<p><img src="reference/figures/README-example-4.png" width="100%"></p>
 </div>
 </div>
   </div>
