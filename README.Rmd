@@ -41,19 +41,19 @@ Full documentation website on: https://gabewinter.github.io/VarDecomp
 ## Example
 
 ```{r example}
-library(VarDecomp)
-
 md = dplyr::starwars
 
-mod = brms_model(Chainset = "long", 
+mod = VarDecomp::brms_model(Chainset = 1, 
            Response = "mass", 
            FixedEffect = c("sex","height"), 
            RandomEffect = "species", 
-           RandomSlope = "height", q
+           RandomSlope = "height", 
            Family = "gaussian", 
            Data = md, 
-          Seed = 0405)
+           Seed = 0405)
 
-var_decomp(mod)
+VarDecomp::var_decomp(mod)
+
+VarDecomp::model_fit(mod, Group = "sex")
 
 ```

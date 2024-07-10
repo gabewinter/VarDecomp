@@ -492,6 +492,7 @@ dplyr::mutate(var_FixedEffects = rowSums(dplyr::across(tidyselect::all_of(FixedE
   
 # Calculate the estimated variances in random slope
 
+if(!is.null(RandomEffect)){
 if(!is.null(RandomSlope)){
   
   
@@ -503,7 +504,7 @@ if(!is.null(RandomSlope)){
                   mean(FixedEffectData[[RandomSlope]])^2))
   }
 
-
+}
            
 # Variances in random effect
 if(!is.null(RandomEffect)){
@@ -520,15 +521,19 @@ PS = PS %>%
         # for models with random slope (in Holger's paper on random slopes)
                  PS = PS %>% 
   dplyr::mutate(!!paste0("var_", RandomEffect) := 
-                  (get(paste0(RandomEffect))^2) +
                   
-              (get(paste0("var_", RandomEffect, "_", RandomSlope))) +
+                  get(paste0(RandomEffect))^2 +
+                  
+              get(paste0("var_", RandomEffect, "_", RandomSlope)) +
                         
-                (get(paste0("cor_", RandomEffect, "_",
-                            RandomSlope))) *
-                   get(paste0(RandomEffect)) *
-                   get(paste0(RandomEffect,"_", RandomSlope)) *
-                   2 *  mean(FixedEffectData[[RandomSlope]]))
+      2 * mean(FixedEffectData[[RandomSlope]]) *
+                   
+      get(paste0("cor_", RandomEffect, "_",
+                            RandomSlope)) *
+    
+      get(paste0(RandomEffect)) *
+      get(paste0(RandomEffect,"_", RandomSlope)) )
+
                 }
 }
 
@@ -654,7 +659,7 @@ md = md %>%
                       "none" = as.numeric(NA)))
   
   
-mod = brms_model(Chainset = 2,
+mod = brms_model(Chainset = 1,
                  Response = "mass", 
                  FixedEffect = "sex", 
                  RandomEffect = "species",
@@ -699,7 +704,7 @@ mod_RE = brms_model(Chainset = 2,
 var_decomp(mod_RE)
 
 # With random slope
-mod_RS = brms_model(Chainset = 2,
+mod_RS = brms_model(Chainset = 1,
                      Response = "mass", 
                      FixedEffect = c("sex","height"), 
                      RandomEffect = "species", 

@@ -28,28 +28,26 @@ Full documentation website on: <https://gabewinter.github.io/VarDecomp>
 ## Example
 
 ``` r
-library(VarDecomp)
-
 md = dplyr::starwars
 
-mod = brms_model(Chainset = "long", 
+mod = VarDecomp::brms_model(Chainset = 1, 
            Response = "mass", 
            FixedEffect = c("sex","height"), 
            RandomEffect = "species", 
            RandomSlope = "height", 
            Family = "gaussian", 
            Data = md, 
-          Seed = 0405)
-#> [1] "No problem 🤩"
+           Seed = 0405)
+#> [1] "No problem 😄"
 #> Warning: Rows containing NAs were excluded from the model.
 #> Compiling Stan program...
 #> Start sampling
 
-var_decomp(mod)
+VarDecomp::var_decomp(mod)
 #> New names:
 #> • `sex` -> `sex...1`
 #> • `sex` -> `sex...3`
-#> # A tibble: 16 × 6
+#> # A tibble: 15 × 6
 #>    variable                 mean   median     sd lower_HPD upper_HPD
 #>    <chr>                   <dbl>    <dbl>  <dbl>     <dbl>     <dbl>
 #>  1 Intercept             -53.2    -53.5   13.2     -79.2     -27.5  
@@ -59,13 +57,45 @@ var_decomp(mod)
 #>  5 height                  0.631    0.632  0.073     0.491     0.776
 #>  6 species_height          0.082    0.075  0.05      0         0.176
 #>  7 cor_species_height     -0.364   -0.545  0.573    -1         0.758
-#>  8 sigma                  14.5     14.4    1.93     10.9      18.2  
-#>  9 R2_height               0.816    0.82   0.049     0.719     0.909
-#> 10 R2_sexmale              0.004    0.004  0.001     0.001     0.006
-#> 11 R2_sexnone              0.002    0.002  0.001     0         0.004
-#> 12 R2_sexhermaphroditic    0.023    0.023  0.003     0.018     0.028
-#> 13 R2_FixedEffects         0.845    0.848  0.05      0.747     0.937
-#> 14 R2_species_height       0.014    0.008  0.019     0         0.049
-#> 15 R2_species             -0.06    -0.06   0.007    -0.074    -0.048
-#> 16 R2_residual             0.216    0.212  0.049     0.133     0.318
+#>  8 R2_height               0.017    0.017  0.004     0.01      0.025
+#>  9 R2_sexmale              0.003    0.002  0.002     0         0.006
+#> 10 R2_sexnone              0.002    0.002  0.002     0         0.006
+#> 11 R2_sexhermaphroditic    0.966    0.966  0.006     0.953     0.976
+#> 12 R2_sum_fixed_effects    0.987    0.988  0.003     0.981     0.993
+#> 13 R2_species_height       0.01     0.006  0.012     0         0.033
+#> 14 R2_species              0.005    0.005  0.003     0         0.012
+#> 15 R2_residual             0.007    0.007  0.002     0.004     0.011
+
+VarDecomp::model_fit(mod, Group = "sex")
+#> No divergences to plot.
+#> Using all posterior draws for ppc type 'loo_pit_qq' by default.
+#> Warning: Some Pareto k diagnostic values are too high. See help('pareto-k-diagnostic') for details.
+#> Warning: Some Pareto k diagnostic values are too high. See help('pareto-k-diagnostic') for details.
+#> Using all posterior draws for ppc type 'violin_grouped' by default.
+#> $`R-hat and Effective sample size`
+#> # A tibble: 1 × 2
+#>    Rhat EffectiveSampleSize
+#>   <dbl>               <dbl>
+#> 1  1.01               1744.
+#> 
+#> $`Traceplots plot`
 ```
+
+<img src="man/figures/README-example-1.png" width="100%" />
+
+    #> 
+    #> $`Posterior predictive check - Density overlay plot`
+
+<img src="man/figures/README-example-2.png" width="100%" />
+
+    #> 
+    #> $`Posterior predictive check - LOO-PIT-QQ plot`
+
+<img src="man/figures/README-example-3.png" width="100%" />
+
+    #> 
+    #> $`Posterior predictive check - Group density overlay plot`
+    #> Warning: Groups with fewer than two datapoints have been dropped.
+    #> ℹ Set `drop = FALSE` to consider such groups for position adjustment purposes.
+
+<img src="man/figures/README-example-4.png" width="100%" />
