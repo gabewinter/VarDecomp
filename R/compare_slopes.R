@@ -33,8 +33,7 @@
 #' mod2 = brms_model(Chainset = 2,
 #'                    Response = "mass", 
 #'                    FixedEffect = "sex",
-#'                    RandomEffect = "species",
-#'                    RandomSlope = "sex",
+#'                    RandomSlope = c("sex","species"),
 #'                    Family = "gaussian", 
 #'                    Data = md)
 #'

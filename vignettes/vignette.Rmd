@@ -38,9 +38,8 @@ md = md %>%
   
 mod = brms_model(Chainset = 2, 
            Response = "mass", 
-           FixedEffect = c("sex","height"), 
-           RandomEffect = "species", 
-           RandomSlope = "height",
+           FixedEffect = c("sex","height"),
+           RandomSlope = c("height", "species"),
            Family = "gaussian", 
            Data = md, 
            Seed = 0405)
@@ -108,8 +107,7 @@ mod1 = brms_model(Chainset = 2,
 mod2 = brms_model(Chainset = 2,
                    Response = "mass", 
                    FixedEffect = "sex",
-                   RandomEffect = "species",
-                   RandomSlope = "sex",
+                   RandomSlope = c("sex","species"),
                    Family = "gaussian", 
                    Data = md)
 

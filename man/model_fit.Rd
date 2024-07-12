@@ -9,7 +9,7 @@ model_fit(brmsfit, Group = NULL, Prior = FALSE)
 \arguments{
 \item{brmsfit}{The output of a brms model. You can use VarDecomp::brms_model() to produce a brmsfit.}
 
-\item{Group}{A string containing the name of a grouping variable for the visualization of a posterior predictive check plot (e.g. "sex").}
+\item{Group}{A string containing the name of a grouping variable for the visualization of a posterior predictive check plot (e.g. "sex"). To add multiple grouping variables, use c() (e.g. c("sex", "species")).}
 
 \item{Prior}{A logical argument defining whether the \code{brmsfit} contains prior samples. If set to \code{TRUE} it will produce plots comparing the log distributions of priors and posterior samples for each covariate.}
 }

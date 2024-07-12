@@ -3,7 +3,7 @@
 #' Perform model fit checks for brms models
 #'
 #' @param brmsfit The output of a brms model. You can use VarDecomp::brms_model() to produce a brmsfit. 
-#' @param Group A string containing the name of a grouping variable for the visualization of a posterior predictive check plot (e.g. "sex"). 
+#' @param Group A string containing the name of a grouping variable for the visualization of a posterior predictive check plot (e.g. "sex"). To add multiple grouping variables, use c() (e.g. c("sex", "species")). 
 #' @param Prior A logical argument defining whether the `brmsfit` contains prior samples. If set to `TRUE` it will produce plots comparing the log distributions of priors and posterior samples for each covariate. 
 #'
 #' @return Returns a list containing (a) the maximum R-hat value, (b) the minimum effective sample size, (c) traceplots, (d) posterior predictive check plots, and (e) prior and posterior sample plots (if priors are available).
@@ -58,8 +58,20 @@ ppDens = rstanarm::pp_check(brmsfit, type = "dens_overlay", ndraws = (nd*0.2))
 ppLoo = rstanarm::pp_check(brmsfit, type = "loo_pit_qq") 
 
 if(!is.null(Group)){
-ppGroup = rstanarm::pp_check(brmsfit, type = "violin_grouped",group= Group)}
 
+for (i in Group){
+plot = rstanarm::pp_check(brmsfit, type = "violin_grouped",group= i) +
+  ggtitle(i)
+assign(paste0("GroupPlot_", i), plot) 
+}
+
+ppGroup = list()   
+
+GroupNames = ls(pattern = "^GroupPlot")
+for (i in GroupNames) {
+    ppGroup[[i]] = get(i)
+}
+}
 
 # Prior samples
 if(Prior == TRUE){

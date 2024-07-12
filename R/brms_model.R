@@ -7,7 +7,7 @@
 #' @param Response String with the name of the column in Data containing the response variable (e.g. "mass"). 
 #' @param FixedEffect String with the name of the column in Data containing the fixed effect variable (e.g. "height"). To add multiple fixed effects, use c() (e.g. c("height", "sex")). 
 #' @param RandomEffect String with the name of the column in Data containing the random effect variable (e.g. "species"). The current package version allows the use of a single random effect.
-#' @param RandomSlope String with the name of the column in Data containing the covariate to be added as a random slope (e.g. "height"). The current package version allows the use of a single random slope.
+#' @param RandomSlope Vector containing two values: first a string with the name of the column in Data containing the covariate to be added as a random slope, second the random effect to which the  random slope will be applied (e.g. RandomSlope = c("height", "species")). The current package version allows the use of a single random slope.
 #' @param Chainset Defines the number of iterations. Start with Chainset = 1 and increase as needed until convergence. The value of Chainsetis multiplied by 15000 in warmup, 30000 in iterations and 15 in thin intervale. For quick tests use Chainset = 0 (warmup=10; iter=110; thin=10; chains=2) 
 #' @param Family String to define the family function in the brms model. Current supported families: "gaussian", "binomial", "poisson".
 #' @param Seed Numeric and optional. Set a seed in order to repeat the results from the model when running it more than once. 
@@ -37,9 +37,8 @@
 #'   
 #' mod = brms_model(Chainset = 2, 
 #'            Response = "mass", 
-#'            FixedEffect = c("sex","height"), 
-#'            RandomEffect = "species", 
-#'            RandomSlope = "height",
+#'            FixedEffect = c("sex","height"),
+#'            RandomSlope = c("height", "species"),
 #'            Family = "gaussian", 
 #'            Data = md, 
 #'            Seed = 0405)
@@ -79,8 +78,12 @@ stopifnot("`FixedEffect` must be a string" =
 if(!is.null(RandomEffect)) {stopifnot("`RandomEffect` must be a string" =               
               inherits(RandomEffect, "character"))}
 
-if(!is.null(RandomSlope)){stopifnot("`RandomSlope` must be a string" =               
-              inherits(RandomSlope, "character"))}
+if(!is.null(RandomSlope)){stopifnot(
+  "`RandomSlope` must be a vector containing two string values" =            
+              inherits(RandomSlope, "character"),
+
+  "`RandomSlope` must contain two values (e.g. RandomSlope = c('covariate name', 'random effect')" = length(RandomSlope) == 2)
+  }
 
 stopifnot("`Chainset` must be a numeric value" =               
               inherits(Chainset, "numeric"))
@@ -134,17 +137,35 @@ if(Family == "binomial"){
   bfform = 
     
     if(is.null(RandomEffect)) {
-      paste0(Response, " | trials( ", Trials, ") ~ ", paste(FixedEffect, collapse = " + "), " + (1|observationID)")
+      
+      if(is.null(RandomSlope)){
+      paste0(Response, " | trials(", Trials, ") ~ ", paste(FixedEffect, collapse = " + "), " + (1|observationID)")
+      
+        } else {
+      
+        paste0(Response, " | trials(", Trials, ") ~ ",
+       paste(FixedEffect, collapse = " + "),
+       " + (1 + ", RandomSlope[1], " |", 
+        RandomSlope[2], ") + (1|observationID)")}
+        
       } else {
+        
         if(is.null(RandomSlope)){
-        paste0(Response, " | trials( ", Trials, ") ~ ", 
+        paste0(Response, " | trials(", Trials, ") ~ ", 
                paste(FixedEffect, collapse = " + "),
-        "+ ( 1 | ", RandomEffect," ) + (1|observationID)")
+               " + ",
+               paste("(1|", RandomEffect, ")", sep = "", collapse = " + "),
+        " + (1|observationID)")
+
           } else {
-          paste0(Response, " | trials( ", Trials, ") ~ ",
+          
+            paste0(Response, " | trials(", Trials, ") ~ ",
                  paste(FixedEffect, collapse = " + "),
-                 "+ ( 1 +", RandomSlope, " | ", 
-                 RandomEffect," ) + (1|observationID)")}}
+                  " + (1 + ", RandomSlope[1], " |", 
+        RandomSlope[2],") + ",
+               paste("(1|", RandomEffect, ")", sep = "", collapse = " + "),
+                " + (1|observationID)")}
+          }
 
 } else {
 
@@ -152,21 +173,40 @@ if(Family == "binomial"){
   
 if(Family == "poisson"){
 
-bfform = 
+  bfform = 
     
     if(is.null(RandomEffect)) {
+      
+      if(is.null(RandomSlope)){
       paste0(Response, " ~ ", paste(FixedEffect, collapse = " + "), " + (1|observationID)")
+      
+        } else {
+      
+        paste0(Response, " ~ ",
+       paste(FixedEffect, collapse = " + "),
+       " + (1 + ", RandomSlope[1], " |", 
+        RandomSlope[2], ") + (1|observationID)")}
+        
       } else {
+        
         if(is.null(RandomSlope)){
         paste0(Response, " ~ ", 
                paste(FixedEffect, collapse = " + "),
-        "+ ( 1 | ", RandomEffect," ) + (1|observationID)")
+               " + ",
+               paste("(1|", RandomEffect, ")", sep = "", collapse = " + "),
+        " + (1|observationID)")
+
           } else {
-          paste0(Response, " ~ ",
+          
+            paste0(Response, " ~ ",
                  paste(FixedEffect, collapse = " + "),
-                 "+ ( 1 +", RandomSlope, " | ", 
-                 RandomEffect," ) + (1|observationID)")}}
-} else {
+                  " + (1 + ", RandomSlope[1], " |", 
+        RandomSlope[2],") + ",
+               paste("(1|", RandomEffect, ")", sep = "", collapse = " + "),
+                " + (1|observationID)")}
+          }
+
+  } else {
   
 # Construct the formula object for other model families
   
@@ -174,17 +214,35 @@ bfform =
   bfform = 
     
     if(is.null(RandomEffect)) {
-      paste0(Response, "~", paste(FixedEffect, collapse = " + "))
-      } else {
-        if(is.null(RandomSlope)){
-        paste0(Response, "~", paste(FixedEffect, collapse = " + "),
-        "+ ( 1 | ", RandomEffect," )")
-          } else {
-          paste0(Response, "~",
-                 paste(FixedEffect, collapse = " + "),
-                 "+ ( 1 +", RandomSlope, " | ", RandomEffect," )")}}
+      
+      if(is.null(RandomSlope)){
+      paste0(Response, " ~ ", paste(FixedEffect, collapse = " + "))
+      
+        } else {
+      
+        paste0(Response, " ~ ",
+       paste(FixedEffect, collapse = " + "),
+       " + (1 + ", RandomSlope[1], " |", 
+        RandomSlope[2])}
         
-}
+      } else {
+        
+        if(is.null(RandomSlope)){
+        paste0(Response, " ~ ", 
+               paste(FixedEffect, collapse = " + "),
+               " + ",
+               paste("(1|", RandomEffect, ")", sep = "", collapse = " + "))
+
+          } else {
+          
+            paste0(Response, " ~ ",
+                 paste(FixedEffect, collapse = " + "),
+                  " + (1 + ", RandomSlope[1], " |", 
+        RandomSlope[2],") + ",
+               paste("(1|", RandomEffect, ")", sep = "", collapse = " + "))
+            }
+      }
+  }
 }
 
   mod =  brms::brm(brms::bf(stats::as.formula(bfform)),

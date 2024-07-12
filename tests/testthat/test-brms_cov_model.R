@@ -31,5 +31,3 @@ mod = brms_cov_model(Chainset = 0,
            Data = md, 
            Seed = 0405)
 
-
-

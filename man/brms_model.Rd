@@ -26,7 +26,7 @@ brms_model(
 
 \item{RandomEffect}{String with the name of the column in Data containing the random effect variable (e.g. "species"). The current package version allows the use of a single random effect.}
 
-\item{RandomSlope}{String with the name of the column in Data containing the covariate to be added as a random slope (e.g. "height"). The current package version allows the use of a single random slope.}
+\item{RandomSlope}{Vector containing two values: first a string with the name of the column in Data containing the covariate to be added as a random slope, second the random effect to which the  random slope will be applied (e.g. RandomSlope = c("height", "species")). The current package version allows the use of a single random slope.}
 
 \item{Chainset}{Defines the number of iterations. Start with Chainset = 1 and increase as needed until convergence. The value of Chainsetis multiplied by 15000 in warmup, 30000 in iterations and 15 in thin intervale. For quick tests use Chainset = 0 (warmup=10; iter=110; thin=10; chains=2)}
 
@@ -60,9 +60,8 @@ md = md \%>\%
   
 mod = brms_model(Chainset = 2, 
            Response = "mass", 
-           FixedEffect = c("sex","height"), 
-           RandomEffect = "species", 
-           RandomSlope = "height",
+           FixedEffect = c("sex","height"),
+           RandomSlope = c("height", "species"),
            Family = "gaussian", 
            Data = md, 
            Seed = 0405)

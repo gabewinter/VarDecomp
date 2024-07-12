@@ -105,10 +105,17 @@ Data = Data %>%
 if(Family == "binomial"){
   
   bfform = 
-        paste0(Response, " | trials( ", Trials, ") ~ ", 
+    if(is.null(RandomEffect)){
+        paste0(Response, " | trials(", Trials, ") ~ ", 
                paste(FixedEffect, collapse = " + "),
-        "+ ( 1 | gr (", ID," , cov = A ) ) + (1|observationID)")
-          
+        " + (1|gr(", ID,", cov = A)) + (1|observationID)")
+    } else {
+        paste0(Response, " | trials(", Trials, ") ~ ", 
+               paste(FixedEffect, collapse = " + "),
+        " + (1|gr(", ID,", cov = A)) + ", 
+        paste("(1|", RandomEffect, ")", sep = "", collapse = " + "),
+        " + (1|observationID)")
+    }          
 } else {
 
 # Construct the formula object if poisson family
@@ -116,20 +123,31 @@ if(Family == "binomial"){
 if(Family == "poisson"){
 
 bfform = 
+  if(is.null(RandomEffect)){
         paste0(Response, " ~ ", 
                paste(FixedEffect, collapse = " + "),
-        "+ ( 1 | gr (", ID," , cov = A ) ) + (1|observationID)")
-         
+        " + (1|gr(", ID,", cov = A)) + (1|observationID)")
 } else {
+   paste0(Response, " ~ ", 
+               paste(FixedEffect, collapse = " + "),
+        " + (1|gr(", ID,", cov = A)) + ",
+         paste("(1|", RandomEffect, ")", sep = "", collapse = " + "),
+        " + (1|observationID)")
+  
+}
+}else {
   
 # Construct the formula object for other model families
   
-
   bfform = 
-    
-        paste0(Response, "~", paste(FixedEffect, collapse = " + "),
-        "+ ( 1 | gr (", ID," , cov = A ) )")
-
+      if(is.null(RandomEffect)){
+        paste0(Response, " ~ ", paste(FixedEffect, collapse = " + "),
+        " + (1|gr(", ID,", cov = A))")
+      }else{
+          paste0(Response, " ~ ", paste(FixedEffect, collapse = " + "),
+        " + (1|gr(", ID,", cov = A)) + ",
+         paste("(1|", RandomEffect, ")", sep = "", collapse = " + "))
+}
 }
 }
 

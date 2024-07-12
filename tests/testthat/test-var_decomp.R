@@ -36,8 +36,7 @@ var_decomp(mod_RE)
 mod_RS = brms_model(Chainset = 2,
                      Response = "mass", 
                      FixedEffect = c("sex","height"), 
-                     RandomEffect = "species", 
-                     RandomSlope = "height",
+                     RandomSlope = c("height", "species"),
                      Family = "gaussian", 
                      Data = md)
 

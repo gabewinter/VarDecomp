@@ -41,9 +41,8 @@ plot(mod_RE)
 # With random slope
 mod_RS = brms_model(Chainset = 2,
                      Response = "mass", 
-                     FixedEffect = c("sex","height"), 
-                     RandomEffect = "species", 
-                     RandomSlope = "height",
+                     FixedEffect = c("sex","height"),
+                     RandomSlope = c("height", "species"),
                      Family = "gaussian", 
                      Data = md)
 

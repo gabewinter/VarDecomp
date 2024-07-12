@@ -286,9 +286,8 @@ md = md %>%
   
 mod = brms_model(Chainset = 2, 
            Response = "mass", 
-           FixedEffect = c("sex","height"), 
-           RandomEffect = "species", 
-           RandomSlope = "height",
+           FixedEffect = c("sex","height"),
+           RandomSlope = c("height", "species"),
            Family = "gaussian", 
            Data = md, 
            Seed = 0405)
@@ -342,9 +341,8 @@ plot(mod_RE)
 # With random slope
 mod_RS = brms_model(Chainset = 2,
                      Response = "mass", 
-                     FixedEffect = c("sex","height"), 
-                     RandomEffect = "species", 
-                     RandomSlope = "height",
+                     FixedEffect = c("sex","height"),
+                     RandomSlope = c("height", "species"),
                      Family = "gaussian", 
                      Data = md)
 
@@ -766,8 +764,7 @@ var_decomp(mod_RE)
 mod_RS = brms_model(Chainset = 2,
                      Response = "mass", 
                      FixedEffect = c("sex","height"), 
-                     RandomEffect = "species", 
-                     RandomSlope = "height",
+                     RandomSlope = c("height", "species"),
                      Family = "gaussian", 
                      Data = md)
 
@@ -844,8 +841,7 @@ mod1 = brms_model(Chainset = 2,
 mod2 = brms_model(Chainset = 2,
                    Response = "mass", 
                    FixedEffect = "sex",
-                   RandomEffect = "species",
-                   RandomSlope = "sex",
+                   RandomSlope = c("sex","species"),
                    Family = "gaussian", 
                    Data = md)
 
@@ -1056,9 +1052,8 @@ model_fit(mod_RE)
 # With random slope
 mod_RS = brms_model(Chainset = 2,
                      Response = "mass", 
-                     FixedEffect = c("sex","height"), 
-                     RandomEffect = "species", 
-                     RandomSlope = "height",
+                     FixedEffect = c("sex","height"),
+                     RandomSlope = c("height","species"),
                      Family = "gaussian", 
                      Data = md)
 
