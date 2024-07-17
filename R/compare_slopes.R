@@ -12,6 +12,9 @@
 #'
 #' @examples
 #'
+#'
+#'
+#'
 #' md = dplyr::starwars
 #'
 #' # Centering variables
@@ -38,6 +41,8 @@
 #'                    Data = md)
 #'
 #' compare_slopes(mod1, mod2, Slope = "sex")
+#'
+#'
 
 compare_slopes = function(..., Slope){
 
