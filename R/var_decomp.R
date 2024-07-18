@@ -10,6 +10,8 @@
 #'
 #' @examples
 #'
+#' \dontrun{
+#'
 #' md = dplyr::starwars
 #'
 #' # Centering variables
@@ -30,6 +32,9 @@
 #'                  Data = md)
 #'
 #' var_decomp(mod)
+#'
+#' }
+#'
 var_decomp = function(brmsfit){
 
   stopifnot("Input must be a brmsfit" =               
@@ -342,20 +347,7 @@ if(Family == "binomial" | Family == "poisson"){
 }
 
 
-EstSummary = posterior::summarise_draws(output) %>% 
-  dplyr::select(variable, mean, median, sd) 
-  
-  
-#Highest probability density interval
-HPDInt = as.data.frame(coda::HPDinterval(mcmcr::as.mcmc(output, combine_chains = TRUE))) %>% 
-  tibble::rownames_to_column(var = "variable")
-
-  EstSummary = dplyr::left_join(EstSummary, HPDInt, by = "variable") %>% 
-  dplyr::mutate(dplyr::across(where(is.numeric), \(x) round(x, 3))) %>% 
-  dplyr::rename(lower_HPD = lower, upper_HPD = upper) %>% 
-        dplyr::filter(!grepl("sigma", variable))
-  
-return(EstSummary)   
+return(output)   
 
 }
 

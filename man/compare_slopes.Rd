@@ -19,6 +19,9 @@ Compare slope values of different brms models
 }
 \examples{
 
+
+
+
 md = dplyr::starwars
 
 # Centering variables
@@ -45,4 +48,6 @@ mod2 = brms_model(Chainset = 2,
                    Data = md)
 
 compare_slopes(mod1, mod2, Slope = "sex")
+
+
 }

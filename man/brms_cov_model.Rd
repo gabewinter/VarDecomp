@@ -9,6 +9,7 @@ brms_cov_model(
   Response,
   FixedEffect,
   ID,
+  RandomEffect = NULL,
   Matrix,
   Chainset = 1,
   Family = "gaussian",
@@ -25,6 +26,8 @@ brms_cov_model(
 \item{FixedEffect}{String with the name of the column in Data containing the fixed effect variable (e.g. "height"). To add multiple fixed effects, use c() (e.g. c("height", "sex")).}
 
 \item{ID}{String with the name of the column in Data containing the ID of correlated individuals/groups. The current package version allows the use of a single random effect, so no additional random effects are possible yet.}
+
+\item{RandomEffect}{String with the name of the column in Data containing the random effect variable (e.g. "species"). To add multiple random effects, use c() (e.g. c("species", "date")).}
 
 \item{Matrix}{A matrix containing the IDs as row/column names and covariance values (ex. A pedigree relatedness matrix).}
 
@@ -43,4 +46,39 @@ Returns a brmsfit
 }
 \description{
 Run a brms model containing a covariance matrix
+}
+\examples{
+
+ library(tidyverse)
+ 
+# Create a group (ID) variable
+md = tibble::tibble(
+  ID = as.factor(rep(1:10, each = 100))) \%>\% 
+
+# Create a variables 
+  dplyr::mutate(height = rnorm(1000, mean = 170, sd = 10),
+         mass = 5 + 0.5 * height + rnorm(1000, mean = 0, sd = 5)) \%>\% 
+  dplyr::mutate(height = height - mean(height))
+
+# Create a covariance matrix (e.g., relatedness matrix)
+cov_matrix = matrix(rnorm(10 * 10), 10, 10)
+cov_matrix = cov_matrix \%*\% t(cov_matrix)  # Make it positive semi-definite
+rownames(cov_matrix) = colnames(cov_matrix) = 1:10
+
+# Ensure the covariance matrix is symmetric
+cov_matrix = (cov_matrix + t(cov_matrix)) / 2
+
+
+  
+mod = brms_cov_model(Chainset = 2, 
+           Response = "mass", 
+           FixedEffect = "height", 
+           ID = "ID", 
+           Matrix = cov_matrix,
+           Family = "gaussian", 
+           Data = md, 
+           Seed = 0405)
+
+
+
 }

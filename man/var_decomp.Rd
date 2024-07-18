@@ -17,6 +17,7 @@ Variance decomposition for brms models
 }
 \examples{
 
+
 md = dplyr::starwars
 
 # Centering variables
@@ -37,4 +38,6 @@ mod = brms_model(Chainset = 2,
                  Data = md)
 
 var_decomp(mod)
+
+
 }

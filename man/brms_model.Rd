@@ -66,8 +66,6 @@ mod = brms_model(Chainset = 2,
            Data = md, 
            Seed = 0405)
 
-print(mod)
 
-plot(mod)
 
 }

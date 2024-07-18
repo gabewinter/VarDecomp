@@ -11,9 +11,7 @@
 #' @export 
 #'
 #' @examples
-#'
-#'
-#'
+#' \dontrun{
 #'
 #' md = dplyr::starwars
 #'
@@ -42,7 +40,7 @@
 #'
 #' compare_slopes(mod1, mod2, Slope = "sex")
 #'
-#'
+#' }
 
 compare_slopes = function(..., Slope){
 

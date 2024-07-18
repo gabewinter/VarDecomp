@@ -10,6 +10,8 @@
 #' @export 
 #' 
 #' @examples
+#' \dontrun{
+#'
 #' md = dplyr::starwars
 #'
 #' # Centering variables
@@ -32,6 +34,8 @@
 #'                  PriorSamples = TRUE)
 #'
 #' model_fit(mod, Group = "sex", Prior = TRUE)
+#'
+#' }
 model_fit = function(brmsfit, Group = NULL, Prior = FALSE){
 
 

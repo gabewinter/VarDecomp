@@ -23,6 +23,7 @@
 #' @export 
 #'
 #' @examples
+#' \dontrun{
 #'
 #'  library(tidyverse)
 #'  
@@ -45,7 +46,7 @@
 #'
 #'
 #'   
-#' mod = brms_cov_model(Chainset = 2, 
+#' mod = brms_cov_model(Chainset = 3, 
 #'            Response = "mass", 
 #'            FixedEffect = "height", 
 #'            ID = "ID", 
@@ -54,7 +55,7 @@
 #'            Data = md, 
 #'            Seed = 0405)
 #'
-#'
+#' }
 #'
 
 brms_cov_model = function(Data, Response, FixedEffect, ID, RandomEffect = NULL, Matrix, Chainset = 1, Family = "gaussian", Seed = NULL, Trials = NA, PriorSamples = TRUE){
@@ -118,7 +119,7 @@ testfunction = function(){
   "\U1F638", "\U1F596", "\U1F44C", "\U270C", "\U1F44D", "\U1F44F", "\U1F64C", "\U1F40C", 
   "\U1F41B", "\U1F41E", "\U1F997")  
   
-  print(paste("No problem so far", sample(emojis, size = 1)))
+  print(paste("No problems so far", sample(emojis, size = 1)))
 }
 
 testfunction()

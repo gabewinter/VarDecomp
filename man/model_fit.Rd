@@ -20,6 +20,8 @@ Returns a list containing (a) the maximum R-hat value, (b) the minimum effective
 Perform model fit checks for brms models
 }
 \examples{
+
+
 md = dplyr::starwars
 
 # Centering variables
@@ -42,4 +44,6 @@ mod = brms_model(Chainset = 2,
                  PriorSamples = TRUE)
 
 model_fit(mod, Group = "sex", Prior = TRUE)
+
+
 }
