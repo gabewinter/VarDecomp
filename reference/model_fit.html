@@ -75,7 +75,7 @@
 
 
 <dt id="arg-group">Group<a class="anchor" aria-label="anchor" href="#arg-group"></a></dt>
-<dd><p>A string containing the name of a grouping variable for the visualization of a posterior predictive check plot (e.g. "sex").</p></dd>
+<dd><p>A string containing the name of a grouping variable for the visualization of a posterior predictive check plot (e.g. "sex"). To add multiple grouping variables, use c() (e.g. c("sex", "species")).</p></dd>
 
 
 <dt id="arg-prior">Prior<a class="anchor" aria-label="anchor" href="#arg-prior"></a></dt>
@@ -89,7 +89,9 @@
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">md</span> <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="va"><a href="https://dplyr.tidyverse.org/reference/starwars.html" class="external-link">starwars</a></span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">md</span> <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="va"><a href="https://dplyr.tidyverse.org/reference/starwars.html" class="external-link">starwars</a></span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Centering variables</span></span></span>
 <span class="r-in"><span><span class="va">md</span> <span class="op">=</span> <span class="va">md</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span></span>
@@ -109,40 +111,12 @@
 <span class="r-in"><span>                 Family <span class="op">=</span> <span class="st">"gaussian"</span>, </span></span>
 <span class="r-in"><span>                 Data <span class="op">=</span> <span class="va">md</span>,</span></span>
 <span class="r-in"><span>                 PriorSamples <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "No problem 🙃"</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Rows containing NAs were excluded from the model.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Compiling Stan program...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Start sampling</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in brms_model(Chainset = 2, Response = "mass", FixedEffect = c("sex",     "height"), Family = "gaussian", Data = md, PriorSamples = TRUE):</span> could not find function "brms_model"</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu">model_fit</span><span class="op">(</span><span class="va">mod</span>, Group <span class="op">=</span> <span class="st">"sex"</span>, Prior <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> No divergences to plot.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Using all posterior draws for ppc type 'loo_pit_qq' by default.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Some Pareto k diagnostic values are too high. See help('pareto-k-diagnostic') for details.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Some Pareto k diagnostic values are too high. See help('pareto-k-diagnostic') for details.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Using all posterior draws for ppc type 'violin_grouped' by default.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $`R-hat and Effective sample size`</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 1 × 2</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    Rhat EffectiveSampleSize</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>               <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span>  1.00               <span style="text-decoration: underline;">1</span>770.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $`Traceplots plot`</span>
-<span class="r-plt img"><img src="model_fit-1.png" alt="" width="700" height="433"></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $`Posterior predictive check - Density overlay plot`</span>
-<span class="r-plt img"><img src="model_fit-2.png" alt="" width="700" height="433"></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $`Posterior predictive check - LOO-PIT-QQ plot`</span>
-<span class="r-plt img"><img src="model_fit-3.png" alt="" width="700" height="433"></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $`Posterior predictive check - Group density overlay plot`</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Groups with fewer than two datapoints have been dropped.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Set `drop = FALSE` to consider such groups for position adjustment purposes.</span>
-<span class="r-plt img"><img src="model_fit-4.png" alt="" width="700" height="433"></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $`Prior samples plot`</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "No prior samples to plot"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in model_fit(mod, Group = "sex", Prior = TRUE):</span> could not find function "model_fit"</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </div>

@@ -98,7 +98,7 @@
 
 
 <dt id="arg-randomslope">RandomSlope<a class="anchor" aria-label="anchor" href="#arg-randomslope"></a></dt>
-<dd><p>String with the name of the column in Data containing the covariate to be added as a random slope (e.g. "height"). The current package version allows the use of a single random slope.</p></dd>
+<dd><p>Vector containing two values: first a string with the name of the column in Data containing the covariate to be added as a random slope, second the random effect to which the  random slope will be applied (e.g. RandomSlope = c("height", "species")). The current package version allows the use of a single random slope.</p></dd>
 
 
 <dt id="arg-chainset">Chainset<a class="anchor" aria-label="anchor" href="#arg-chainset"></a></dt>
@@ -143,56 +143,14 @@
 <span class="r-in"><span>  </span></span>
 <span class="r-in"><span><span class="va">mod</span> <span class="op">=</span> <span class="fu">brms_model</span><span class="op">(</span>Chainset <span class="op">=</span> <span class="fl">2</span>, </span></span>
 <span class="r-in"><span>           Response <span class="op">=</span> <span class="st">"mass"</span>, </span></span>
-<span class="r-in"><span>           FixedEffect <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"sex"</span>,<span class="st">"height"</span><span class="op">)</span>, </span></span>
-<span class="r-in"><span>           RandomEffect <span class="op">=</span> <span class="st">"species"</span>, </span></span>
-<span class="r-in"><span>           RandomSlope <span class="op">=</span> <span class="st">"height"</span>,</span></span>
+<span class="r-in"><span>           FixedEffect <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"sex"</span>,<span class="st">"height"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>           RandomSlope <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"height"</span>, <span class="st">"species"</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>           Family <span class="op">=</span> <span class="st">"gaussian"</span>, </span></span>
 <span class="r-in"><span>           Data <span class="op">=</span> <span class="va">md</span>, </span></span>
 <span class="r-in"><span>           Seed <span class="op">=</span> <span class="fl">0405</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "No problem 😎"</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Rows containing NAs were excluded from the model.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Compiling Stan program...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Start sampling</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>There were 773 transitions after warmup that exceeded the maximum treedepth. Increase max_treedepth above 10. See</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> https://mc-stan.org/misc/warnings.html#maximum-treedepth-exceeded</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Examine the pairs() plot to diagnose sampling problems</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in brms_model(Chainset = 2, Response = "mass", FixedEffect = c("sex",     "height"), RandomSlope = c("height", "species"), Family = "gaussian",     Data = md, Seed = 405):</span> could not find function "brms_model"</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">mod</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  Family: gaussian </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Links: mu = identity; sigma = identity </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Formula: mass ~ sex + height + (1 + height | species) </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    Data: Data (Number of observations: 52) </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Draws: 2 chains, each with iter = 60000; warmup = 30000; thin = 30;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          total post-warmup draws = 2000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Multilevel Hyperparameters:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> ~species (Number of levels: 30) </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                       Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> sd(Intercept)             0.61      0.38     0.04     1.59 1.00     1983</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> sd(height)                0.00      0.00     0.00     0.01 1.00     1958</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> cor(Intercept,height)    -0.22      0.57    -0.98     0.92 1.00     1732</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                       Tail_ESS</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> sd(Intercept)             1782</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> sd(height)                1930</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> cor(Intercept,height)     1693</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Regression Coefficients:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Intercept     2.41      0.46     1.65     3.39 1.00     2036     1872</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> sex           0.12      0.06     0.00     0.24 1.00     2207     2006</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> height        0.01      0.00     0.00     0.02 1.00     2084     1854</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Further Distributional Parameters:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> sigma     0.18      0.03     0.13     0.25 1.00     2063     1596</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Draws were sampled using sampling(NUTS). For each parameter, Bulk_ESS</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> and Tail_ESS are effective sample size measures, and Rhat is the potential</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> scale reduction factor on split chains (at convergence, Rhat = 1).</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">mod</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="brms_model-1.png" alt="" width="700" height="433"></span>
-<span class="r-plt img"><img src="brms_model-2.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
