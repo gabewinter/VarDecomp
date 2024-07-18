@@ -81,7 +81,7 @@
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">md</span> <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="va"><a href="https://dplyr.tidyverse.org/reference/starwars.html" class="external-link">starwars</a></span></span></span>
 <span class="r-in"><span></span></span>
@@ -101,12 +101,10 @@
 <span class="r-in"><span>                 RandomEffect <span class="op">=</span> <span class="st">"species"</span>,</span></span>
 <span class="r-in"><span>                 Family <span class="op">=</span> <span class="st">"gaussian"</span>, </span></span>
 <span class="r-in"><span>                 Data <span class="op">=</span> <span class="va">md</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in brms_model(Chainset = 2, Response = "mass", FixedEffect = "sex",     RandomEffect = "species", Family = "gaussian", Data = md):</span> could not find function "brms_model"</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu">model_summary</span><span class="op">(</span><span class="va">mod</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in model_summary(mod):</span> could not find function "model_summary"</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
 </code></pre></div>
     </div>
   </div>
