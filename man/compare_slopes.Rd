@@ -18,9 +18,7 @@ Returns a table of values with the log(slope model 1/slope model 2)
 Compare slope values of different brms models
 }
 \examples{
-
-
-
+\dontrun{
 
 md = dplyr::starwars
 
@@ -49,5 +47,5 @@ mod2 = brms_model(Chainset = 2,
 
 compare_slopes(mod1, mod2, Slope = "sex")
 
-
+}
 }

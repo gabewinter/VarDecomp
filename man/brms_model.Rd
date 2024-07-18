@@ -45,6 +45,7 @@ Returns a brmsfit
 Run a brms model
 }
 \examples{
+\dontrun{
 
 md = dplyr::starwars
 
@@ -66,6 +67,6 @@ mod = brms_model(Chainset = 2,
            Data = md, 
            Seed = 0405)
 
-
+}
 
 }

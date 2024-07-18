@@ -17,6 +17,7 @@ Variance decomposition for brms models
 }
 \examples{
 
+\dontrun{
 
 md = dplyr::starwars
 
@@ -39,5 +40,6 @@ mod = brms_model(Chainset = 2,
 
 var_decomp(mod)
 
+}
 
 }

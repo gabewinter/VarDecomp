@@ -16,7 +16,7 @@ Returns a data frame with the summaries of posterior estimates.
 Variance decomposition for brms models
 }
 \examples{
-
+\dontrun{
 
 md = dplyr::starwars
 
@@ -39,5 +39,5 @@ mod = brms_model(Chainset = 2,
 
 model_summary(mod)
 
-
+}
 }

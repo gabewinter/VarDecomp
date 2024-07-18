@@ -48,6 +48,7 @@ Returns a brmsfit
 Run a brms model containing a covariance matrix
 }
 \examples{
+\dontrun{
 
  library(tidyverse)
  
@@ -70,7 +71,7 @@ cov_matrix = (cov_matrix + t(cov_matrix)) / 2
 
 
   
-mod = brms_cov_model(Chainset = 2, 
+mod = brms_cov_model(Chainset = 3, 
            Response = "mass", 
            FixedEffect = "height", 
            ID = "ID", 
@@ -79,6 +80,6 @@ mod = brms_cov_model(Chainset = 2,
            Data = md, 
            Seed = 0405)
 
-
+}
 
 }

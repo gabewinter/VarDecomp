@@ -340,6 +340,12 @@ save(mod, file = "data/mod.RData")
 "mod"
 ```
 
+```{r examples-mod}
+
+mod = data("mod", package = "VarDecomp")
+
+```
+
 
 # mod_RE
 ```{r dev-mod_RE, eval=TRUE}
@@ -376,6 +382,13 @@ save(mod_RE, file = "data/mod_RE.RData")
 
 ```
 
+```{r examples-mod_RE}
+
+mod = data("mod_RE", package = "VarDecomp")
+
+```
+
+
 # mod_RS
 ```{r dev-mod_RS, eval=TRUE}
 md = dplyr::starwars
@@ -408,6 +421,12 @@ save(mod_RS, file = "data/mod_RS.RData")
 #' @source Generated using the `brms_model` function.
 
 "mod_RS"
+```
+
+```{r examples-mod_RS}
+
+mod = data("mod_RS", package = "VarDecomp")
+
 ```
 
 ______
@@ -680,12 +699,18 @@ save(mod_cov, file = "data/mod_cov.RData")
 
 ```
 
-```{r function-mode_cov}
+```{r function-mod_cov}
 #' model with fixed effects and a random effect with a covariance matrix
 #' @format A `brmsfit` object.
 #' @source Generated using the `brms_cov_model` function.
 
 "mod_cov"
+
+```
+
+```{r examples-mod_cov}
+
+mod = data("mod_cov", package = "VarDecomp")
 
 ```
 
@@ -1051,14 +1076,18 @@ var_decomp(mod)
 
 
 ```{r test-var_decomp}
+data("mod", package = "VarDecomp")
+var_decomp(mod)
 
-var_decomp(VarDecomp::mod)
+data("mod_RE", package = "VarDecomp")
+var_decomp(mod_RE)
 
-var_decomp(VarDecomp::mod_RE)
+data("mod_RS", package = "VarDecomp")
+var_decomp(mod_RS)
 
-var_decomp(VarDecomp::mod_RS)
 
-var_decomp(VarDecomp::mod_cov)
+data("mod_cov", package = "VarDecomp")
+var_decomp(mod_cov)
 
 ```
 
@@ -1131,13 +1160,18 @@ model_summary(mod)
 
 ```{r test-model_summary}
 
-model_summary(VarDecomp::mod)
+data("mod", package = "VarDecomp")
+model_summary(mod)
 
-model_summary(VarDecomp::mod_RE)
+data("mod_RE", package = "VarDecomp")
+model_summary(mod_RE)
 
-model_summary(VarDecomp::mod_RS)
+data("mod_RS", package = "VarDecomp")
+model_summary(mod_RS)
 
-model_summary(VarDecomp::mod_cov)
+
+data("mod_cov", package = "VarDecomp")
+model_summary(mod_cov)
 
 ```
 
@@ -1222,7 +1256,10 @@ compare_slopes(mod1, mod2, Slope = "sex")
 
 
 ```{r test-compare_slopes}
-compare_slopes(VarDecomp::mod_RE, VarDecomp::mod_RS, Slope = "height")
+data("mod_RE", package = "VarDecomp")
+data("mod_RS", package = "VarDecomp")
+
+compare_slopes(mod_RE, mod_RS, Slope = "height")
 ```
 
 ________
@@ -1394,13 +1431,17 @@ model_fit(mod, Group = "sex", Prior = TRUE)
 
 ```{r test-model_fit}
 
-model_fit(VarDecomp::mod)
+data("mod", package = "VarDecomp")
+model_fit(mod)
 
-model_fit(VarDecomp::mod_RE)
+data("mod_RE", package = "VarDecomp")
+model_fit(mod_RE)
 
-model_fit(VarDecomp::mod_RS)
+data("mod_RS", package = "VarDecomp")
+model_fit(mod_RS)
 
-model_fit(VarDecomp::mod_cov)
+data("mod_cov", package = "VarDecomp")
+model_fit(mod_cov)
 
 ```
 

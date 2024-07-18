@@ -20,7 +20,7 @@ Returns a list containing (a) the maximum R-hat value, (b) the minimum effective
 Perform model fit checks for brms models
 }
 \examples{
-
+\dontrun{
 
 md = dplyr::starwars
 
@@ -45,5 +45,5 @@ mod = brms_model(Chainset = 2,
 
 model_fit(mod, Group = "sex", Prior = TRUE)
 
-
+}
 }
