@@ -198,7 +198,7 @@ for (i in colnames(FixedEffectData)){
     PS[[paste0("var_", i)]] = 0
         
     for (j in 1:length(PS[[paste0("var_", i)]])){
-      PS[[paste0("var_", i)]][j] = var(PS[[i]][j] * FixedEffectData[[i]]) 
+      PS[[paste0("var_", i)]][j] = stats::var(PS[[i]][j] * FixedEffectData[[i]]) 
   }
   }
 }
@@ -220,7 +220,7 @@ if(!is.null(RandomSlope)){
   
   PS = PS %>% 
   dplyr::mutate(!!paste0("var_", RandomEffect, "_", RandomSlope) := (get(paste0(RandomEffect, "_", RandomSlope))^2 *
-                  var(FixedEffectData[[RandomSlope]])) +
+                  stats::var(FixedEffectData[[RandomSlope]])) +
                 
                  (get(paste0(RandomEffect,"_", RandomSlope))^2 *
                   mean(FixedEffectData[[RandomSlope]])^2))

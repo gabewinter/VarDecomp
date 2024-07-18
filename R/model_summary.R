@@ -5,7 +5,7 @@
 #' @param brmsfit The output of a brms model. You can use VarDecomp::brms_model() to produce a brmsfit. 
 #'
 #' @return Returns a data frame with the summaries of posterior estimates.
-#'
+#' @import posterior
 #' @export
 #'
 #' @examples
