@@ -317,10 +317,65 @@
 <span><span class="fu"><a href="../reference/model_fit.html">model_fit</a></span><span class="op">(</span><span class="va">mod</span>, Group <span class="op">=</span> <span class="st">"sex"</span>, Prior <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co">#' }</span></span></code></pre></div>
+<hr>
 </div>
 <div class="section level2">
 <h2 id="plot_intervals">plot_intervals<a class="anchor" aria-label="anchor" href="#plot_intervals"></a>
 </h2>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co">#' \dontrun{</span></span>
+<span><span class="va">md</span> <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="va"><a href="https://dplyr.tidyverse.org/reference/starwars.html" class="external-link">starwars</a></span></span>
+<span></span>
+<span><span class="co"># Centering variables</span></span>
+<span><span class="va">md</span> <span class="op">=</span> <span class="va">md</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">mass</span>, <span class="va">sex</span>, <span class="va">species</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>mass <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">mass</span><span class="op">)</span>,</span>
+<span>         sex <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/recode.html" class="external-link">recode</a></span><span class="op">(</span><span class="va">sex</span>, <span class="st">"male"</span> <span class="op">=</span> <span class="fl">1</span>, </span>
+<span>                      <span class="st">"female"</span> <span class="op">=</span> <span class="op">-</span><span class="fl">1</span>, </span>
+<span>                      <span class="st">"hermaphroditic"</span> <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>                      <span class="st">"none"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="cn">NA</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span>  </span>
+<span>  </span>
+<span><span class="va">mod</span> <span class="op">=</span> <span class="fu"><a href="../reference/brms_model.html">brms_model</a></span><span class="op">(</span>Chainset <span class="op">=</span> <span class="fl">2</span>,</span>
+<span>                 Response <span class="op">=</span> <span class="st">"mass"</span>, </span>
+<span>                 FixedEffect <span class="op">=</span> <span class="st">"sex"</span>, </span>
+<span>                 RandomEffect <span class="op">=</span> <span class="st">"species"</span>,</span>
+<span>                 Family <span class="op">=</span> <span class="st">"gaussian"</span>, </span>
+<span>                 Data <span class="op">=</span> <span class="va">md</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="../reference/plot_intervals.html">plot_intervals</a></span><span class="op">(</span><span class="va">mod</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co">#' }</span></span></code></pre></div>
+<hr>
+</div>
+<div class="section level2">
+<h2 id="plot_r2">plot_R2<a class="anchor" aria-label="anchor" href="#plot_r2"></a>
+</h2>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co">#' \dontrun{</span></span>
+<span><span class="va">md</span> <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="va"><a href="https://dplyr.tidyverse.org/reference/starwars.html" class="external-link">starwars</a></span></span>
+<span></span>
+<span><span class="co"># Centering variables</span></span>
+<span><span class="va">md</span> <span class="op">=</span> <span class="va">md</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">mass</span>, <span class="va">sex</span>, <span class="va">species</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>mass <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">mass</span><span class="op">)</span>,</span>
+<span>         sex <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/recode.html" class="external-link">recode</a></span><span class="op">(</span><span class="va">sex</span>, <span class="st">"male"</span> <span class="op">=</span> <span class="fl">1</span>, </span>
+<span>                      <span class="st">"female"</span> <span class="op">=</span> <span class="op">-</span><span class="fl">1</span>, </span>
+<span>                      <span class="st">"hermaphroditic"</span> <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>                      <span class="st">"none"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="cn">NA</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span>  </span>
+<span>  </span>
+<span><span class="va">mod</span> <span class="op">=</span> <span class="fu"><a href="../reference/brms_model.html">brms_model</a></span><span class="op">(</span>Chainset <span class="op">=</span> <span class="fl">2</span>,</span>
+<span>                 Response <span class="op">=</span> <span class="st">"mass"</span>, </span>
+<span>                 FixedEffect <span class="op">=</span> <span class="st">"sex"</span>, </span>
+<span>                 RandomEffect <span class="op">=</span> <span class="st">"species"</span>,</span>
+<span>                 Family <span class="op">=</span> <span class="st">"gaussian"</span>, </span>
+<span>                 Data <span class="op">=</span> <span class="va">md</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">PosteriorSamples</span> <span class="op">=</span> <span class="fu"><a href="../reference/var_decomp.html">var_decomp</a></span><span class="op">(</span><span class="va">mod</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/plot_R2.html">plot_R2</a></span><span class="op">(</span><span class="va">PosteriorSamples</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co">#' }</span></span></code></pre></div>
 </div>
   </div>
 

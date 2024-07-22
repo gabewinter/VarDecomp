@@ -103,39 +103,19 @@
 <span></span>
 <span><span class="va">mod</span> <span class="op">=</span> <span class="fu">VarDecomp</span><span class="fu">::</span><span class="fu"><a href="reference/brms_model.html">brms_model</a></span><span class="op">(</span>Chainset <span class="op">=</span> <span class="fl">1</span>, </span>
 <span>           Response <span class="op">=</span> <span class="st">"mass"</span>, </span>
-<span>           FixedEffect <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"sex"</span>,<span class="st">"height"</span><span class="op">)</span>, </span>
+<span>           FixedEffect <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"sex"</span>,<span class="st">"height"</span><span class="op">)</span>,</span>
 <span>           RandomEffect <span class="op">=</span> <span class="st">"species"</span>, </span>
-<span>           RandomSlope <span class="op">=</span> <span class="st">"height"</span>, </span>
 <span>           Family <span class="op">=</span> <span class="st">"gaussian"</span>, </span>
 <span>           Data <span class="op">=</span> <span class="va">md</span>, </span>
 <span>           Seed <span class="op">=</span> <span class="fl">0405</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "No problem 😄"</span></span>
+<span><span class="co">#&gt; Warning: replacing previous import 'posterior::ess_bulk' by 'rstan::ess_bulk'</span></span>
+<span><span class="co">#&gt; when loading 'VarDecomp'</span></span>
+<span><span class="co">#&gt; Warning: replacing previous import 'posterior::ess_tail' by 'rstan::ess_tail'</span></span>
+<span><span class="co">#&gt; when loading 'VarDecomp'</span></span>
+<span><span class="co">#&gt; [1] "No problems so far 😀"</span></span>
 <span><span class="co">#&gt; Warning: Rows containing NAs were excluded from the model.</span></span>
 <span><span class="co">#&gt; Compiling Stan program...</span></span>
 <span><span class="co">#&gt; Start sampling</span></span>
-<span></span>
-<span><span class="fu">VarDecomp</span><span class="fu">::</span><span class="fu"><a href="reference/var_decomp.html">var_decomp</a></span><span class="op">(</span><span class="va">mod</span><span class="op">)</span></span>
-<span><span class="co">#&gt; New names:</span></span>
-<span><span class="co">#&gt; • `sex` -&gt; `sex...1`</span></span>
-<span><span class="co">#&gt; • `sex` -&gt; `sex...3`</span></span>
-<span><span class="co">#&gt; # A tibble: 15 × 6</span></span>
-<span><span class="co">#&gt;    variable                 mean   median     sd lower_HPD upper_HPD</span></span>
-<span><span class="co">#&gt;    &lt;chr&gt;                   &lt;dbl&gt;    &lt;dbl&gt;  &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;</span></span>
-<span><span class="co">#&gt;  1 Intercept             -53.2    -53.5   13.2     -79.2     -27.5  </span></span>
-<span><span class="co">#&gt;  2 sexhermaphroditic    1301.    1301.    20.0    1260.     1339.   </span></span>
-<span><span class="co">#&gt;  3 sexmale                19.5     19.4    6.48      6.54     32.1  </span></span>
-<span><span class="co">#&gt;  4 sexnone                28.9     28.8   14.1       3.16     57.2  </span></span>
-<span><span class="co">#&gt;  5 height                  0.631    0.632  0.073     0.491     0.776</span></span>
-<span><span class="co">#&gt;  6 species_height          0.082    0.075  0.05      0         0.176</span></span>
-<span><span class="co">#&gt;  7 cor_species_height     -0.364   -0.545  0.573    -1         0.758</span></span>
-<span><span class="co">#&gt;  8 R2_height               0.017    0.017  0.004     0.01      0.025</span></span>
-<span><span class="co">#&gt;  9 R2_sexmale              0.003    0.002  0.002     0         0.006</span></span>
-<span><span class="co">#&gt; 10 R2_sexnone              0.002    0.002  0.002     0         0.006</span></span>
-<span><span class="co">#&gt; 11 R2_sexhermaphroditic    0.966    0.966  0.006     0.953     0.976</span></span>
-<span><span class="co">#&gt; 12 R2_sum_fixed_effects    0.987    0.988  0.003     0.981     0.993</span></span>
-<span><span class="co">#&gt; 13 R2_species_height       0.01     0.006  0.012     0         0.033</span></span>
-<span><span class="co">#&gt; 14 R2_species              0.005    0.005  0.003     0         0.012</span></span>
-<span><span class="co">#&gt; 15 R2_residual             0.007    0.007  0.002     0.004     0.011</span></span>
 <span></span>
 <span><span class="fu">VarDecomp</span><span class="fu">::</span><span class="fu"><a href="reference/model_fit.html">model_fit</a></span><span class="op">(</span><span class="va">mod</span>, Group <span class="op">=</span> <span class="st">"sex"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; No divergences to plot.</span></span>
@@ -147,7 +127,7 @@
 <span><span class="co">#&gt; # A tibble: 1 × 2</span></span>
 <span><span class="co">#&gt;    Rhat EffectiveSampleSize</span></span>
 <span><span class="co">#&gt;   &lt;dbl&gt;               &lt;dbl&gt;</span></span>
-<span><span class="co">#&gt; 1  1.01               1744.</span></span>
+<span><span class="co">#&gt; 1  1.00               1639.</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $`Traceplots plot`</span></span></code></pre></div>
 <p><img src="reference/figures/README-example-1.png" width="100%"></p>
@@ -159,9 +139,45 @@
 <p><img src="reference/figures/README-example-3.png" width="100%"></p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="co">#&gt; </span></span>
 <span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="co">#&gt; $`Posterior predictive check - Group density overlay plot`</span></span>
-<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="co">#&gt; Warning: Groups with fewer than two datapoints have been dropped.</span></span>
-<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="co">#&gt; ℹ Set `drop = FALSE` to consider such groups for position adjustment purposes.</span></span></code></pre></div>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="co">#&gt; $`Posterior predictive check - Group density overlay plot`$GroupPlot_sex</span></span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="co">#&gt; Warning: Groups with fewer than two datapoints have been dropped.</span></span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a><span class="co">#&gt; ℹ Set `drop = FALSE` to consider such groups for position adjustment purposes.</span></span></code></pre></div>
 <p><img src="reference/figures/README-example-4.png" width="100%"></p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
+<span><span class="fu">VarDecomp</span><span class="fu">::</span><span class="fu"><a href="reference/model_summary.html">model_summary</a></span><span class="op">(</span><span class="va">mod</span><span class="op">)</span></span>
+<span><span class="co">#&gt; New names:</span></span>
+<span><span class="co">#&gt; • `sex` -&gt; `sex...1`</span></span>
+<span><span class="co">#&gt; • `sex` -&gt; `sex...3`</span></span>
+<span><span class="co">#&gt; # A tibble: 12 × 6</span></span>
+<span><span class="co">#&gt;    variable                 mean   median     sd lower_HPD upper_HPD</span></span>
+<span><span class="co">#&gt;    &lt;chr&gt;                   &lt;dbl&gt;    &lt;dbl&gt;  &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;</span></span>
+<span><span class="co">#&gt;  1 Intercept             -56.0    -55.8   13.6     -80.8     -28.2  </span></span>
+<span><span class="co">#&gt;  2 sexhermaphroditic    1301.    1301.    19.3    1266.     1340.   </span></span>
+<span><span class="co">#&gt;  3 sexmale                20.1     20.2    6.54      6.42     32.3  </span></span>
+<span><span class="co">#&gt;  4 sexnone                35.0     35.0   14.1       6.37     63.5  </span></span>
+<span><span class="co">#&gt;  5 height                  0.646    0.644  0.072     0.497     0.778</span></span>
+<span><span class="co">#&gt;  6 R2_height               0.018    0.018  0.004     0.011     0.026</span></span>
+<span><span class="co">#&gt;  7 R2_sexmale              0.003    0.003  0.002     0         0.006</span></span>
+<span><span class="co">#&gt;  8 R2_sexnone              0.003    0.003  0.002     0         0.007</span></span>
+<span><span class="co">#&gt;  9 R2_sexhermaphroditic    0.965    0.966  0.006     0.954     0.976</span></span>
+<span><span class="co">#&gt; 10 R2_sum_fixed_effects    0.989    0.989  0.003     0.983     0.993</span></span>
+<span><span class="co">#&gt; 11 R2_species              0.003    0.002  0.003     0         0.008</span></span>
+<span><span class="co">#&gt; 12 R2_residual             0.008    0.008  0.002     0.005     0.013</span></span>
+<span></span>
+<span><span class="fu">VarDecomp</span><span class="fu">::</span><span class="fu"><a href="reference/plot_intervals.html">plot_intervals</a></span><span class="op">(</span><span class="va">mod</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Warning: Removed 6000 rows containing missing values or values outside the scale range</span></span>
+<span><span class="co">#&gt; (`stat_slabinterval()`).</span></span></code></pre></div>
+<p><img src="reference/figures/README-example-5.png" width="100%"></p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
+<span><span class="va">PS</span> <span class="op">=</span> <span class="fu">VarDecomp</span><span class="fu">::</span><span class="fu"><a href="reference/var_decomp.html">var_decomp</a></span><span class="op">(</span><span class="va">mod</span><span class="op">)</span></span>
+<span><span class="co">#&gt; New names:</span></span>
+<span><span class="co">#&gt; • `sex` -&gt; `sex...1`</span></span>
+<span><span class="co">#&gt; • `sex` -&gt; `sex...3`</span></span>
+<span></span>
+<span><span class="fu">VarDecomp</span><span class="fu">::</span><span class="fu"><a href="reference/plot_R2.html">plot_R2</a></span><span class="op">(</span><span class="va">PS</span><span class="op">)</span></span></code></pre></div>
+<p><img src="reference/figures/README-example-6.png" width="100%"></p>
 </div>
 </div>
   </div>
