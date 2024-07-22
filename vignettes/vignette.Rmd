@@ -261,5 +261,69 @@ model_fit(mod, Group = "sex", Prior = TRUE)
 #' }
 ```
 
+_____
+
+
 # plot_intervals
+
+```{r examples-plot_intervals, eval = FALSE}
+#' \dontrun{
+md = dplyr::starwars
+
+# Centering variables
+md = md %>% 
+  dplyr::select(mass, sex, species) %>% 
+  dplyr::mutate(mass = log(mass),
+         sex = dplyr::recode(sex, "male" = 1, 
+                      "female" = -1, 
+                      "hermaphroditic" = 0,
+                      "none" = as.numeric(NA)))
+  
+  
+mod = brms_model(Chainset = 2,
+                 Response = "mass", 
+                 FixedEffect = "sex", 
+                 RandomEffect = "species",
+                 Family = "gaussian", 
+                 Data = md)
+
+plot_intervals(mod)
+
+#' }
+
+```
+
+_____
+
+
+
+# plot_R2
+
+```{r examples-plot_R2, eval = FALSE}
+#' \dontrun{
+md = dplyr::starwars
+
+# Centering variables
+md = md %>% 
+  dplyr::select(mass, sex, species) %>% 
+  dplyr::mutate(mass = log(mass),
+         sex = dplyr::recode(sex, "male" = 1, 
+                      "female" = -1, 
+                      "hermaphroditic" = 0,
+                      "none" = as.numeric(NA)))
+  
+  
+mod = brms_model(Chainset = 2,
+                 Response = "mass", 
+                 FixedEffect = "sex", 
+                 RandomEffect = "species",
+                 Family = "gaussian", 
+                 Data = md)
+
+PosteriorSamples = var_decomp(mod)
+plot_R2(PosteriorSamples)
+
+#' }
+
+```
 

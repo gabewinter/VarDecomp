@@ -45,15 +45,20 @@ md = dplyr::starwars
 
 mod = VarDecomp::brms_model(Chainset = 1, 
            Response = "mass", 
-           FixedEffect = c("sex","height"), 
+           FixedEffect = c("sex","height"),
            RandomEffect = "species", 
-           RandomSlope = "height", 
            Family = "gaussian", 
            Data = md, 
            Seed = 0405)
 
-VarDecomp::var_decomp(mod)
-
 VarDecomp::model_fit(mod, Group = "sex")
+
+VarDecomp::model_summary(mod)
+
+VarDecomp::plot_intervals(mod)
+
+PS = VarDecomp::var_decomp(mod)
+
+VarDecomp::plot_R2(PS)
 
 ```

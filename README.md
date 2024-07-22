@@ -32,39 +32,19 @@ md = dplyr::starwars
 
 mod = VarDecomp::brms_model(Chainset = 1, 
            Response = "mass", 
-           FixedEffect = c("sex","height"), 
+           FixedEffect = c("sex","height"),
            RandomEffect = "species", 
-           RandomSlope = "height", 
            Family = "gaussian", 
            Data = md, 
            Seed = 0405)
-#> [1] "No problem 😄"
+#> Warning: replacing previous import 'posterior::ess_bulk' by 'rstan::ess_bulk'
+#> when loading 'VarDecomp'
+#> Warning: replacing previous import 'posterior::ess_tail' by 'rstan::ess_tail'
+#> when loading 'VarDecomp'
+#> [1] "No problems so far 😀"
 #> Warning: Rows containing NAs were excluded from the model.
 #> Compiling Stan program...
 #> Start sampling
-
-VarDecomp::var_decomp(mod)
-#> New names:
-#> • `sex` -> `sex...1`
-#> • `sex` -> `sex...3`
-#> # A tibble: 15 × 6
-#>    variable                 mean   median     sd lower_HPD upper_HPD
-#>    <chr>                   <dbl>    <dbl>  <dbl>     <dbl>     <dbl>
-#>  1 Intercept             -53.2    -53.5   13.2     -79.2     -27.5  
-#>  2 sexhermaphroditic    1301.    1301.    20.0    1260.     1339.   
-#>  3 sexmale                19.5     19.4    6.48      6.54     32.1  
-#>  4 sexnone                28.9     28.8   14.1       3.16     57.2  
-#>  5 height                  0.631    0.632  0.073     0.491     0.776
-#>  6 species_height          0.082    0.075  0.05      0         0.176
-#>  7 cor_species_height     -0.364   -0.545  0.573    -1         0.758
-#>  8 R2_height               0.017    0.017  0.004     0.01      0.025
-#>  9 R2_sexmale              0.003    0.002  0.002     0         0.006
-#> 10 R2_sexnone              0.002    0.002  0.002     0         0.006
-#> 11 R2_sexhermaphroditic    0.966    0.966  0.006     0.953     0.976
-#> 12 R2_sum_fixed_effects    0.987    0.988  0.003     0.981     0.993
-#> 13 R2_species_height       0.01     0.006  0.012     0         0.033
-#> 14 R2_species              0.005    0.005  0.003     0         0.012
-#> 15 R2_residual             0.007    0.007  0.002     0.004     0.011
 
 VarDecomp::model_fit(mod, Group = "sex")
 #> No divergences to plot.
@@ -76,7 +56,7 @@ VarDecomp::model_fit(mod, Group = "sex")
 #> # A tibble: 1 × 2
 #>    Rhat EffectiveSampleSize
 #>   <dbl>               <dbl>
-#> 1  1.01               1744.
+#> 1  1.00               1639.
 #> 
 #> $`Traceplots plot`
 ```
@@ -95,7 +75,49 @@ VarDecomp::model_fit(mod, Group = "sex")
 
     #> 
     #> $`Posterior predictive check - Group density overlay plot`
+    #> $`Posterior predictive check - Group density overlay plot`$GroupPlot_sex
     #> Warning: Groups with fewer than two datapoints have been dropped.
     #> ℹ Set `drop = FALSE` to consider such groups for position adjustment purposes.
 
 <img src="man/figures/README-example-4.png" width="100%" />
+
+``` r
+
+VarDecomp::model_summary(mod)
+#> New names:
+#> • `sex` -> `sex...1`
+#> • `sex` -> `sex...3`
+#> # A tibble: 12 × 6
+#>    variable                 mean   median     sd lower_HPD upper_HPD
+#>    <chr>                   <dbl>    <dbl>  <dbl>     <dbl>     <dbl>
+#>  1 Intercept             -56.0    -55.8   13.6     -80.8     -28.2  
+#>  2 sexhermaphroditic    1301.    1301.    19.3    1266.     1340.   
+#>  3 sexmale                20.1     20.2    6.54      6.42     32.3  
+#>  4 sexnone                35.0     35.0   14.1       6.37     63.5  
+#>  5 height                  0.646    0.644  0.072     0.497     0.778
+#>  6 R2_height               0.018    0.018  0.004     0.011     0.026
+#>  7 R2_sexmale              0.003    0.003  0.002     0         0.006
+#>  8 R2_sexnone              0.003    0.003  0.002     0         0.007
+#>  9 R2_sexhermaphroditic    0.965    0.966  0.006     0.954     0.976
+#> 10 R2_sum_fixed_effects    0.989    0.989  0.003     0.983     0.993
+#> 11 R2_species              0.003    0.002  0.003     0         0.008
+#> 12 R2_residual             0.008    0.008  0.002     0.005     0.013
+
+VarDecomp::plot_intervals(mod)
+#> Warning: Removed 6000 rows containing missing values or values outside the scale range
+#> (`stat_slabinterval()`).
+```
+
+<img src="man/figures/README-example-5.png" width="100%" />
+
+``` r
+
+PS = VarDecomp::var_decomp(mod)
+#> New names:
+#> • `sex` -> `sex...1`
+#> • `sex` -> `sex...3`
+
+VarDecomp::plot_R2(PS)
+```
+
+<img src="man/figures/README-example-6.png" width="100%" />

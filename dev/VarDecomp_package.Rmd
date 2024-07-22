@@ -1029,12 +1029,13 @@ output = PS %>%
   dplyr::select(-tidyselect::all_of(RandomEffect)) %>% 
   dplyr::select(-dplyr::starts_with("var_")) %>% 
   dplyr::select(-total_pv) %>% 
-  dplyr::select(-residual)
+  dplyr::select(-residual) %>% 
+  dplyr::select(-tidyselect::any_of("sigma"))
 
 if(Family == "binomial" | Family == "poisson"){
   output = output %>% 
   select(-observationID)
-  
+
 }
 
 
@@ -1445,94 +1446,223 @@ model_fit(mod_cov)
 
 ```
 
+_____
 
 # plot_intervals
-```{r dev, eval=FALSE}
+```{r function-plot_intervals}
 #' Plot probability density intervals for fixed effects of brms models
 #'
 #' @param brmsfit The output of a brms model. You can use VarDecomp::brms_model() to produce a brmsfit. 
-#' @return Returns a plot with the highest probability density intervals of fixed effect estimates.
+#' @return Returns a density plot with z-transformed fixed effect estimates.
 #' @export 
 #' 
 
 plot_intervals = function(brmsfit){
 
-# Select fixed effects slope values
+stopifnot("Input must be a brmsfit" = inherits(brmsfit, "brmsfit"))
   
-PS = brmsfit %>% 
-  select(!starts_with("Intercept")) %>%
-  select(!starts_with("SD")) %>%
-  select(!starts_with("random")) %>%
-  select(!starts_with("fixed")) %>%
-  select(!starts_with("within")) %>%
-  select(!starts_with("total")) %>%
-  select(!starts_with("v_")) %>%
-  select(!starts_with("Var")) %>%
-  select(!starts_with("R2")) %>%
-  select(!starts_with("CV")) %>% 
-  filter(Trait == trait) %>% 
+  
+#Extract fixed effects posterior samples from brmsfit
+PS = as.data.frame(brmsfit) %>% 
+  dplyr::select(dplyr::starts_with("b_")) %>% 
+  dplyr::select(!dplyr::contains("Intercept")) %>% 
+  dplyr::rename_with(~ stringr::str_remove(., "^b_"))
 
+#Extract fixed effects observed data from brmsfit
+Data = brmsfit$data 
+Data = Data %>% 
+  dplyr::filter(dplyr::if_all(1:ncol(Data),~ !is.na(.))) %>% 
+  dplyr::select(-1)
+
+if(brmsfit$family[[1]][1] == "binomial"){
+  Data = Data %>%
+  dplyr::select(-1)
+}
 
 
 # Standardize the slopes for the standard deviation of each covariate (Z transformation)
-  
-    mutate(Treatment_m_Z = Treatment_m * sd(c(0,1)),
-           Morph_m_Z = Morph_m * sd(c(0,1,2,3)),
-           Sex_m_Z = Sex_m *sd(c(-0.5,0.5)),
-           DaysAfterMolt_m_Z = DaysAfterMolt_m * sd(md$DaysAfterMoltC),
-           Daytime_m_Z = Daytime_m * sd(md$DayTimeC),
-           Temperature_m_Z = Temperature_m * sd(md$TemperatureC),
-           JumpOrder_m_Z = JumpOrder_m * sd(md$JumpOrderC),
-           Cohort_m_Z = Cohort_m * sd(md$CohortC),
-           TreatmentMorph_m_Z = TreatmentMorph_m * 
-                             sd(md$TreatmentC * md$ColorMorphC),
-           
-           Treatment_sd_Z = Treatment_sd * sd(c(0,1)),
-           Morph_sd_Z = Morph_sd * sd(c(0,1,2,3)),
-           Sex_sd_Z = Sex_sd *sd(c(-0.5,0.5)),
-           DaysAfterMolt_sd_Z = DaysAfterMolt_sd * sd(md$DaysAfterMoltC),
-           Daytime_sd_Z = Daytime_sd * sd(md$DayTimeC),
-           Temperature_sd_Z = Temperature_sd * sd(md$TemperatureC),
-           JumpOrder_sd_Z = JumpOrder_sd * sd(md$JumpOrderC),
-           Cohort_sd_Z = Cohort_sd * sd(md$CohortC),
-           TreatmentMorph_sd_Z = TreatmentMorph_sd * 
-                             sd(md$TreatmentC * md$ColorMorphC)) %>% 
-  select(ends_with("Z")) 
-    
-
+for(i in colnames(PS)){
+  PS = PS %>% 
+  dplyr::mutate(!!paste(i) := get(paste(i)) * sd(Data[[i]]))
+}
 
 # Turn to long format and order levels for the plot 
 
-PSTempLong = gather(PSTemp,FixedEffect_Level, Slope) %>% 
-  separate(col = FixedEffect_Level, 
-           into = c("FixedEffect", "Level", "A"), 
-           sep ="_", 
-           remove = TRUE) %>% 
-  select(!A) %>% 
-mutate(FixedEffect = factor(FixedEffect, 
-            levels = c("TreatmentMorph", "Cohort","JumpOrder",
-                       "Temperature",  "Daytime", "DaysAfterMolt",
-                       "Sex","Morph", "Treatment"), 
-            labels = c("Treatment : Color Morph", "Cohort","Jump order",
-                       "Temperature",  "Daytime", "Days since last molt",
-                       "Sex","Color Morph", "Treatment"))) %>% 
-  mutate(Level = recode(Level, "m" = "Average", "sd" = "Sigma")) %>% 
-  filter(Level == level)
+PS = PS %>%
+  tidyr::pivot_longer(cols = tidyselect::everything(), 
+  names_to = "FixedEffect",
+  values_to = "Slope")
 
 
 # Plot
-
-ggplot(PSTempLong,aes(y = FixedEffect, x = Slope)) +  
-  stat_halfeye(.width = c(.5, .95))+
-  geom_vline(xintercept=0,color = "red")+
-  labs(y = paste0(trait, " - ", level), x = "Fixed effects slopes")+
-  theme_test()  
+ggplot2::ggplot(PS,ggplot2::aes(y = FixedEffect, x = Slope)) +  
+  ggdist::stat_halfeye(.width = c(.5, .95))+
+  ggplot2::geom_vline(xintercept=0,color = "red")+
+  ggplot2::labs(x = "Fixed effects slopes")+
+  ggplot2::theme_test()  
 }
 
 
 
 ```
 
+```{r examples-plot_intervals, eval=FALSE} 
+#' \dontrun{
+md = dplyr::starwars
+
+# Centering variables
+md = md %>% 
+  dplyr::select(mass, sex, species) %>% 
+  dplyr::mutate(mass = log(mass),
+         sex = dplyr::recode(sex, "male" = 1, 
+                      "female" = -1, 
+                      "hermaphroditic" = 0,
+                      "none" = as.numeric(NA)))
+  
+  
+mod = brms_model(Chainset = 2,
+                 Response = "mass", 
+                 FixedEffect = "sex", 
+                 RandomEffect = "species",
+                 Family = "gaussian", 
+                 Data = md)
+
+plot_intervals(mod)
+
+#' }
+
+```
 
 
+```{r test-plot_intervals}
+data("mod", package = "VarDecomp")
+plot_intervals(mod)
 
+data("mod_RE", package = "VarDecomp")
+plot_intervals(mod_RE)
+
+data("mod_RS", package = "VarDecomp")
+plot_intervals(mod_RS)
+
+
+data("mod_cov", package = "VarDecomp")
+plot_intervals(mod_cov)
+
+```
+
+_____
+
+
+# plot_R2
+```{r function-plot_R2}
+#' Plot R2 values of brms models
+#'
+#' @param PosteriorSamples The estimates of a brms model after variance decomposition. You can use VarDecomp::brms_model() to produce a brmsfit and then VarDecomp::var_decomp() to produce the posterior samples. 
+#' @param Colors A vector with string of the colors to be attributed to each variable ordered by R2, with residual at the end (e.g. c("blue", "green", "gray")).
+#' @return Returns a bar plot with the proportion of variance explained by each variable.
+#' @export 
+#' 
+
+plot_R2 = function(PosteriorSamples, Colors = NULL){
+
+stopifnot("Input must be a data frame containing estimates after variance decomposition. You can use VarDecomp::var_decomp() to produce the input data." = inherits(PosteriorSamples, "data.frame"))
+
+stopifnot("Input must be a data frame containing estimates after variance decomposition. You can use VarDecomp::var_decomp() to produce the input data." = any(stringr::str_detect(names(PosteriorSamples), "R2")) == TRUE) 
+
+if(!is.null(Colors)){
+stopifnot("Colors input must be a vector containing strings with the colors to be attributed to each category in the stacked bar plot (e.g. c(`blue`, `green`, `gray`))." = inherits(Colors, "character"))
+}  
+  
+PS = PosteriorSamples %>% 
+  dplyr::select(dplyr::starts_with("R2_")) %>% 
+  dplyr::rename_with(~ stringr::str_remove(., "^R2_")) %>% 
+  dplyr::select(!sum_fixed_effects) %>% 
+  dplyr::summarise(dplyr::across(tidyselect::everything(), mean, na.rm = TRUE))
+
+for (i in colnames(PS)) {
+  RS = unlist(strsplit(i, "_"))
+  
+  # Check if both parts exist as separate columns
+  if (length(RS) == 2 && all(RS %in% colnames(PS))) {
+    # Remove the concatenated column
+    PS = PS %>% 
+    dplyr::select(-all_of(i))
+  }
+  }  
+
+PS = PS %>%
+  tidyr::pivot_longer(cols = everything(), 
+  names_to = "Variable",
+  values_to = "R2")
+
+PS = PS %>%
+  dplyr::arrange(R2) %>% 
+  dplyr::mutate(ID = "")
+
+PS = PS %>%
+  dplyr::mutate(Variable = factor(Variable, 
+  levels = c(setdiff(PS$Variable, "residual"), "residual")))
+
+ if(is.null(Colors)){
+  variable_colors = setNames(rep("lightgrey", length(levels(PS$Variable))), levels(PS$Variable))
+  variable_colors[names(variable_colors) != "residual"] = scales::hue_pal()(length(levels(PS$Variable)) - 1)
+ }  else {
+  variable_colors = Colors
+}
+
+ggplot2::ggplot(PS, ggplot2::aes(x = ID, y = R2, fill=Variable)) +
+ggplot2::geom_bar(stat="identity") +
+
+ggplot2::geom_text(ggplot2::aes(label = round(R2*100, 2)), 
+              position = ggplot2::position_fill(vjust = 0.5), 
+              color = "white", size = 3) +
+ggplot2::scale_fill_manual(values = variable_colors) +
+ggplot2::labs(x = NULL, y = "Proportion of total variance explained")+
+ggplot2::theme_test()
+}
+
+```
+
+```{r examples-plot_R2, eval=FALSE} 
+#' \dontrun{
+md = dplyr::starwars
+
+# Centering variables
+md = md %>% 
+  dplyr::select(mass, sex, species) %>% 
+  dplyr::mutate(mass = log(mass),
+         sex = dplyr::recode(sex, "male" = 1, 
+                      "female" = -1, 
+                      "hermaphroditic" = 0,
+                      "none" = as.numeric(NA)))
+  
+  
+mod = brms_model(Chainset = 2,
+                 Response = "mass", 
+                 FixedEffect = "sex", 
+                 RandomEffect = "species",
+                 Family = "gaussian", 
+                 Data = md)
+
+PosteriorSamples = var_decomp(mod)
+plot_R2(PosteriorSamples)
+
+#' }
+
+```
+
+
+```{r test-plot_R2}
+data("mod", package = "VarDecomp")
+plot_R2(var_decomp(mod))
+
+data("mod_RE", package = "VarDecomp")
+plot_R2(var_decomp(mod_RE))
+
+data("mod_RS", package = "VarDecomp")
+plot_R2(var_decomp(mod_RS))
+
+data("mod_cov", package = "VarDecomp")
+plot_R2(var_decomp(mod_cov))
+
+```

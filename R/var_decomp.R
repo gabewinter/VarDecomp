@@ -338,12 +338,13 @@ output = PS %>%
   dplyr::select(-tidyselect::all_of(RandomEffect)) %>% 
   dplyr::select(-dplyr::starts_with("var_")) %>% 
   dplyr::select(-total_pv) %>% 
-  dplyr::select(-residual)
+  dplyr::select(-residual) %>% 
+  dplyr::select(-tidyselect::any_of("sigma"))
 
 if(Family == "binomial" | Family == "poisson"){
   output = output %>% 
   select(-observationID)
-  
+
 }
 
 

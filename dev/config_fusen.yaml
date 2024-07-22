@@ -7,6 +7,8 @@ VarDecomp_package.Rmd:
   - R/compare_slopes.R
   - R/model_fit.R
   - R/model_summary.R
+  - R/plot_intervals.R
+  - R/plot_r2.R
   - R/var_decomp.R
   - R/mod.R
   - R/mod_re.R
@@ -19,6 +21,8 @@ VarDecomp_package.Rmd:
   - tests/testthat/test-model_summary.R
   - tests/testthat/test-compare_slopes.R
   - tests/testthat/test-model_fit.R
+  - tests/testthat/test-plot_intervals.R
+  - tests/testthat/test-plot_r2.R
   vignettes: vignettes/vignette.Rmd
   inflate:
     flat_file: dev/VarDecomp_package.Rmd
