@@ -47,13 +47,44 @@ PS = as.data.frame(brmsfit) %>%
 Data = brmsfit$data 
 Data = Data %>% 
   dplyr::filter(dplyr::if_all(1:ncol(Data),~ !is.na(.))) %>% 
-  dplyr::select(-1)
+  dplyr::select(-1) #Removing the response variable
 
-if(brmsfit$family[[1]][1] == "binomial"){
+#Extract family
+Family = brmsfit$family[[1]][1]
+
+  
+## Create a dataframe with the values used by the model for fixed effects
+if(Family == "binomial"){
   Data = Data %>%
-  dplyr::select(-1)
-}
+  dplyr::select(-1)#Removing the trial variable
+  }  
 
+## Specific for covariates with of character class 
+suppressWarnings({  
+CharactersFE = Data %>%
+  dplyr::select(-dplyr::one_of(colnames(PS))) 
+  })
+  
+if(ncol(CharactersFE) == 0){
+} else {
+  
+  for(i in colnames(CharactersFE)){
+  unique_values = unique(CharactersFE[[i]])
+  
+    for (j in unique_values) {
+    
+      CharactersFE = CharactersFE %>% 
+      dplyr::mutate(!!paste(j) := 
+      dplyr::if_else(CharactersFE[[i]] == j, 1,0)) %>% 
+      dplyr::rename(!!paste0(i, j) := paste(j))
+    }
+  
+  CharactersFE = CharactersFE 
+  }
+  
+  Data = dplyr::bind_cols(Data,CharactersFE) %>% 
+    dplyr::select_if(~ is.numeric(.))
+  }
 
 # Standardize the slopes for the standard deviation of each covariate (Z transformation)
 for(i in colnames(PS)){
@@ -76,6 +107,4 @@ ggplot2::ggplot(PS,ggplot2::aes(y = FixedEffect, x = Slope)) +
   ggplot2::labs(x = "Fixed effects slopes")+
   ggplot2::theme_test()  
 }
-
-
 

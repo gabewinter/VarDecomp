@@ -544,18 +544,28 @@ mod = brms_cov_model(Chainset = 3,
 
 # model_examples
 ```{r dev-model_examples, eval=FALSE}
+
 library(tidyverse)
-md = dplyr::starwars
+
+md = tibble::tibble(
+  ID = as.factor(rep(1:10, each = 100)),
+  sex = sample(rep(c(-0.5, 0.5), each = 500)),
+  species = sample(rep(c("species1","species2","species3","species4","species5"), each = 200))) %>% 
+
+## Create a variables 
+  dplyr::mutate(height = rnorm(1000, mean = 170, sd = 10),
+                mass = 5 + 0.5 * height + rnorm(1000, mean = 0, sd = 5)) %>% 
+  dplyr::mutate(height = height - mean(height),
+                mass = log(mass))
 
 
-# Centering variables
-md = md %>% 
-  dplyr::select(mass, sex, height, species) %>% 
-  dplyr::mutate(mass = log(mass),
-         sex = dplyr::recode(sex, "male" = 1, 
-                      "female" = -1, 
-                      "hermaphroditic" = 0,
-                      "none" = as.numeric(NA)))
+## Create a covariance matrix (e.g., relatedness matrix)
+cov_matrix = matrix(rnorm(10 * 10), 10, 10)
+cov_matrix = cov_matrix %*% t(cov_matrix)  # Make it positive semi-definite
+rownames(cov_matrix) = colnames(cov_matrix) = 1:10
+
+## Ensure the covariance matrix is symmetric
+cov_matrix = (cov_matrix + t(cov_matrix)) / 2
 
 
 mod = brms_model(Chainset = 2,
@@ -591,22 +601,7 @@ save(mod_RS, file = "data/mod_RS.RData",compress = "xz")
 
 
 # mod_cov
-## Create a group (ID) variable
-md = tibble::tibble(
-  ID = as.factor(rep(1:10, each = 100))) %>% 
 
-## Create a variables 
-  dplyr::mutate(height = rnorm(1000, mean = 170, sd = 10),
-         mass = 5 + 0.5 * height + rnorm(1000, mean = 0, sd = 5)) %>% 
-  dplyr::mutate(height = height - mean(height))
-
-## Create a covariance matrix (e.g., relatedness matrix)
-cov_matrix = matrix(rnorm(10 * 10), 10, 10)
-cov_matrix = cov_matrix %*% t(cov_matrix)  # Make it positive semi-definite
-rownames(cov_matrix) = colnames(cov_matrix) = 1:10
-
-## Ensure the covariance matrix is symmetric
-cov_matrix = (cov_matrix + t(cov_matrix)) / 2
 
 
   
@@ -623,6 +618,7 @@ save(mod_cov, file = "data/mod_cov.RData", compress = "xz")
 
 ```
 
+## mod
 ```{r function-mod}
 #' Model example that can be used to test other functions of `VarDecomp`. A model with fixed effects only
  
@@ -633,6 +629,19 @@ save(mod_cov, file = "data/mod_cov.RData", compress = "xz")
 
 ```
 
+
+```{r examples-mod, eval=FALSE}
+
+#' \dontrun{
+
+# A model with fixed effects only
+data("mod", package = "VarDecomp")
+
+#' }
+
+```
+
+## mod_RE
 ```{r function-mod_RE}
 #' Model example that can be used to test other functions of `VarDecomp`. A model with fixed and random effects
 #' @format A `brmsfit` object.
@@ -641,7 +650,19 @@ save(mod_cov, file = "data/mod_cov.RData", compress = "xz")
 "mod_RE"
 
 ```
+```{r examples-mod_RE, eval=FALSE}
 
+#' \dontrun{
+
+# A model with fixed and random effects
+data("mod_RE", package = "VarDecomp")
+
+
+#' }
+
+```
+
+## mod_RS
 ```{r function-mod_RS}
 #' Model example that can be used to test other functions of `VarDecomp`. A model with random slopes.
 #' @format A `brmsfit` object.
@@ -651,6 +672,18 @@ save(mod_cov, file = "data/mod_cov.RData", compress = "xz")
 
 ```
 
+```{r examples-mod_RS, eval=FALSE}
+
+#' \dontrun{
+
+# A model with random slopes
+data("mod_RS", package = "VarDecomp")
+
+#' }
+
+```
+
+## mod_cov
 ```{r function-mod_cov}
 #' Model example that can be used to test other functions of `VarDecomp`. A model with a covariance matrix.
 #' @format A `brmsfit` object.
@@ -660,18 +693,9 @@ save(mod_cov, file = "data/mod_cov.RData", compress = "xz")
 
 ```
 
-```{r model_examples, eval=FALSE}
+```{r examples-mod_cov, eval=FALSE}
 
 #' \dontrun{
-
-# A model with fixed effects only
-data("mod", package = "VarDecomp")
-
-# A model with fixed and random effects
-data("mod_RE", package = "VarDecomp")
-
-# A model with random slopes
-data("mod_RS", package = "VarDecomp")
 
 # A model with a covariance matrix
 data("mod_cov", package = "VarDecomp")
@@ -679,7 +703,6 @@ data("mod_cov", package = "VarDecomp")
 #' }
 
 ```
-
 ______
 
 # var_decomp
@@ -1439,13 +1462,44 @@ PS = as.data.frame(brmsfit) %>%
 Data = brmsfit$data 
 Data = Data %>% 
   dplyr::filter(dplyr::if_all(1:ncol(Data),~ !is.na(.))) %>% 
-  dplyr::select(-1)
+  dplyr::select(-1) #Removing the response variable
 
-if(brmsfit$family[[1]][1] == "binomial"){
+#Extract family
+Family = brmsfit$family[[1]][1]
+
+  
+## Create a dataframe with the values used by the model for fixed effects
+if(Family == "binomial"){
   Data = Data %>%
-  dplyr::select(-1)
-}
+  dplyr::select(-1)#Removing the trial variable
+  }  
 
+## Specific for covariates with of character class 
+suppressWarnings({  
+CharactersFE = Data %>%
+  dplyr::select(-dplyr::one_of(colnames(PS))) 
+  })
+  
+if(ncol(CharactersFE) == 0){
+} else {
+  
+  for(i in colnames(CharactersFE)){
+  unique_values = unique(CharactersFE[[i]])
+  
+    for (j in unique_values) {
+    
+      CharactersFE = CharactersFE %>% 
+      dplyr::mutate(!!paste(j) := 
+      dplyr::if_else(CharactersFE[[i]] == j, 1,0)) %>% 
+      dplyr::rename(!!paste0(i, j) := paste(j))
+    }
+  
+  CharactersFE = CharactersFE 
+  }
+  
+  Data = dplyr::bind_cols(Data,CharactersFE) %>% 
+    dplyr::select_if(~ is.numeric(.))
+  }
 
 # Standardize the slopes for the standard deviation of each covariate (Z transformation)
 for(i in colnames(PS)){
@@ -1468,8 +1522,6 @@ ggplot2::ggplot(PS,ggplot2::aes(y = FixedEffect, x = Slope)) +
   ggplot2::labs(x = "Fixed effects slopes")+
   ggplot2::theme_test()  
 }
-
-
 
 ```
 

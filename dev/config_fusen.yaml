@@ -10,7 +10,10 @@ VarDecomp_package.Rmd:
   - R/plot_intervals.R
   - R/plot_r2.R
   - R/var_decomp.R
-  - R/model_examples.R
+  - R/model_examples-mod_rs.R
+  - R/model_examples-mod_cov.R
+  - R/model_examples-mod.R
+  - R/model_examples-mod_re.R
   tests:
   - tests/testthat/test-brms_model.R
   - tests/testthat/test-brms_cov_model.R

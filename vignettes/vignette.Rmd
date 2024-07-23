@@ -93,18 +93,51 @@ mod = brms_cov_model(Chainset = 3,
 
 # model_examples
 
-```{r model_examples, eval = FALSE}
+## mod
+
+```{r examples-mod, eval = FALSE}
 
 #' \dontrun{
 
 # A model with fixed effects only
 data("mod", package = "VarDecomp")
 
+#' }
+
+```
+
+## mod_RE
+
+```{r examples-mod_RE, eval = FALSE}
+
+#' \dontrun{
+
 # A model with fixed and random effects
 data("mod_RE", package = "VarDecomp")
 
+
+#' }
+
+```
+
+## mod_RS
+
+```{r examples-mod_RS, eval = FALSE}
+
+#' \dontrun{
+
 # A model with random slopes
 data("mod_RS", package = "VarDecomp")
+
+#' }
+
+```
+
+## mod_cov
+
+```{r examples-mod_cov, eval = FALSE}
+
+#' \dontrun{
 
 # A model with a covariance matrix
 data("mod_cov", package = "VarDecomp")

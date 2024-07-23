@@ -14,7 +14,7 @@ knitr::opts_chunk$set(
 
 library(tidyverse)
 library(dplyr)
-
+library(VarDecomp)
 ```
 
 # VarDecomp
@@ -41,15 +41,24 @@ Full documentation website on: https://gabewinter.github.io/VarDecomp
 ## Example
 
 ```{r example}
-md = dplyr::starwars
+library(tidyverse)
 
-mod = VarDecomp::brms_model(Chainset = 1, 
-           Response = "mass", 
-           FixedEffect = c("sex","height"),
-           RandomEffect = "species", 
-           Family = "gaussian", 
-           Data = md, 
-           Seed = 0405)
+md = tibble(
+  sex = sample(rep(c(-0.5, 0.5), each = 500)),
+  species = sample(rep(c("species1","species2","species3","species4","species5"), each = 200))) %>% 
+
+## Create a variables 
+  dplyr::mutate(height = rnorm(1000, mean = 170, sd = 10),
+                mass = 5 + 0.5 * height + rnorm(1000, mean = 0, sd = 5)) %>% 
+  dplyr::mutate(height = height - mean(height),
+                mass = log(mass))
+
+
+mod = brms_model(Chainset = 2,
+                 Response = "mass", 
+                 FixedEffect = c("sex","height"), 
+                 Family = "gaussian", 
+                 Data = md)
 
 VarDecomp::model_fit(mod, Group = "sex")
 
