@@ -160,6 +160,9 @@
 <div class="section level2">
 <h2 id="model_examples">model_examples<a class="anchor" aria-label="anchor" href="#model_examples"></a>
 </h2>
+<div class="section level3">
+<h3 id="mod">mod<a class="anchor" aria-label="anchor" href="#mod"></a>
+</h3>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="co">#' \dontrun{</span></span>
@@ -167,11 +170,39 @@
 <span><span class="co"># A model with fixed effects only</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"mod"</span>, package <span class="op">=</span> <span class="st">"VarDecomp"</span><span class="op">)</span></span>
 <span></span>
+<span><span class="co">#' }</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="mod_re">mod_RE<a class="anchor" aria-label="anchor" href="#mod_re"></a>
+</h3>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
+<span><span class="co">#' \dontrun{</span></span>
+<span></span>
 <span><span class="co"># A model with fixed and random effects</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"mod_RE"</span>, package <span class="op">=</span> <span class="st">"VarDecomp"</span><span class="op">)</span></span>
 <span></span>
+<span></span>
+<span><span class="co">#' }</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="mod_rs">mod_RS<a class="anchor" aria-label="anchor" href="#mod_rs"></a>
+</h3>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
+<span><span class="co">#' \dontrun{</span></span>
+<span></span>
 <span><span class="co"># A model with random slopes</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"mod_RS"</span>, package <span class="op">=</span> <span class="st">"VarDecomp"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co">#' }</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="mod_cov">mod_cov<a class="anchor" aria-label="anchor" href="#mod_cov"></a>
+</h3>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
+<span><span class="co">#' \dontrun{</span></span>
 <span></span>
 <span><span class="co"># A model with a covariance matrix</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"mod_cov"</span>, package <span class="op">=</span> <span class="st">"VarDecomp"</span><span class="op">)</span></span>
@@ -179,10 +210,11 @@
 <span><span class="co">#' }</span></span></code></pre></div>
 <hr>
 </div>
+</div>
 <div class="section level2">
 <h2 id="var_decomp">var_decomp<a class="anchor" aria-label="anchor" href="#var_decomp"></a>
 </h2>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="co">#' \dontrun{</span></span>
 <span></span>
@@ -213,7 +245,7 @@
 <div class="section level2">
 <h2 id="model_summary">model_summary<a class="anchor" aria-label="anchor" href="#model_summary"></a>
 </h2>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#' \dontrun{</span></span>
 <span></span>
 <span><span class="va">md</span> <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="va"><a href="https://dplyr.tidyverse.org/reference/starwars.html" class="external-link">starwars</a></span></span>
@@ -243,7 +275,7 @@
 <div class="section level2">
 <h2 id="compare_slopes">compare_slopes<a class="anchor" aria-label="anchor" href="#compare_slopes"></a>
 </h2>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#' \dontrun{</span></span>
 <span></span>
 <span><span class="va">md</span> <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="va"><a href="https://dplyr.tidyverse.org/reference/starwars.html" class="external-link">starwars</a></span></span>
@@ -279,7 +311,7 @@
 <div class="section level2">
 <h2 id="model_fit">model_fit<a class="anchor" aria-label="anchor" href="#model_fit"></a>
 </h2>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#' \dontrun{</span></span>
 <span></span>
 <span><span class="va">md</span> <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="va"><a href="https://dplyr.tidyverse.org/reference/starwars.html" class="external-link">starwars</a></span></span>
@@ -311,7 +343,7 @@
 <div class="section level2">
 <h2 id="plot_intervals">plot_intervals<a class="anchor" aria-label="anchor" href="#plot_intervals"></a>
 </h2>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#' \dontrun{</span></span>
 <span><span class="va">md</span> <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="va"><a href="https://dplyr.tidyverse.org/reference/starwars.html" class="external-link">starwars</a></span></span>
 <span></span>
@@ -340,7 +372,7 @@
 <div class="section level2">
 <h2 id="plot_r2">plot_R2<a class="anchor" aria-label="anchor" href="#plot_r2"></a>
 </h2>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#' \dontrun{</span></span>
 <span><span class="va">md</span> <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="va"><a href="https://dplyr.tidyverse.org/reference/starwars.html" class="external-link">starwars</a></span></span>
 <span></span>
