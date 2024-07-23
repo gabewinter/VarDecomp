@@ -17,7 +17,6 @@
 #' @return Returns a brmsfit
 #' @import BH
 #' @import brms
-#' @import rstan
 #' @import RcppEigen
 #' @export 
 #'

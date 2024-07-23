@@ -19,7 +19,7 @@ pkgload::load_all(export_all = FALSE)
 
 
 ```{r development-inflate, eval=FALSE}
-# Execute in the console directly - keep eval=TRUE to avoid infinite loop
+# Execute in the console directly - keep eval=FALSE to avoid infinite loop
 fusen::inflate(flat_file = "dev/VarDecomp_package.Rmd", vignette_name = "vignette")
 ```
 
@@ -43,7 +43,6 @@ fusen::inflate(flat_file = "dev/VarDecomp_package.Rmd", vignette_name = "vignett
 #' @return Returns a brmsfit
 #' @import BH
 #' @import brms
-#' @import rstan
 #' @import RcppEigen
 #' @export 
 #'
@@ -303,129 +302,7 @@ mod = brms_model(Chainset = 2,
 
 ```{r test-brms_model}
 
-#included below as functions
-
-```
-
-# mod
-```{r dev-mod, eval=TRUE}
-library(tidyverse)
-md = dplyr::starwars
-
-
-# Centering variables
-md = md %>% 
-  dplyr::select(mass, sex, height, species) %>% 
-  dplyr::mutate(mass = log(mass),
-         sex = dplyr::recode(sex, "male" = 1, 
-                      "female" = -1, 
-                      "hermaphroditic" = 0,
-                      "none" = as.numeric(NA)))
-
-
-mod = brms_model(Chainset = 2,
-                 Response = "mass", 
-                 FixedEffect = c("sex","height"), 
-                 Family = "gaussian", 
-                 Data = md)
-
-save(mod, file = "data/mod.RData")
-```
-
-```{r function-mod}
-#' Example model with fixed effects only
-#' @format A `brmsfit` object.
-#' @source Generated using the `brms_model` function.
-
-"mod"
-```
-
-```{r examples-mod}
-
-mod = data("mod", package = "VarDecomp")
-
-```
-
-
-# mod_RE
-```{r dev-mod_RE, eval=TRUE}
-md = dplyr::starwars
-
-# Centering variables
-md = md %>% 
-  dplyr::select(mass, sex, height, species) %>% 
-  dplyr::mutate(mass = log(mass),
-         sex = dplyr::recode(sex, "male" = 1, 
-                      "female" = -1, 
-                      "hermaphroditic" = 0,
-                      "none" = as.numeric(NA)))
-
-
-# With random effect
-mod_RE = brms_model(Chainset = 2,
-                     Response = "mass", 
-                     FixedEffect = c("sex","height"), 
-                     RandomEffect = "species", 
-                     Family = "gaussian", 
-                     Data = md)
-
-save(mod_RE, file = "data/mod_RE.RData")
-
-```
-
-```{r function-mod_RE}
-#' Example model with fixed and random effects
-#' @format A `brmsfit` object.
-#' @source Generated using the `brms_model` function.
-
-"mod_RE"
-
-```
-
-```{r examples-mod_RE}
-
-mod = data("mod_RE", package = "VarDecomp")
-
-```
-
-
-# mod_RS
-```{r dev-mod_RS, eval=TRUE}
-md = dplyr::starwars
-
-# Centering variables
-md = md %>% 
-  dplyr::select(mass, sex, height, species) %>% 
-  dplyr::mutate(mass = log(mass),
-         sex = dplyr::recode(sex, "male" = 1, 
-                      "female" = -1, 
-                      "hermaphroditic" = 0,
-                      "none" = as.numeric(NA)))
-
-
-# With random slope
-mod_RS = brms_model(Chainset = 3,
-                     Response = "mass", 
-                     FixedEffect = c("sex","height"),
-                     RandomSlope = c("height", "species"),
-                     Family = "gaussian", 
-                     Data = md)
-
-save(mod_RS, file = "data/mod_RS.RData")
-
-```
-
-```{r function-mod_RS}
-#' Example model with fixed effects and random slopes
-#' @format A `brmsfit` object.
-#' @source Generated using the `brms_model` function.
-
-"mod_RS"
-```
-
-```{r examples-mod_RS}
-
-mod = data("mod_RS", package = "VarDecomp")
+#included on model_examples function
 
 ```
 
@@ -452,7 +329,6 @@ ______
 #' @return Returns a brmsfit
 #' @import BH
 #' @import brms
-#' @import rstan
 #' @import RcppEigen
 #' @export 
 #'
@@ -661,27 +537,75 @@ mod = brms_cov_model(Chainset = 3,
 
 ```{r test-brms_cov_model}
 
-#included below as a function
+#included on model_examples function
 
 ```
 
+
+# model_examples
+```{r dev-model_examples, eval=FALSE}
+library(tidyverse)
+md = dplyr::starwars
+
+
+# Centering variables
+md = md %>% 
+  dplyr::select(mass, sex, height, species) %>% 
+  dplyr::mutate(mass = log(mass),
+         sex = dplyr::recode(sex, "male" = 1, 
+                      "female" = -1, 
+                      "hermaphroditic" = 0,
+                      "none" = as.numeric(NA)))
+
+
+mod = brms_model(Chainset = 2,
+                 Response = "mass", 
+                 FixedEffect = c("sex","height"), 
+                 Family = "gaussian", 
+                 Data = md)
+
+save(mod, file = "data/mod.RData", compress = "xz")
+
+
+# With random effect
+mod_RE = brms_model(Chainset = 2,
+                     Response = "mass", 
+                     FixedEffect = c("sex","height"), 
+                     RandomEffect = "species", 
+                     Family = "gaussian", 
+                     Data = md)
+
+save(mod_RE, file = "data/mod_RE.RData", compress = "xz")
+
+
+# With random slope
+mod_RS = brms_model(Chainset = 3,
+                     Response = "mass", 
+                     FixedEffect = c("sex","height"),
+                     RandomSlope = c("height", "species"),
+                     Family = "gaussian", 
+                     Data = md)
+
+save(mod_RS, file = "data/mod_RS.RData",compress = "xz")
+
+
+
 # mod_cov
-```{r dev-mod_cov, eval=TRUE}
-# Create a group (ID) variable
+## Create a group (ID) variable
 md = tibble::tibble(
   ID = as.factor(rep(1:10, each = 100))) %>% 
 
-# Create a variables 
+## Create a variables 
   dplyr::mutate(height = rnorm(1000, mean = 170, sd = 10),
          mass = 5 + 0.5 * height + rnorm(1000, mean = 0, sd = 5)) %>% 
   dplyr::mutate(height = height - mean(height))
 
-# Create a covariance matrix (e.g., relatedness matrix)
+## Create a covariance matrix (e.g., relatedness matrix)
 cov_matrix = matrix(rnorm(10 * 10), 10, 10)
 cov_matrix = cov_matrix %*% t(cov_matrix)  # Make it positive semi-definite
 rownames(cov_matrix) = colnames(cov_matrix) = 1:10
 
-# Ensure the covariance matrix is symmetric
+## Ensure the covariance matrix is symmetric
 cov_matrix = (cov_matrix + t(cov_matrix)) / 2
 
 
@@ -695,22 +619,64 @@ mod_cov = brms_cov_model(Chainset = 3,
            Data = md, 
            Seed = 0405)
 
-save(mod_cov, file = "data/mod_cov.RData")
+save(mod_cov, file = "data/mod_cov.RData", compress = "xz")
+
+```
+
+```{r function-mod}
+#' Model example that can be used to test other functions of `VarDecomp`. A model with fixed effects only
+ 
+#' @format A `brmsfit` object.
+#' @source Generated using the `brms_model` function.
+
+"mod" 
+
+```
+
+```{r function-mod_RE}
+#' Model example that can be used to test other functions of `VarDecomp`. A model with fixed and random effects
+#' @format A `brmsfit` object.
+#' @source Generated using the `brms_model` function.
+
+"mod_RE"
+
+```
+
+```{r function-mod_RS}
+#' Model example that can be used to test other functions of `VarDecomp`. A model with random slopes.
+#' @format A `brmsfit` object.
+#' @source Generated using the `brms_model` function.
+
+"mod_RS"
 
 ```
 
 ```{r function-mod_cov}
-#' model with fixed effects and a random effect with a covariance matrix
+#' Model example that can be used to test other functions of `VarDecomp`. A model with a covariance matrix.
 #' @format A `brmsfit` object.
-#' @source Generated using the `brms_cov_model` function.
+#' @source Generated using the `brms_model` function.
 
 "mod_cov"
 
 ```
 
-```{r examples-mod_cov}
+```{r model_examples, eval=FALSE}
 
-mod = data("mod_cov", package = "VarDecomp")
+#' \dontrun{
+
+# A model with fixed effects only
+data("mod", package = "VarDecomp")
+
+# A model with fixed and random effects
+data("mod_RE", package = "VarDecomp")
+
+# A model with random slopes
+data("mod_RS", package = "VarDecomp")
+
+# A model with a covariance matrix
+data("mod_cov", package = "VarDecomp")
+
+#' }
 
 ```
 
@@ -1275,6 +1241,7 @@ ________
 #' @param Prior A logical argument defining whether the `brmsfit` contains prior samples. If set to `TRUE` it will produce plots comparing the log distributions of priors and posterior samples for each covariate. 
 #'
 #' @return Returns a list containing (a) the maximum R-hat value, (b) the minimum effective sample size, (c) traceplots, (d) posterior predictive check plots, and (e) prior and posterior sample plots (if priors are available).
+#' @importFrom posterior ess_bulk
 #' @export 
 #' 
 model_fit = function(brmsfit, Group = NULL, Prior = FALSE){
@@ -1654,15 +1621,20 @@ plot_R2(PosteriorSamples)
 
 ```{r test-plot_R2}
 data("mod", package = "VarDecomp")
-plot_R2(var_decomp(mod))
+PS_mod = var_decomp(mod)
+plot_R2(PS_mod)
 
 data("mod_RE", package = "VarDecomp")
-plot_R2(var_decomp(mod_RE))
+PS_mod_RE = var_decomp(mod_RE)
+plot_R2(PS_mod_RE)
 
 data("mod_RS", package = "VarDecomp")
-plot_R2(var_decomp(mod_RS))
+PS_mod_RS = var_decomp(mod_RS)
+plot_R2(PS_mod_RS)
 
 data("mod_cov", package = "VarDecomp")
-plot_R2(var_decomp(mod_cov))
+PS_mod_cov = var_decomp(mod_cov)
+plot_R2(PS_mod_cov)
+
 
 ```

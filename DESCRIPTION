@@ -23,7 +23,6 @@ Imports:
     parallel,
     posterior,
     RcppEigen,
-    rstan,
     rstanarm,
     scales,
     stats,
