@@ -578,25 +578,25 @@ save(mod, file = "data/mod.RData", compress = "xz")
 
 
 # With random effect
-mod_RE = brms_model(Chainset = 2,
+mod_re = brms_model(Chainset = 2,
                      Response = "mass", 
                      FixedEffect = c("sex","height"), 
                      RandomEffect = "species", 
                      Family = "gaussian", 
                      Data = md)
 
-save(mod_RE, file = "data/mod_RE.RData", compress = "xz")
+save(mod_re, file = "data/mod_re.RData", compress = "xz")
 
 
 # With random slope
-mod_RS = brms_model(Chainset = 3,
+mod_rs = brms_model(Chainset = 3,
                      Response = "mass", 
                      FixedEffect = c("sex","height"),
                      RandomSlope = c("height", "species"),
                      Family = "gaussian", 
                      Data = md)
 
-save(mod_RS, file = "data/mod_RS.RData",compress = "xz")
+save(mod_rs, file = "data/mod_rs.RData",compress = "xz")
 
 
 
@@ -620,10 +620,44 @@ save(mod_cov, file = "data/mod_cov.RData", compress = "xz")
 
 ## mod
 ```{r function-mod}
-#' Model example that can be used to test other functions of `VarDecomp`. A model with fixed effects only
+#' Model example that can be used to test other functions of `VarDecomp`. A model with fixed effects only.
  
-#' @format A `brmsfit` object.
+#' @format An object of class `brmsfit` with the following components:
+#' \describe{
+#'   \item{formula}{The formula or formulas specifying the model.}
+#'   \item{data}{The data frame containing the variables used in the model.}
+#'   \item{prior}{The prior distributions for the model parameters.}
+#'   \item{sample_prior}{The prior samples, if `sample_prior` was set to `TRUE` during fitting.}
+#'   \item{stanmodel}{The Stan model code used for fitting.}
+#'   \item{stanfit}{The fitted model object returned by Stan.}
+#'   \item{algorithm}{The algorithm used for fitting the model, typically 'sampling' or 'meanfield'.}
+#'   \item{family}{The family object specifying the model family (e.g., Gaussian, Bernoulli).}
+#'   \item{data2}{Additional data used in the model, if any.}
+#'   \item{ranef}{A list of random effects structures in the model.}
+#'   \item{autocor}{The autocorrelation structure, if any, used in the model.}
+#'   \item{cov_ranef}{The covariance matrix of the random effects.}
+#'   \item{smooth}{A list of smooth terms in the model, if any.}
+#'   \item{stanvars}{A list of Stan variables defined in the model code.}
+#'   \item{inits}{Initial values used for the parameters in the Stan model.}
+#'   \item{fun}{The function used for sampling or variational inference.}
+#'   \item{stan_args}{A list of arguments passed to the Stan function.}
+#'   \item{control}{A list of control parameters for the Stan sampling algorithm.}
+#'   \item{mcmc_levs}{A list of MCMC settings used in the model fitting.}
+#'   \item{converged}{A logical indicating if the model has converged.}
+#'   \item{loo}{The leave-one-out cross-validation (LOO) results for the model, if computed.}
+#'   \item{waic}{The Watanabe-Akaike Information Criterion (WAIC) results for the model, if computed.}
+#'   \item{log_lik}{The log-likelihood values for the model, if computed.}
+#'   \item{fitted}{The fitted values from the model.}
+#'   \item{residuals}{The residuals from the model.}
+#'   \item{summary}{A summary of the model, including parameter estimates and diagnostics.}
+#'   \item{posterior_samples}{A matrix of posterior samples for the model parameters.}
+#'   \item{diagnostics}{Diagnostic information for the model, including convergence diagnostics.}
+#'   \item{user_data}{Any additional user data stored in the model object.}
+#' }
+#'
+#' @seealso \code{\link[brms]{brmsfit}} for more details on the `brmsfit` object.
 #' @source Generated using the `brms_model` function.
+#' @usage data(mod, package = "VarDecomp")
 
 "mod" 
 
@@ -641,43 +675,113 @@ data("mod", package = "VarDecomp")
 
 ```
 
-## mod_RE
-```{r function-mod_RE}
-#' Model example that can be used to test other functions of `VarDecomp`. A model with fixed and random effects
-#' @format A `brmsfit` object.
+## mod_re
+```{r function-mod_re}
+#' Model example that can be used to test other functions of `VarDecomp`. A model with fixed and random effects.
+#' @format An object of class `brmsfit` with the following components:
+#' \describe{
+#'   \item{formula}{The formula or formulas specifying the model.}
+#'   \item{data}{The data frame containing the variables used in the model.}
+#'   \item{prior}{The prior distributions for the model parameters.}
+#'   \item{sample_prior}{The prior samples, if `sample_prior` was set to `TRUE` during fitting.}
+#'   \item{stanmodel}{The Stan model code used for fitting.}
+#'   \item{stanfit}{The fitted model object returned by Stan.}
+#'   \item{algorithm}{The algorithm used for fitting the model, typically 'sampling' or 'meanfield'.}
+#'   \item{family}{The family object specifying the model family (e.g., Gaussian, Bernoulli).}
+#'   \item{data2}{Additional data used in the model, if any.}
+#'   \item{ranef}{A list of random effects structures in the model.}
+#'   \item{autocor}{The autocorrelation structure, if any, used in the model.}
+#'   \item{cov_ranef}{The covariance matrix of the random effects.}
+#'   \item{smooth}{A list of smooth terms in the model, if any.}
+#'   \item{stanvars}{A list of Stan variables defined in the model code.}
+#'   \item{inits}{Initial values used for the parameters in the Stan model.}
+#'   \item{fun}{The function used for sampling or variational inference.}
+#'   \item{stan_args}{A list of arguments passed to the Stan function.}
+#'   \item{control}{A list of control parameters for the Stan sampling algorithm.}
+#'   \item{mcmc_levs}{A list of MCMC settings used in the model fitting.}
+#'   \item{converged}{A logical indicating if the model has converged.}
+#'   \item{loo}{The leave-one-out cross-validation (LOO) results for the model, if computed.}
+#'   \item{waic}{The Watanabe-Akaike Information Criterion (WAIC) results for the model, if computed.}
+#'   \item{log_lik}{The log-likelihood values for the model, if computed.}
+#'   \item{fitted}{The fitted values from the model.}
+#'   \item{residuals}{The residuals from the model.}
+#'   \item{summary}{A summary of the model, including parameter estimates and diagnostics.}
+#'   \item{posterior_samples}{A matrix of posterior samples for the model parameters.}
+#'   \item{diagnostics}{Diagnostic information for the model, including convergence diagnostics.}
+#'   \item{user_data}{Any additional user data stored in the model object.}
+#' }
+#'
+#' @seealso \code{\link[brms]{brmsfit}} for more details on the `brmsfit` object.
+#'
 #' @source Generated using the `brms_model` function.
+#' @usage data(mod_re, package = "VarDecomp") 
 
-"mod_RE"
+"mod_re"
 
 ```
-```{r examples-mod_RE, eval=FALSE}
+```{r examples-mod_re, eval=FALSE}
 
 #' \dontrun{
 
 # A model with fixed and random effects
-data("mod_RE", package = "VarDecomp")
+data("mod_re", package = "VarDecomp")
 
 
 #' }
 
 ```
 
-## mod_RS
-```{r function-mod_RS}
+## mod_rs
+```{r function-mod_rs}
 #' Model example that can be used to test other functions of `VarDecomp`. A model with random slopes.
-#' @format A `brmsfit` object.
+#' @format An object of class `brmsfit` with the following components:
+#' \describe{
+#'   \item{formula}{The formula or formulas specifying the model.}
+#'   \item{data}{The data frame containing the variables used in the model.}
+#'   \item{prior}{The prior distributions for the model parameters.}
+#'   \item{sample_prior}{The prior samples, if `sample_prior` was set to `TRUE` during fitting.}
+#'   \item{stanmodel}{The Stan model code used for fitting.}
+#'   \item{stanfit}{The fitted model object returned by Stan.}
+#'   \item{algorithm}{The algorithm used for fitting the model, typically 'sampling' or 'meanfield'.}
+#'   \item{family}{The family object specifying the model family (e.g., Gaussian, Bernoulli).}
+#'   \item{data2}{Additional data used in the model, if any.}
+#'   \item{ranef}{A list of random effects structures in the model.}
+#'   \item{autocor}{The autocorrelation structure, if any, used in the model.}
+#'   \item{cov_ranef}{The covariance matrix of the random effects.}
+#'   \item{smooth}{A list of smooth terms in the model, if any.}
+#'   \item{stanvars}{A list of Stan variables defined in the model code.}
+#'   \item{inits}{Initial values used for the parameters in the Stan model.}
+#'   \item{fun}{The function used for sampling or variational inference.}
+#'   \item{stan_args}{A list of arguments passed to the Stan function.}
+#'   \item{control}{A list of control parameters for the Stan sampling algorithm.}
+#'   \item{mcmc_levs}{A list of MCMC settings used in the model fitting.}
+#'   \item{converged}{A logical indicating if the model has converged.}
+#'   \item{loo}{The leave-one-out cross-validation (LOO) results for the model, if computed.}
+#'   \item{waic}{The Watanabe-Akaike Information Criterion (WAIC) results for the model, if computed.}
+#'   \item{log_lik}{The log-likelihood values for the model, if computed.}
+#'   \item{fitted}{The fitted values from the model.}
+#'   \item{residuals}{The residuals from the model.}
+#'   \item{summary}{A summary of the model, including parameter estimates and diagnostics.}
+#'   \item{posterior_samples}{A matrix of posterior samples for the model parameters.}
+#'   \item{diagnostics}{Diagnostic information for the model, including convergence diagnostics.}
+#'   \item{user_data}{Any additional user data stored in the model object.}
+#' }
+#'
+#' @seealso \code{\link[brms]{brmsfit}} for more details on the `brmsfit` object.
+#'
 #' @source Generated using the `brms_model` function.
+#' @usage data(mod_rs, package = "VarDecomp")
 
-"mod_RS"
+"mod_rs"
 
 ```
 
-```{r examples-mod_RS, eval=FALSE}
+```{r examples-mod_rs, eval=FALSE}
 
 #' \dontrun{
 
 # A model with random slopes
-data("mod_RS", package = "VarDecomp")
+data("mod_rs", package = "VarDecomp")
 
 #' }
 
@@ -686,8 +790,43 @@ data("mod_RS", package = "VarDecomp")
 ## mod_cov
 ```{r function-mod_cov}
 #' Model example that can be used to test other functions of `VarDecomp`. A model with a covariance matrix.
-#' @format A `brmsfit` object.
+#' @format An object of class `brmsfit` with the following components:
+#' \describe{
+#'   \item{formula}{The formula or formulas specifying the model.}
+#'   \item{data}{The data frame containing the variables used in the model.}
+#'   \item{prior}{The prior distributions for the model parameters.}
+#'   \item{sample_prior}{The prior samples, if `sample_prior` was set to `TRUE` during fitting.}
+#'   \item{stanmodel}{The Stan model code used for fitting.}
+#'   \item{stanfit}{The fitted model object returned by Stan.}
+#'   \item{algorithm}{The algorithm used for fitting the model, typically 'sampling' or 'meanfield'.}
+#'   \item{family}{The family object specifying the model family (e.g., Gaussian, Bernoulli).}
+#'   \item{data2}{Additional data used in the model, if any.}
+#'   \item{ranef}{A list of random effects structures in the model.}
+#'   \item{autocor}{The autocorrelation structure, if any, used in the model.}
+#'   \item{cov_ranef}{The covariance matrix of the random effects.}
+#'   \item{smooth}{A list of smooth terms in the model, if any.}
+#'   \item{stanvars}{A list of Stan variables defined in the model code.}
+#'   \item{inits}{Initial values used for the parameters in the Stan model.}
+#'   \item{fun}{The function used for sampling or variational inference.}
+#'   \item{stan_args}{A list of arguments passed to the Stan function.}
+#'   \item{control}{A list of control parameters for the Stan sampling algorithm.}
+#'   \item{mcmc_levs}{A list of MCMC settings used in the model fitting.}
+#'   \item{converged}{A logical indicating if the model has converged.}
+#'   \item{loo}{The leave-one-out cross-validation (LOO) results for the model, if computed.}
+#'   \item{waic}{The Watanabe-Akaike Information Criterion (WAIC) results for the model, if computed.}
+#'   \item{log_lik}{The log-likelihood values for the model, if computed.}
+#'   \item{fitted}{The fitted values from the model.}
+#'   \item{residuals}{The residuals from the model.}
+#'   \item{summary}{A summary of the model, including parameter estimates and diagnostics.}
+#'   \item{posterior_samples}{A matrix of posterior samples for the model parameters.}
+#'   \item{diagnostics}{Diagnostic information for the model, including convergence diagnostics.}
+#'   \item{user_data}{Any additional user data stored in the model object.}
+#' }
+#'
+#' @seealso \code{\link[brms]{brmsfit}} for more details on the `brmsfit` object.
+#'
 #' @source Generated using the `brms_model` function.
+#' @usage data(mod_cov, package = "VarDecomp")
 
 "mod_cov"
 
@@ -1069,11 +1208,11 @@ var_decomp(mod)
 data("mod", package = "VarDecomp")
 var_decomp(mod)
 
-data("mod_RE", package = "VarDecomp")
-var_decomp(mod_RE)
+data("mod_re", package = "VarDecomp")
+var_decomp(mod_re)
 
-data("mod_RS", package = "VarDecomp")
-var_decomp(mod_RS)
+data("mod_rs", package = "VarDecomp")
+var_decomp(mod_rs)
 
 
 data("mod_cov", package = "VarDecomp")
@@ -1153,11 +1292,11 @@ model_summary(mod)
 data("mod", package = "VarDecomp")
 model_summary(mod)
 
-data("mod_RE", package = "VarDecomp")
-model_summary(mod_RE)
+data("mod_re", package = "VarDecomp")
+model_summary(mod_re)
 
-data("mod_RS", package = "VarDecomp")
-model_summary(mod_RS)
+data("mod_rs", package = "VarDecomp")
+model_summary(mod_rs)
 
 
 data("mod_cov", package = "VarDecomp")
@@ -1246,10 +1385,10 @@ compare_slopes(mod1, mod2, Slope = "sex")
 
 
 ```{r test-compare_slopes}
-data("mod_RE", package = "VarDecomp")
-data("mod_RS", package = "VarDecomp")
+data("mod_re", package = "VarDecomp")
+data("mod_rs", package = "VarDecomp")
 
-compare_slopes(mod_RE, mod_RS, Slope = "height")
+compare_slopes(mod_re, mod_rs, Slope = "height")
 ```
 
 ________
@@ -1425,11 +1564,11 @@ model_fit(mod, Group = "sex", Prior = TRUE)
 data("mod", package = "VarDecomp")
 model_fit(mod)
 
-data("mod_RE", package = "VarDecomp")
-model_fit(mod_RE)
+data("mod_re", package = "VarDecomp")
+model_fit(mod_re)
 
-data("mod_RS", package = "VarDecomp")
-model_fit(mod_RS)
+data("mod_rs", package = "VarDecomp")
+model_fit(mod_rs)
 
 data("mod_cov", package = "VarDecomp")
 model_fit(mod_cov)
@@ -1557,11 +1696,11 @@ plot_intervals(mod)
 data("mod", package = "VarDecomp")
 plot_intervals(mod)
 
-data("mod_RE", package = "VarDecomp")
-plot_intervals(mod_RE)
+data("mod_re", package = "VarDecomp")
+plot_intervals(mod_re)
 
-data("mod_RS", package = "VarDecomp")
-plot_intervals(mod_RS)
+data("mod_rs", package = "VarDecomp")
+plot_intervals(mod_rs)
 
 
 data("mod_cov", package = "VarDecomp")
@@ -1676,13 +1815,13 @@ data("mod", package = "VarDecomp")
 PS_mod = var_decomp(mod)
 plot_R2(PS_mod)
 
-data("mod_RE", package = "VarDecomp")
-PS_mod_RE = var_decomp(mod_RE)
-plot_R2(PS_mod_RE)
+data("mod_re", package = "VarDecomp")
+PS_mod_re = var_decomp(mod_re)
+plot_R2(PS_mod_re)
 
-data("mod_RS", package = "VarDecomp")
-PS_mod_RS = var_decomp(mod_RS)
-plot_R2(PS_mod_RS)
+data("mod_rs", package = "VarDecomp")
+PS_mod_rs = var_decomp(mod_rs)
+plot_R2(PS_mod_rs)
 
 data("mod_cov", package = "VarDecomp")
 PS_mod_cov = var_decomp(mod_cov)

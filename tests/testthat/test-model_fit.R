@@ -4,11 +4,11 @@
 data("mod", package = "VarDecomp")
 model_fit(mod)
 
-data("mod_RE", package = "VarDecomp")
-model_fit(mod_RE)
+data("mod_re", package = "VarDecomp")
+model_fit(mod_re)
 
-data("mod_RS", package = "VarDecomp")
-model_fit(mod_RS)
+data("mod_rs", package = "VarDecomp")
+model_fit(mod_rs)
 
 data("mod_cov", package = "VarDecomp")
 model_fit(mod_cov)

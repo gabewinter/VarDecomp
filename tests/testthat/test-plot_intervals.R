@@ -3,11 +3,11 @@
 data("mod", package = "VarDecomp")
 plot_intervals(mod)
 
-data("mod_RE", package = "VarDecomp")
-plot_intervals(mod_RE)
+data("mod_re", package = "VarDecomp")
+plot_intervals(mod_re)
 
-data("mod_RS", package = "VarDecomp")
-plot_intervals(mod_RS)
+data("mod_rs", package = "VarDecomp")
+plot_intervals(mod_rs)
 
 
 data("mod_cov", package = "VarDecomp")

@@ -106,28 +106,28 @@ data("mod", package = "VarDecomp")
 
 ```
 
-## mod_RE
+## mod_re
 
-```{r examples-mod_RE, eval = FALSE}
+```{r examples-mod_re, eval = FALSE}
 
 #' \dontrun{
 
 # A model with fixed and random effects
-data("mod_RE", package = "VarDecomp")
+data("mod_re", package = "VarDecomp")
 
 
 #' }
 
 ```
 
-## mod_RS
+## mod_rs
 
-```{r examples-mod_RS, eval = FALSE}
+```{r examples-mod_rs, eval = FALSE}
 
 #' \dontrun{
 
 # A model with random slopes
-data("mod_RS", package = "VarDecomp")
+data("mod_rs", package = "VarDecomp")
 
 #' }
 

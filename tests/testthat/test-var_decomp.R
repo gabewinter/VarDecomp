@@ -3,11 +3,11 @@
 data("mod", package = "VarDecomp")
 var_decomp(mod)
 
-data("mod_RE", package = "VarDecomp")
-var_decomp(mod_RE)
+data("mod_re", package = "VarDecomp")
+var_decomp(mod_re)
 
-data("mod_RS", package = "VarDecomp")
-var_decomp(mod_RS)
+data("mod_rs", package = "VarDecomp")
+var_decomp(mod_rs)
 
 
 data("mod_cov", package = "VarDecomp")
