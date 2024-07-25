@@ -715,10 +715,9 @@ data("mod", package = "VarDecomp")
 #'
 #' @source Generated using the `brms_model` function.
 #' @usage data(mod_re, package = "VarDecomp") 
-
 "mod_re"
-
 ```
+
 ```{r examples-mod_re, eval=FALSE}
 
 #' \dontrun{

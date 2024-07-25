@@ -38,6 +38,4 @@
 #'
 #' @source Generated using the `brms_model` function.
 #' @usage data(mod_re, package = "VarDecomp") 
-
 "mod_re"
-
