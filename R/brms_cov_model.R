@@ -122,7 +122,7 @@ testfunction = function(){
 }
 
 testfunction()
-  
+
 # Setting chains 
 if(Chainset ==0){
   Warmup=10; Iter=110; Thin=10; Chains=2

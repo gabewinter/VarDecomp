@@ -13,8 +13,6 @@ editor_options:
 
 # Add multivariate
 
-# Add multiple random effects in var_decomp
-
 ```
 
 ```{r development, include=FALSE}
@@ -849,7 +847,7 @@ mod = brms_cov_model(Chainset = 3,
 ```
 
 
-```{r test-brms_cov_model}
+```{r test-brms_cov_model, eval = FALSE}
 #' \dontrun{
 
 library(tidyverse)
@@ -1494,7 +1492,7 @@ var_decomp(mod)
 ```
 
 
-```{r test-var_decomp}
+```{r test-var_decomp, eval = FALSE}
 
 #brms_model
 
@@ -1679,7 +1677,7 @@ model_summary(mod)
 ```
 
 
-```{r test-model_summary}
+```{r test-model_summary, eval = FALSE}
 
 #brms_model
 
@@ -1876,7 +1874,7 @@ compare_slopes(mod1, mod2, Slope = "sex")
 ```
 
 
-```{r test-compare_slopes}
+```{r test-compare_slopes, eval = FALSE}
 data("mod_re", package = "VarDecomp")
 data("mod_rs", package = "VarDecomp")
 
@@ -2161,7 +2159,7 @@ model_fit(mod, Group = "sex", Prior = TRUE)
 ```
 
 
-```{r test-model_fit}
+```{r test-model_fit, eval = FALSE}
 
 #brms_model
 
@@ -2395,7 +2393,7 @@ plot_intervals(mod)
 ```
 
 
-```{r test-plot_intervals}
+```{r test-plot_intervals, eval = FALSE}
 #brms_model
 
 # Gaussian models
@@ -2661,7 +2659,7 @@ plot_R2(PosteriorSamples)
 ```
 
 
-```{r test-plot_R2}
+```{r test-plot_R2, eval = FALSE}
 #brms_model
 
 # Gaussian models
