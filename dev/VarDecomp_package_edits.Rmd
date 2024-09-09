@@ -1001,7 +1001,7 @@ poi_mod_cov_2re = brms_cov_model(Chainset = 1,
                      ID = "group2", 
                      Matrix = cov_matrix,
                      FixedEffect = c("f_var","n_var1"), 
-                     RandomEffect = c("group1","group2"), 
+                     RandomEffect = c("group1","group3"), 
                      Family = "poisson", 
                      Data = md)
 
