@@ -4,7 +4,7 @@ output: github_document
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-```{r, include = FALSE}
+```{r, include = FALSE, eval = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
@@ -40,7 +40,7 @@ Full documentation website on: https://gabewinter.github.io/VarDecomp
 
 ## Example
 
-```{r example}
+```{r example, eval = FALSE}
 library(tidyverse)
 
 md = tibble(
@@ -60,14 +60,14 @@ mod = brms_model(Chainset = 2,
                  Family = "gaussian", 
                  Data = md)
 
-VarDecomp::model_fit(mod, Group = "sex")
+model_fit(mod, Group = "sex")
 
-VarDecomp::model_summary(mod)
+model_summary(mod)
 
-VarDecomp::plot_intervals(mod)
+plot_intervals(mod)
 
-PS = VarDecomp::var_decomp(mod)
+PS = var_decomp(mod)
 
-VarDecomp::plot_R2(PS)
+plot_R2(PS)
 
 ```

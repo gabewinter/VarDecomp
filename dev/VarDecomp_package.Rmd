@@ -2,9 +2,21 @@
 title: "VarDecomp"
 output: html_document
 editor_options: 
-  chunk_output_type: console
   
+  chunk_output_type: console
 ---
+
+
+```{r development, include=FALSE}
+
+## COMMENTS
+
+# Add multivariate
+
+# Add multiple random effects in var_decomp
+
+```
+
 ```{r development, include=FALSE}
 options(rmarkdown.html_vignette.check_title = FALSE)
 library(ggplot2)
@@ -398,7 +410,7 @@ testfunction = function(){
 }
 
 testfunction()
-  
+
 # Setting chains 
 if(Chainset ==0){
   Warmup=10; Iter=110; Thin=10; Chains=2
