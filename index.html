@@ -117,16 +117,54 @@
 <span>                 FixedEffect <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"sex"</span>,<span class="st">"height"</span><span class="op">)</span>, </span>
 <span>                 Family <span class="op">=</span> <span class="st">"gaussian"</span>, </span>
 <span>                 Data <span class="op">=</span> <span class="va">md</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "No problems so far 🙌"</span></span>
+<span><span class="co">#&gt; Compiling Stan program...</span></span>
+<span><span class="co">#&gt; Start sampling</span></span>
 <span></span>
 <span><span class="fu"><a href="reference/model_fit.html">model_fit</a></span><span class="op">(</span><span class="va">mod</span>, Group <span class="op">=</span> <span class="st">"sex"</span><span class="op">)</span></span>
-<span></span>
+<span><span class="co">#&gt; No divergences to plot.</span></span>
+<span><span class="co">#&gt; Using all posterior draws for ppc type 'loo_pit_qq' by default.</span></span>
+<span><span class="co">#&gt; Using all posterior draws for ppc type 'violin_grouped' by default.</span></span>
+<span><span class="co">#&gt; $`R-hat and Effective sample size`</span></span>
+<span><span class="co">#&gt; # A tibble: 1 × 2</span></span>
+<span><span class="co">#&gt;    Rhat EffectiveSampleSize</span></span>
+<span><span class="co">#&gt;   &lt;dbl&gt;               &lt;dbl&gt;</span></span>
+<span><span class="co">#&gt; 1  1.00               1650.</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $`Traceplots plot`</span></span></code></pre></div>
+<p><img src="reference/figures/README-example-1.png" width="100%"></p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="co">#&gt; $`Posterior predictive check - Density overlay plot`</span></span></code></pre></div>
+<p><img src="reference/figures/README-example-2.png" width="100%"></p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="co">#&gt; $`Posterior predictive check - LOO-PIT-QQ plot`</span></span></code></pre></div>
+<p><img src="reference/figures/README-example-3.png" width="100%"></p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="co">#&gt; $`Posterior predictive check - Group density overlay plot`</span></span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="co">#&gt; $`Posterior predictive check - Group density overlay plot`$GroupPlot_sex</span></span></code></pre></div>
+<p><img src="reference/figures/README-example-4.png" width="100%"></p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
 <span><span class="fu"><a href="reference/model_summary.html">model_summary</a></span><span class="op">(</span><span class="va">mod</span><span class="op">)</span></span>
+<span><span class="co">#&gt; # A tibble: 7 × 6</span></span>
+<span><span class="co">#&gt;   variable              mean median    sd lower_HPD upper_HPD</span></span>
+<span><span class="co">#&gt;   &lt;chr&gt;                &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;</span></span>
+<span><span class="co">#&gt; 1 Intercept            4.49   4.49  0.002     4.49      4.50 </span></span>
+<span><span class="co">#&gt; 2 sex                  0.001  0.001 0.004    -0.006     0.008</span></span>
+<span><span class="co">#&gt; 3 height               0.005  0.005 0         0.005     0.006</span></span>
+<span><span class="co">#&gt; 4 R2_sex               0.001  0     0.001     0         0.002</span></span>
+<span><span class="co">#&gt; 5 R2_height            0.46   0.461 0.021     0.417     0.499</span></span>
+<span><span class="co">#&gt; 6 R2_sum_fixed_effects 0.461  0.462 0.021     0.418     0.499</span></span>
+<span><span class="co">#&gt; 7 R2_residual          0.539  0.538 0.021     0.501     0.582</span></span>
 <span></span>
-<span><span class="fu"><a href="reference/plot_intervals.html">plot_intervals</a></span><span class="op">(</span><span class="va">mod</span><span class="op">)</span></span>
-<span></span>
+<span><span class="fu"><a href="reference/plot_intervals.html">plot_intervals</a></span><span class="op">(</span><span class="va">mod</span><span class="op">)</span></span></code></pre></div>
+<p><img src="reference/figures/README-example-5.png" width="100%"></p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
 <span><span class="va">PS</span> <span class="op">=</span> <span class="fu"><a href="reference/var_decomp.html">var_decomp</a></span><span class="op">(</span><span class="va">mod</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="reference/plot_R2.html">plot_R2</a></span><span class="op">(</span><span class="va">PS</span><span class="op">)</span></span></code></pre></div>
+<p><img src="reference/figures/README-example-6.png" width="100%"></p>
 </div>
 </div>
   </div>
