@@ -4,7 +4,7 @@ output: github_document
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-```{r, include = FALSE, eval = FALSE}
+```{r, include = FALSE, eval = TRUE}
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
@@ -40,7 +40,7 @@ Full documentation website on: https://gabewinter.github.io/VarDecomp
 
 ## Example
 
-```{r example, eval = FALSE}
+```{r example, eval = TRUE}
 library(tidyverse)
 
 md = tibble(

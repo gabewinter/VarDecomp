@@ -330,7 +330,7 @@ library(tidyverse)
 n = 1000  # number of observations
 
 # Simulate the data directly into a tibble
-md = tibble(
+md = tibble::tibble(
   group1 = factor(sample(1:5, n, replace = TRUE)),
   group2 = factor(sample(1:10, n, replace = TRUE)),
   f_var = factor(sample(1:3, n, replace = TRUE)),
@@ -340,7 +340,7 @@ md = tibble(
   resp_poisson = rpois(n, lambda = 2),
   successes = rbinom(n, size = 20, prob = 0.3)
 ) %>% 
-  mutate(trials = sample(1:4, n, replace = TRUE)*successes)
+  dplyr::mutate(trials = sample(1:4, n, replace = TRUE)*successes)
 
 # Gaussian models
 
@@ -856,7 +856,7 @@ library(tidyverse)
 n = 1000  # number of observations
 
 # Simulate the data directly into a tibble
-md = tibble(
+md = tibble::tibble(
   group1 = factor(sample(1:5, n, replace = TRUE)),
   group2 = factor(sample(1:10, n, replace = TRUE)),
   group3 = factor(sample(1:7, n, replace = TRUE)),
@@ -867,7 +867,7 @@ md = tibble(
   resp_poisson = rpois(n, lambda = 2),
   successes = rbinom(n, size = 20, prob = 0.3)
 ) %>% 
-  mutate(trials = sample(1:4, n, replace = TRUE)*successes)
+  dplyr::mutate(trials = sample(1:4, n, replace = TRUE)*successes)
 
 
 
@@ -1154,7 +1154,7 @@ Formula = as.character(formula(brmsfit)[1])
 if(Family != "binomial"){
 
 # Extract "Response" (everything before the tilde)
-ResponseName = str_extract(Formula, "^[^~]+")
+ResponseName = stringr::str_extract(Formula, "^[^~]+")
 }
 
 
@@ -1162,31 +1162,32 @@ if(Family == "binomial"){
 
 # Extract "Trials" (value inside parenthesis after 'trials')
 
-SuccessesName = str_extract(Formula, "^[^|]+") %>% str_trim()
+SuccessesName = stringr::str_extract(Formula, "^[^|]+") %>% 
+  stringr::str_trim()
 
 # Extract "Trials" (value inside parenthesis after 'trials')
-TrialsName = str_extract(Formula, "(?<=trials\\().+?(?=\\))")
+TrialsName = stringr::str_extract(Formula, "(?<=trials\\().+?(?=\\))")
   
 }
 
 
 # Extract "Fixed effects" (everything after the tilde not within parenthesis)
-FixedEffectName = str_extract(Formula, "(?<=~ ).*") %>%
-  str_remove_all("\\(.*?\\)") %>% 
-  str_split("\\s*\\+\\s*") %>% 
+FixedEffectName = stringr::str_extract(Formula, "(?<=~ ).*") %>%
+  stringr::str_remove_all("\\(.*?\\)") %>% 
+  stringr::str_split("\\s*\\+\\s*") %>% 
   unlist() %>% 
-  str_trim() %>% 
-  discard(~ . == "")
+  stringr::str_trim() %>% 
+  purrr::discard(~ . == "")
 
 
 # Extract "Random effects" (everything inside parenthesis after the tilde)
-RandomEffectName = str_extract_all(Formula, "(?<=\\().+?(?=\\))") %>% 
+RandomEffectName = stringr::str_extract_all(Formula, "(?<=\\().+?(?=\\))") %>% 
   unlist() %>% 
-  str_split("\\s*\\+\\s*|\\s*\\|\\s*") %>% 
+  stringr::str_split("\\s*\\+\\s*|\\s*\\|\\s*") %>% 
   unlist() %>% 
-  str_trim() %>% 
-  discard(~ . == 1) %>% 
-  setdiff(FixedEffectName)
+  stringr::str_trim() %>% 
+  purrr::discard(~ . == 1) %>% 
+  prob::setdiff(FixedEffectName)
 
 
 if(Family == "binomial"){
@@ -1202,22 +1203,22 @@ if(Family == "binomial" | Family == "poisson"){
 
 
 # Extract "Random slopes" (everything inside parenthesis after the tilde)
-RandomSlopeName = str_extract_all(Formula, "(?<=\\().+?(?=\\))") %>% 
+RandomSlopeName = stringr::str_extract_all(Formula, "(?<=\\().+?(?=\\))") %>% 
   unlist() %>% 
-  keep(~ str_detect(.x, "\\|")) %>%  
-  str_replace_all("\\+|\\|", "") %>% 
-  str_replace_all("\\b1\\b", "") %>% 
-  str_trim() %>% 
-  str_replace_all("  ", "__") %>%  
-  str_split("__") %>% 
-  map(~ rev(.x) %>% paste(collapse = "__")) %>%
+  purrr::keep(~ stringr::str_detect(.x, "\\|")) %>%  
+  stringr::str_replace_all("\\+|\\|", "") %>% 
+  stringr::str_replace_all("\\b1\\b", "") %>% 
+  stringr::str_trim() %>% 
+  stringr::str_replace_all("  ", "__") %>%  
+  stringr::str_split("__") %>% 
+  purrr::map(~ rev(.x) %>% paste(collapse = "__")) %>%
   unlist() %>% 
-  keep(~ str_detect(.x, "__")) 
+  purrr::keep(~ stringr::str_detect(.x, "__")) 
   
   
 if(Family == "binomial" | Family == "poisson"){
   RandomSlopeName = RandomSlopeName %>% 
-    discard(~ . == "observationID")
+  purrr::discard(~ . == "observationID")
 }
 
 
@@ -1231,14 +1232,14 @@ if(Family == "binomial" | Family == "poisson"){
 if(length(RandomSlopeName)> 0){
 # Extract correlations 
   PS_cor = PS %>%
-  dplyr::select(starts_with("cor_")) %>% 
-  pivot_longer(cols = everything(), names_to = "Name", values_to = "Correlation") %>% 
-  mutate(Name = sub("^cor_", "", Name)) %>% 
-  separate(Name, into = c("RandomEffect", "Trait1", "Trait2"), sep = "__")
+  dplyr::select(dplyr::starts_with("cor_")) %>% 
+  tidyr::pivot_longer(cols = tidyselect::everything(), names_to = "Name", values_to = "Correlation") %>% 
+  dplyr::mutate(Name = sub("^cor_", "", Name)) %>% 
+  tidyr::separate(Name, into = c("RandomEffect", "Trait1", "Trait2"), sep = "__")
 }
 # Tidy posterior samples
   PS = PS %>% 
-  dplyr::select(!starts_with("Intercept"))  %>% 
+  dplyr::select(!dplyr::starts_with("Intercept"))  %>% 
   dplyr::rename_with(~stringr::str_remove_all(., "^b_")) %>% 
   dplyr::rename_with(~stringr::str_remove_all(., "sd_")) %>% 
   # dplyr::rename_with(~stringr::str_replace_all(., "__", "_")) %>% 
@@ -1251,12 +1252,12 @@ if(length(RandomSlopeName)> 0){
 if(length(FixedEffectName) > 0){
   ## Create a dataframe with the values used by the model for fixed effects
   FixedEffectData = Data %>%
-      select(any_of(FixedEffectName)) 
+      dplyr::select(any_of(FixedEffectName)) 
     
   PSFixedEffectNames = as.data.frame(brmsfit) %>% 
-    select(starts_with("b_")) %>% 
-    select(!contains("Intercept")) %>% 
-    rename_with(~stringr::str_remove_all(., "^b_")) %>% 
+    dplyr::select(dplyr::starts_with("b_")) %>% 
+    dplyr::select(!tidyselect::contains("Intercept")) %>% 
+    dplyr::rename_with(~stringr::str_remove_all(., "^b_")) %>% 
     names() %>% 
     unlist()
   
@@ -1306,9 +1307,9 @@ if(length(FixedEffectName) > 0){
 
   ## Calculate total variance in fixed effects
   PS = PS %>% 
-    rowwise() %>%
-    mutate(var_FixedEffects = sum(c_across(matches(paste0("var_", FixedEffectName, collapse = "|"))), na.rm = TRUE)) %>%
-    ungroup()
+    dplyr::rowwise() %>%
+    dplyr::mutate(var_FixedEffects = sum(dplyr::c_across(matches(paste0("var_", FixedEffectName, collapse = "|"))), na.rm = TRUE)) %>%
+    dtplyr::ungroup()
 
 }
 
@@ -1320,7 +1321,7 @@ if(length(RandomEffectName) > 0){
   
   for (i in RandomEffectName){
     
-    slope_name = RandomSlopeName[str_detect(RandomSlopeName, i)]
+    slope_name = RandomSlopeName[stringr::str_detect(RandomSlopeName, i)]
   
     if(length(slope_name) == 0){
       
@@ -1338,7 +1339,7 @@ if(length(RandomEffectName) > 0){
       
       ## Calculate estimated variance in random slopes
       
-      fixed_effect_name = str_extract(slope_name, 
+      fixed_effect_name = stringr::str_extract(slope_name, 
       paste(colnames(FixedEffectData), collapse = "|"))
       
       PS = PS %>% 
@@ -1365,8 +1366,9 @@ if(length(RandomEffectName) > 0){
   var_random_effect_names = paste0("var_", RandomEffectName)
     
   PS = PS %>% 
-    rowwise() %>%
-    mutate(var_RandomEffects = sum(c_across(all_of(var_random_effect_names)), na.rm = TRUE)) %>%   # MODIFIED: used sum() with c_across()
+    dplyr::rowwise() %>%
+    dplyr::mutate(var_RandomEffects = sum(dplyr::c_across(tidyselect::all_of(var_random_effect_names)), 
+    na.rm = TRUE)) %>%   # MODIFIED: used sum() with c_across()
     ungroup()
 
 }
@@ -1436,12 +1438,12 @@ if(length(FixedEffectName) == 0 & length(RandomEffectName) == 0){
 # calculate R2 
   
 var_names =  PS %>%
-  select(starts_with("var_")) %>%
+  dplyr::select(tidyselect::starts_with("var_")) %>%
   names()
   
 for( i in var_names){
   
-  name = str_remove(i, "^var_")
+  name = stringr::str_remove(i, "^var_")
   
   PS = PS %>% 
   dplyr::mutate(!!paste0("R2_", name) := get(paste0(i))/total_variance)
@@ -1452,8 +1454,8 @@ exclude_columns = c(
   paste0(RandomEffectName), paste0(RandomSlopeName), "total_variance", "observationID")
 
 output = PS %>% 
-  dplyr::select(-any_of(exclude_columns)) %>%  
-  dplyr::select(-starts_with("var_"))   
+  dplyr::select(-tidyselect::any_of(exclude_columns)) %>%  
+  dplyr::select(-tidyselect::starts_with("var_"))   
 
 return(output)   
 
@@ -1638,7 +1640,7 @@ HPDInt = as.data.frame(coda::HPDinterval(mcmcr::as.mcmc(output, combine_chains =
   tibble::rownames_to_column(var = "variable")
 
 EstSummary = dplyr::left_join(EstSummary, HPDInt, by = "variable") %>% 
-  dplyr::mutate(dplyr::across(where(is.numeric), \(x) round(x, 3))) %>% 
+  dplyr::mutate(dplyr::across(tidyselect::where(is.numeric), \(x) round(x, 3))) %>% 
   dplyr::rename(lower_HPD = lower, upper_HPD = upper) %>% 
         dplyr::filter(!grepl("sigma", variable))
   
@@ -1921,7 +1923,7 @@ Formula = as.character(formula(brmsfit)[1])
 if(Family != "binomial"){
 
 # Extract "Response" (everything before the tilde)
-ResponseName = str_extract(Formula, "^[^~]+")
+ResponseName = stringr::str_extract(Formula, "^[^~]+")
 }
 
 
@@ -1929,76 +1931,77 @@ if(Family == "binomial"){
 
 # Extract "Trials" (value inside parenthesis after 'trials')
 
-SuccessesName = str_extract(Formula, "^[^|]+") %>% str_trim()
+SuccessesName = stringr::str_extract(Formula, "^[^|]+") %>% 
+  stringr::str_trim()
 
 # Extract "Trials" (value inside parenthesis after 'trials')
-TrialsName = str_extract(Formula, "(?<=trials\\().+?(?=\\))")
+TrialsName = stringr::str_extract(Formula, "(?<=trials\\().+?(?=\\))")
   
 }
 
 
 # Extract "Fixed effects" (everything after the tilde not within parenthesis)
-FixedEffectName = str_extract(Formula, "(?<=~ ).*") %>%
-  str_remove_all("\\(.*?\\)") %>% 
-  str_split("\\s*\\+\\s*") %>% 
+FixedEffectName = stringr::str_extract(Formula, "(?<=~ ).*") %>%
+  stringr::str_remove_all("\\(.*?\\)") %>% 
+  stringr::str_split("\\s*\\+\\s*") %>% 
   unlist() %>% 
-  str_trim() %>% 
-  discard(~ . == "")
+  stringr::str_trim() %>% 
+  purrr::discard(~ . == "")
 
 
 if(length(FixedEffectName) > 0){
 ## For covariates with of character class
 
 PSFixedEffectName = as.data.frame(brmsfit) %>%
-select(starts_with("b_")) %>%
-rename_with(~ str_remove_all(., "^b_")) %>%
-select(-starts_with("Intercept")) %>%
-names()
+  dplyr::select(tidyselect::starts_with("b_")) %>%
+  dplyr::rename_with(~ stringr::str_remove_all(., "^b_")) %>%
+  dplyr::select(-tidyselect::starts_with("Intercept")) %>%
+  names()
 
 # Identify character fixed effects in FixedEffectData
-CharacterFE = setdiff(FixedEffectName, PSFixedEffectName)
+CharacterFE = prob::setdiff(FixedEffectName, PSFixedEffectName)
 
 }
 
 # Extract "Random effects" (everything inside parenthesis after the tilde)
-RandomEffectName = str_extract_all(Formula, "(?<=\\().+?(?=\\))") %>% 
+RandomEffectName = stringr::str_extract_all(Formula, "(?<=\\().+?(?=\\))") %>% 
   unlist() %>% 
-  str_split("\\s*\\+\\s*|\\s*\\|\\s*") %>% 
+  stringr::str_split("\\s*\\+\\s*|\\s*\\|\\s*") %>% 
   unlist() %>% 
-  str_trim() %>% 
-  discard(~ . == 1) %>% 
-  setdiff(FixedEffectName)
+  stringr::str_trim() %>% 
+  purrr::discard(~ . == 1) %>% 
+  prob::setdiff(FixedEffectName)
 
 
 if(Family == "binomial"){
   RandomEffectName = RandomEffectName %>% 
-    setdiff(TrialsName)
+    prob::setdiff(TrialsName)
 }
 
 if(Family == "binomial" | Family == "poisson"){
   RandomEffectName = RandomEffectName %>% 
-    discard(~ . == "observationID")
+    purrr::discard(~ . == "observationID")
 }
 
 
 
 # Extract "Random slopes" (everything inside parenthesis after the tilde)
-RandomSlopeName = str_extract_all(Formula, "(?<=\\().+?(?=\\))") %>% 
+RandomSlopeName = stringr::str_extract_all(Formula, "(?<=\\().+?(?=\\))") %>% 
   unlist() %>% 
-  keep(~ str_detect(.x, "\\|")) %>%  
-  str_replace_all("\\+|\\|", "") %>% 
-  str_replace_all("\\b1\\b", "") %>% 
-  str_trim() %>% 
-  str_replace_all("  ", "__") %>%  
-  str_split("__") %>% 
-  map(~ rev(.x) %>% paste(collapse = "__")) %>%
+  purrr::keep(~ stringr::str_detect(.x, "\\|")) %>%  
+  stringr::str_replace_all("\\+|\\|", "") %>% 
+  stringr::str_replace_all("\\b1\\b", "") %>% 
+  stringr::str_trim() %>% 
+  stringr::str_replace_all("  ", "__") %>%  
+  stringr::str_split("__") %>% 
+  purrr::map(~ rev(.x) %>% paste(collapse = "__")) %>%
   unlist() %>% 
-  keep(~ str_detect(.x, "__")) 
+  purrr::keep(~ str_detect(.x, "__")) 
   
   
 if(Family == "binomial" | Family == "poisson"){
   RandomSlopeName = RandomSlopeName %>% 
-    discard(~ . == "observationID")
+    purrr::discard(~ . == "observationID")
 }
 
 
@@ -2045,7 +2048,7 @@ if(length(FixedEffectName)>0){
   
     for (i in CharacterFE){
       plot = rstanarm::pp_check(brmsfit, type = "violin_grouped",group= i) +
-        ggtitle(i)
+        ggplot2::ggtitle(i)
         assign(paste0("GroupPlot_", i), plot) 
     }
     
@@ -2550,11 +2553,12 @@ Formula = as.character(formula(brmsfit)[1])
 
 if(Family != "binomial"){
 
-ResponseName = str_extract(Formula, "^[^~]+")
+ResponseName = stringr::str_extract(Formula, "^[^~]+")
 }
 
 if(Family == "binomial"){
-ResponseName = str_extract(Formula, "^[^|]+") %>% str_trim()
+ResponseName = stringr::str_extract(Formula, "^[^|]+") %>% 
+  stringr::str_trim()
 }
 
 
@@ -2571,14 +2575,14 @@ for (i in colnames(PS)) {
   if (length(RS) == 2 && all(RS %in% colnames(PS))) {
     # Remove the concatenated column
     PS = PS %>% 
-    dplyr::select(-all_of(i))
+    dplyr::select(-tidyselect::all_of(i))
   }
   }  
 
 PS = PS %>%
-  select(!RandomEffects) %>% 
-  select(!FixedEffects) %>% 
-  tidyr::pivot_longer(cols = everything(), 
+  dplyr::select(!RandomEffects) %>% 
+  dplyr:select(!FixedEffects) %>% 
+  tidyr::pivot_longer(cols = tidyselect::everything(), 
   names_to = "Variable",
   values_to = "R2") 
 
@@ -2586,7 +2590,7 @@ PS = PS %>%
   dplyr::arrange(R2) %>% 
   dplyr::mutate(ID = paste0(ResponseName)) %>% 
   dplyr::mutate(Variable = factor(Variable, 
-  levels = c(setdiff(PS$Variable, "residual"), "residual")))
+  levels = c(prob::setdiff(PS$Variable, "residual"), "residual")))
 
  if(is.null(Colors)){
   variable_colors = setNames(rep("lightgrey", length(levels(PS$Variable))), levels(PS$Variable))
