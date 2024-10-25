@@ -10,11 +10,12 @@ brms_cov_model(
   FixedEffect,
   ID,
   RandomEffect = NULL,
+  RandomSlope = NULL,
   Matrix,
   Chainset = 1,
   Family = "gaussian",
   Seed = NULL,
-  Trials = NA,
+  Trials = NULL,
   PriorSamples = TRUE
 )
 }
@@ -29,9 +30,11 @@ brms_cov_model(
 
 \item{RandomEffect}{String with the name of the column in Data containing the random effect variable (e.g. "species"). To add multiple random effects, use c() (e.g. c("species", "date")).}
 
+\item{RandomSlope}{Vector containing two values: first a string with the name of the column in Data containing the covariate to be added as a random slope, second the random effect to which the  random slope will be applied (e.g. RandomSlope = c("height", "species")). The current package version allows the use of a single random slope.}
+
 \item{Matrix}{A matrix containing the IDs as row/column names and covariance values (ex. A pedigree relatedness matrix).}
 
-\item{Chainset}{Defines the number of iterations. Start with Chainset = 1 and increase as needed until convergence. The value of Chainsetis multiplied by 15000 in warmup, 30000 in iterations and 15 in thin intervale. For quick tests use Chainset = 0 (warmup=10; iter=110; thin=10; chains=2)}
+\item{Chainset}{Defines the number of iterations. Start with Chainset = 1 and increase as needed until convergence. The value of Chainsetis multiplied by 15000 in warmup, 30000 in iterations and 15 in thin intervale. For quick tests use Chainset = 1 (warmup=10; iter=110; thin=10; chains=2)}
 
 \item{Family}{String to define the family function in the brms model. Current supported families: "gaussian", "binomial", "poisson".}
 
@@ -48,38 +51,32 @@ Returns a brmsfit
 Run a brms model containing a covariance matrix
 }
 \examples{
-\dontrun{
-
- library(tidyverse)
  
-# Create a group (ID) variable
+# Simulate the data directly into a tibble
 md = tibble::tibble(
-  ID = as.factor(rep(1:10, each = 100))) \%>\% 
+  ID = factor(sample(1:10, 1000, replace = TRUE)),
+  var1 = rnorm(1000, mean = 0, sd = 1),
+  var2 = rnorm(1000, mean = 5, sd = 2),
+  resp = rnorm(1000, mean = 10, sd = 3))
 
-# Create a variables 
-  dplyr::mutate(height = rnorm(1000, mean = 170, sd = 10),
-         mass = 5 + 0.5 * height + rnorm(1000, mean = 0, sd = 5)) \%>\% 
-  dplyr::mutate(height = height - mean(height))
 
-# Create a covariance matrix (e.g., relatedness matrix)
+
+## Create a covariance matrix (e.g., relatedness matrix)
 cov_matrix = matrix(rnorm(10 * 10), 10, 10)
 cov_matrix = cov_matrix \%*\% t(cov_matrix)  # Make it positive semi-definite
 rownames(cov_matrix) = colnames(cov_matrix) = 1:10
 
-# Ensure the covariance matrix is symmetric
+## Ensure the covariance matrix is symmetric
 cov_matrix = (cov_matrix + t(cov_matrix)) / 2
 
 
-  
 mod = brms_cov_model(Chainset = 3, 
-           Response = "mass", 
-           FixedEffect = "height", 
+           Response = "resp", 
+           FixedEffect = c("var1", "var2"), 
            ID = "ID", 
            Matrix = cov_matrix,
            Family = "gaussian", 
            Data = md, 
            Seed = 0405)
-
-}
 
 }

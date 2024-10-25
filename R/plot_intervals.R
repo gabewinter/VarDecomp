@@ -7,29 +7,24 @@
 #' @export 
 #' 
 #' @examples
-#' \dontrun{
-#' md = dplyr::starwars
 #'
-#' # Centering variables
-#' md = md %>% 
-#'   dplyr::select(mass, sex, species) %>% 
-#'   dplyr::mutate(mass = log(mass),
-#'          sex = dplyr::recode(sex, "male" = 1, 
-#'                       "female" = -1, 
-#'                       "hermaphroditic" = 0,
-#'                       "none" = as.numeric(NA)))
-#'   
-#'   
-#' mod = brms_model(Chainset = 2,
-#'                  Response = "mass", 
-#'                  FixedEffect = "sex", 
-#'                  RandomEffect = "species",
+#' # Simulate data
+#' md = tibble::tibble(
+#'   group = factor(sample(1:10, 1000, replace = TRUE)),
+#'   f_var = factor(sample(1:3, 1000, replace = TRUE)),
+#'   n_var = rnorm(1000, mean = 0, sd = 1),
+#'   resp = rnorm(1000, mean = 10, sd = 3))
+#'
+#' # Run model
+#' mod = brms_model(Response = "resp", 
+#'                  FixedEffect = c("f_var","n_var"), 
+#'                  RandomEffect = "group", 
 #'                  Family = "gaussian", 
 #'                  Data = md)
 #'
+#' # Plot fixed effects
 #' plot_intervals(mod)
 #'
-#' }
 #'
 
 plot_intervals = function(brmsfit){

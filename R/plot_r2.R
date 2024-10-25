@@ -2,93 +2,190 @@
 
 #' Plot R2 values of brms models
 #'
-#' @param PosteriorSamples The estimates of a brms model after variance decomposition. You can use VarDecomp::brms_model() to produce a brmsfit and then VarDecomp::var_decomp() to produce the posterior samples. 
+#' @param brmsfit The output of a brms model. You can use VarDecomp::brms_model() to produce a brmsfit. 
 #' @param Colors A vector with string of the colors to be attributed to each variable ordered by R2, with residual at the end (e.g. c("blue", "green", "gray")).
+#' @param PlotType Choose if the plot should be a 'bar' or 'pizza' plot.
+#' @param Label Choose how values should be displayed ("box" or "text"). Default is set to not display values.
+#' @param Break Add a break in the bar plot axis in cases where a variable explains a large portion of the variance. 
 #' @return Returns a bar plot with the proportion of variance explained by each variable.
 #' @export 
 #' 
 #' @examples
-#' \dontrun{
-#' md = dplyr::starwars
 #'
-#' # Centering variables
-#' md = md %>% 
-#'   dplyr::select(mass, sex, species) %>% 
-#'   dplyr::mutate(mass = log(mass),
-#'          sex = dplyr::recode(sex, "male" = 1, 
-#'                       "female" = -1, 
-#'                       "hermaphroditic" = 0,
-#'                       "none" = as.numeric(NA)))
-#'   
-#'   
-#' mod = brms_model(Chainset = 2,
-#'                  Response = "mass", 
-#'                  FixedEffect = "sex", 
-#'                  RandomEffect = "species",
+#' # Simulate data
+#' md = tibble::tibble(
+#'   group = factor(sample(1:10, 1000, replace = TRUE)),
+#'   f_var = factor(sample(1:3, 1000, replace = TRUE)),
+#'   n_var = rnorm(1000, mean = 0, sd = 1),
+#'   resp = rnorm(1000, mean = 10, sd = 3))
+#'
+#' # Run model
+#' mod = brms_model(Response = "resp", 
+#'                  FixedEffect = c("f_var","n_var"), 
+#'                  RandomEffect = "group", 
 #'                  Family = "gaussian", 
 #'                  Data = md)
 #'
-#' PosteriorSamples = var_decomp(mod)
-#' plot_R2(PosteriorSamples)
+#' # Plot R2
+#' plot_R2(mod, PlotType = "pizza", Label = "box")
 #'
-#' }
 #'
 
-plot_R2 = function(PosteriorSamples, Colors = NULL){
 
-stopifnot("Input must be a data frame containing estimates after variance decomposition. You can use VarDecomp::var_decomp() to produce the input data." = inherits(PosteriorSamples, "data.frame"))
+plot_R2 = function(brmsfit, Colors = NULL, PlotType = "pizza", Label = NULL, Break = NULL){
 
-stopifnot("Input must be a data frame containing estimates after variance decomposition. You can use VarDecomp::var_decomp() to produce the input data." = any(stringr::str_detect(names(PosteriorSamples), "R2")) == TRUE) 
+stopifnot("Input must be a brmsfit" = inherits(brmsfit, "brmsfit"))
 
 if(!is.null(Colors)){
 stopifnot("Colors input must be a vector containing strings with the colors to be attributed to each category in the stacked bar plot (e.g. c(`blue`, `green`, `gray`))." = inherits(Colors, "character"))
 }  
+
   
-PS = PosteriorSamples %>% 
+if (!(PlotType %in% c("pizza", "bar"))) {
+stop("`PlotType` must be a string with the value `pizza` or `bar`")
+}
+
+if(!is.null(Label)){
+  if (!(Label %in% c("box", "text"))) {
+  stop("`Label` must be a string with the value `box` or `text`")
+  }
+}
+  
+if(!is.null(Break)){
+  stopifnot("`Break` input should be logical)." = inherits(Break, "logical"))
+}
+  
+if(!is.null(Break)){
+stopifnot("Box labels cannot be used in bar plots with a break in the axis." = !(Break == TRUE & Label == "box"))
+}
+  
+#Extract family
+Family = brmsfit$family[[1]][1]
+
+
+
+#Extract formula
+Formula = as.character(stats::formula(brmsfit)[1])
+
+# Extract "Response"
+
+if(Family != "binomial"){
+
+ResponseName = stringr::str_extract(Formula, "^[^~]+")
+}
+
+if(Family == "binomial"){
+ResponseName = stringr::str_extract(Formula, "^[^|]+") %>% 
+  stringr::str_trim()
+}
+
+
+PS = var_decomp(brmsfit) %>% 
   dplyr::select(dplyr::starts_with("R2_")) %>% 
   dplyr::rename_with(~ stringr::str_remove(., "^R2_")) %>% 
-  dplyr::select(!sum_fixed_effects) %>% 
   dplyr::summarise(dplyr::across(tidyselect::everything(), mean, na.rm = TRUE))
 
-for (i in colnames(PS)) {
-  RS = unlist(strsplit(i, "_"))
-  
-  # Check if both parts exist as separate columns
-  if (length(RS) == 2 && all(RS %in% colnames(PS))) {
-    # Remove the concatenated column
+
+RS = stringr::str_extract_all(Formula, "(?<=\\().+?(?=\\))") %>% 
+  unlist() %>% 
+  purrr::keep(~ stringr::str_detect(.x, "\\|")) %>%  
+  stringr::str_replace_all("\\+|\\|", "") %>% 
+  stringr::str_replace_all("\\b1\\b", "") %>% 
+  stringr::str_trim() %>% 
+  stringr::str_replace_all("  ", "__") %>%  
+  stringr::str_split("__") %>% 
+  purrr::map(~ rev(.x) %>% paste(collapse = "__")) %>%
+  unlist() %>% 
+  purrr::keep(~ stringr::str_detect(.x, "__")) 
+
+
+if(!is.null(RS)){
+ 
+  for(i in RS){
     PS = PS %>% 
-    dplyr::select(-all_of(i))
+    dplyr::select(-tidyselect::all_of(i)) 
+      
   }
-  }  
+}
 
 PS = PS %>%
-  tidyr::pivot_longer(cols = everything(), 
+  dplyr::select(-tidyselect::any_of("RandomEffects")) %>% 
+  dplyr::select(-tidyselect::any_of("FixedEffects")) %>% 
+  tidyr::pivot_longer(cols = tidyselect::everything(), 
   names_to = "Variable",
-  values_to = "R2")
+  values_to = "R2") 
+
+
+
+  
+
 
 PS = PS %>%
   dplyr::arrange(R2) %>% 
-  dplyr::mutate(ID = "")
-
-PS = PS %>%
+  dplyr::mutate(ID = paste0(ResponseName)) %>% 
   dplyr::mutate(Variable = factor(Variable, 
   levels = c(setdiff(PS$Variable, "residual"), "residual")))
 
  if(is.null(Colors)){
-  variable_colors = setNames(rep("lightgrey", length(levels(PS$Variable))), levels(PS$Variable))
+  variable_colors = stats::setNames(rep("lightgrey", length(levels(PS$Variable))), levels(PS$Variable))
   variable_colors[names(variable_colors) != "residual"] = scales::hue_pal()(length(levels(PS$Variable)) - 1)
  }  else {
   variable_colors = Colors
 }
 
-ggplot2::ggplot(PS, ggplot2::aes(x = ID, y = R2, fill=Variable)) +
-ggplot2::geom_bar(stat="identity") +
 
-ggplot2::geom_text(ggplot2::aes(label = round(R2*100, 2)), 
-              position = ggplot2::position_fill(vjust = 0.5), 
-              color = "white", size = 3) +
-ggplot2::scale_fill_manual(values = variable_colors) +
-ggplot2::labs(x = NULL, y = "Proportion of total variance explained")+
-ggplot2::theme_test()
+if(PlotType == "bar"){
+  plot = ggplot2::ggplot(PS, ggplot2::aes(x = ID, y = R2*100, fill=Variable)) +
+  ggplot2::geom_bar(stat="identity")  +
+  ggplot2::scale_fill_manual(values = variable_colors) +
+  ggplot2::labs(x = NULL, y = "Proportion of total variance explained")+
+  ggplot2::theme_test()
+
+
+  if(!is.null(Break)){
+    if(Break==TRUE){
+      
+      value_to_cut = max(PS$R2[PS$R2 > 0.7]*100)
+      cut_lower = round(0.17 * value_to_cut,1)
+      cut_upper = round(0.98 * value_to_cut,1)
+      
+      plot = plot + ggbreak::scale_y_break(c(cut_lower, cut_upper)) +
+      ggplot2::scale_y_continuous(breaks = seq(0, 100, by = 5))+
+      ggplot2::theme(axis.ticks.y.right = ggplot2::element_blank(), axis.text.y.right = ggplot2::element_blank())
+    }
+  }
+  
+}
+ 
+
+
+if(PlotType == "pizza") {
+  
+plot = ggplot2::ggplot(PS, ggplot2::aes(x = "", y = R2, fill = Variable)) +
+  ggplot2::geom_bar(width = 1, stat = "identity") +
+  ggplot2::coord_polar(theta = "y") +
+  ggplot2::scale_fill_manual(values = variable_colors) +
+  ggplot2::labs(x = NULL, y = "Proportion of total variance explained")+
+  ggplot2::theme_void()
 }
 
+
+if(is.null(Label)){
+  labeled_plot = plot
+} else{
+  
+  if(Label == "box"){
+  labeled_plot = plot + 
+    ggrepel::geom_label_repel(ggplot2::aes(label = round(R2, 3)), 
+    position = ggplot2::position_stack(vjust = 0.5), max.overlaps=1000, show.legend = FALSE)
+  }
+  
+  if(Label == "text"){
+  labeled_plot = plot + 
+    ggplot2::geom_text(ggplot2::aes(label = round(R2 * 100, 2)),
+    position = ggplot2::position_stack(vjust = 0.5),
+    color = "white", size = 3)
+  }
+}
+return(labeled_plot)
+}

@@ -4,12 +4,18 @@
 \alias{plot_R2}
 \title{Plot R2 values of brms models}
 \usage{
-plot_R2(PosteriorSamples, Colors = NULL)
+plot_R2(brmsfit, Colors = NULL, PlotType = "pizza", Label = NULL, Break = NULL)
 }
 \arguments{
-\item{PosteriorSamples}{The estimates of a brms model after variance decomposition. You can use VarDecomp::brms_model() to produce a brmsfit and then VarDecomp::var_decomp() to produce the posterior samples.}
+\item{brmsfit}{The output of a brms model. You can use VarDecomp::brms_model() to produce a brmsfit.}
 
 \item{Colors}{A vector with string of the colors to be attributed to each variable ordered by R2, with residual at the end (e.g. c("blue", "green", "gray")).}
+
+\item{PlotType}{Choose if the plot should be a 'bar' or 'pizza' plot.}
+
+\item{Label}{Choose how values should be displayed ("box" or "text"). Default is set to not display values.}
+
+\item{Break}{Add a break in the bar plot axis in cases where a variable explains a large portion of the variance.}
 }
 \value{
 Returns a bar plot with the proportion of variance explained by each variable.
@@ -18,29 +24,23 @@ Returns a bar plot with the proportion of variance explained by each variable.
 Plot R2 values of brms models
 }
 \examples{
-\dontrun{
-md = dplyr::starwars
 
-# Centering variables
-md = md \%>\% 
-  dplyr::select(mass, sex, species) \%>\% 
-  dplyr::mutate(mass = log(mass),
-         sex = dplyr::recode(sex, "male" = 1, 
-                      "female" = -1, 
-                      "hermaphroditic" = 0,
-                      "none" = as.numeric(NA)))
-  
-  
-mod = brms_model(Chainset = 2,
-                 Response = "mass", 
-                 FixedEffect = "sex", 
-                 RandomEffect = "species",
+# Simulate data
+md = tibble::tibble(
+  group = factor(sample(1:10, 1000, replace = TRUE)),
+  f_var = factor(sample(1:3, 1000, replace = TRUE)),
+  n_var = rnorm(1000, mean = 0, sd = 1),
+  resp = rnorm(1000, mean = 10, sd = 3))
+
+# Run model
+mod = brms_model(Response = "resp", 
+                 FixedEffect = c("f_var","n_var"), 
+                 RandomEffect = "group", 
                  Family = "gaussian", 
                  Data = md)
 
-PosteriorSamples = var_decomp(mod)
-plot_R2(PosteriorSamples)
+# Plot R2
+plot_R2(mod, PlotType = "pizza", Label = "box")
 
-}
 
 }

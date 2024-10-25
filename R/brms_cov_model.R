@@ -6,10 +6,11 @@
 #' @param Data A data frame containing the data - covariates should be centered to a the mean or to a meaningful zero (see Schielzeth H. 2010. Simple means to improve the interpretability of regression coefficients. Methods Ecol Evol. 1:103–113. doi:10.1111/j.2041-210X.2010.00012.x.).
 #' @param Response String with the name of the column in Data containing the response variable (e.g. "mass"). 
 #' @param FixedEffect String with the name of the column in Data containing the fixed effect variable (e.g. "height"). To add multiple fixed effects, use c() (e.g. c("height", "sex")). 
-#' @param RandomEffect String with the name of the column in Data containing the random effect variable (e.g. "species"). To add multiple random effects, use c() (e.g. c("species", "date")). 
+#' @param RandomEffect String with the name of the column in Data containing the random effect variable (e.g. "species"). To add multiple random effects, use c() (e.g. c("species", "date")).
+#' @param RandomSlope Vector containing two values: first a string with the name of the column in Data containing the covariate to be added as a random slope, second the random effect to which the  random slope will be applied (e.g. RandomSlope = c("height", "species")). The current package version allows the use of a single random slope.
 #' @param ID String with the name of the column in Data containing the ID of correlated individuals/groups. The current package version allows the use of a single random effect, so no additional random effects are possible yet. 
 #' @param Matrix A matrix containing the IDs as row/column names and covariance values (ex. A pedigree relatedness matrix). 
-#' @param Chainset Defines the number of iterations. Start with Chainset = 1 and increase as needed until convergence. The value of Chainsetis multiplied by 15000 in warmup, 30000 in iterations and 15 in thin intervale. For quick tests use Chainset = 0 (warmup=10; iter=110; thin=10; chains=2) 
+#' @param Chainset Defines the number of iterations. Start with Chainset = 1 and increase as needed until convergence. The value of Chainsetis multiplied by 15000 in warmup, 30000 in iterations and 15 in thin intervale. For quick tests use Chainset = 1 (warmup=10; iter=110; thin=10; chains=2) 
 #' @param Family String to define the family function in the brms model. Current supported families: "gaussian", "binomial", "poisson".
 #' @param Seed Numeric and optional. Set a seed in order to repeat the results from the model when running it more than once. 
 #' @param Trials The total number of trials in a binomial model. The number of successes should be imputed on Response.
@@ -22,117 +23,135 @@
 #' @export 
 #'
 #' @examples
-#' \dontrun{
-#'
-#'  library(tidyverse)
 #'  
-#' # Create a group (ID) variable
+#' # Simulate the data directly into a tibble
 #' md = tibble::tibble(
-#'   ID = as.factor(rep(1:10, each = 100))) %>% 
+#'   ID = factor(sample(1:10, 1000, replace = TRUE)),
+#'   var1 = rnorm(1000, mean = 0, sd = 1),
+#'   var2 = rnorm(1000, mean = 5, sd = 2),
+#'   resp = rnorm(1000, mean = 10, sd = 3))
 #'
-#' # Create a variables 
-#'   dplyr::mutate(height = rnorm(1000, mean = 170, sd = 10),
-#'          mass = 5 + 0.5 * height + rnorm(1000, mean = 0, sd = 5)) %>% 
-#'   dplyr::mutate(height = height - mean(height))
 #'
-#' # Create a covariance matrix (e.g., relatedness matrix)
+#'
+#' ## Create a covariance matrix (e.g., relatedness matrix)
 #' cov_matrix = matrix(rnorm(10 * 10), 10, 10)
 #' cov_matrix = cov_matrix %*% t(cov_matrix)  # Make it positive semi-definite
 #' rownames(cov_matrix) = colnames(cov_matrix) = 1:10
 #'
-#' # Ensure the covariance matrix is symmetric
+#' ## Ensure the covariance matrix is symmetric
 #' cov_matrix = (cov_matrix + t(cov_matrix)) / 2
 #'
 #'
-#'   
 #' mod = brms_cov_model(Chainset = 3, 
-#'            Response = "mass", 
-#'            FixedEffect = "height", 
+#'            Response = "resp", 
+#'            FixedEffect = c("var1", "var2"), 
 #'            ID = "ID", 
 #'            Matrix = cov_matrix,
 #'            Family = "gaussian", 
 #'            Data = md, 
 #'            Seed = 0405)
 #'
-#' }
-#'
 
-brms_cov_model = function(Data, Response, FixedEffect, ID, RandomEffect = NULL, Matrix, Chainset = 1, Family = "gaussian", Seed = NULL, Trials = NA, PriorSamples = TRUE){
+brms_cov_model = function(Data, Response, FixedEffect, ID, RandomEffect = NULL, RandomSlope = NULL, Matrix, Chainset = 1, Family = "gaussian", Seed = NULL, Trials = NULL, PriorSamples = TRUE){
 
-stopifnot("`Data` must be a data frame" = inherits(Data, "data.frame"))
+## Data  
+  stopifnot("`Data` must be a data frame" = inherits(Data, "data.frame"))
   
-stopifnot("`Response` must be a string" = inherits(Response, "character"))
-
-if(Family == "binomial"){
-  Successes = Data[[Response]]
-  stopifnot("Family 'binomial' requires an integer response variable." =inherits(Successes, "integer"))
-}
-
-if(Family == "binomial"){
-  Attempts = Data[[Trials]]
-  stopifnot("Family 'binomial' requires an integer trial variable." =inherits(Attempts, "integer"))
-}
-
-if(Family == "poisson"){
-  Resp = Data[[Response]]
-  stopifnot("Family 'poisson' requires an integer response variable." =inherits(Resp, "integer"))
-}
-
-stopifnot("`FixedEffect` must be a string" = inherits(FixedEffect, "character"))
-
-stopifnot("`ID` must be a string" = inherits(ID, "character"))
+  
+## Response  
+  stopifnot("`Response` must be a string" = inherits(Response, "character"))
 
 
-if(!is.null(RandomEffect)){
-  stopifnot("`RandomEffect` must be a string" = inherits(RandomEffect, "character"))
-}
+## FixedEffect
+  stopifnot("`FixedEffect` must be a string" = inherits(FixedEffect, "character"))
 
-if(!is.null(Matrix)){
-  stopifnot("`Matrix` must be a matrix" = inherits(Matrix, "matrix"))
-}
 
-stopifnot("`Chainset` must be a numeric value" = inherits(Chainset, "numeric"))
+## ID
+  stopifnot("`ID` must be a string" = inherits(ID, "character"))
 
-stopifnot("`Family` must be a string" = inherits(Family, "character"))
 
-if(Family == "binomial" && is.na(Trials)){
-  stop("Binomial models require the total number of trials (use `Trial =` for inputing 
-  the corresponding variable) and a response variable with the number of successes (use 
-  `Response =` for inputing the variable with the count of successes).")
-}
-
-if(is.null(Seed)){
-  Seed = sample(1000:9999, 1)
-
-} else {
-  if(!is.null(Seed)){
-  stopifnot("`Seed` must be numeric" = inherits(Seed, "numeric"))
+## RandomEffect
+  if(!is.null(RandomEffect)) {
+    stopifnot("`RandomEffect` must be a string" = inherits(RandomEffect, "character"))
   }
-}
 
-stopifnot("`PriorSamples` must be logical" = inherits(PriorSamples, "logical"))
+## Matrix
+  stopifnot("`Matrix` must be a matrix" = inherits(Matrix, "matrix"))
 
-testfunction = function(){
-  emojis = c("\U1F600", "\U1F604", "\U1F601", "\U1F643", "\U1F609", "\U1F60A", "\U1F929", 
-  "\U1F917", "\U1F92D", "\U1F973", "\U1F920", "\U1F978", "\U1F60E", "\U1F913", "\U1F47D", 
-  "\U1F638", "\U1F596", "\U1F44C", "\U270C", "\U1F44D", "\U1F44F", "\U1F64C", "\U1F40C", 
-  "\U1F41B", "\U1F41E", "\U1F997")  
+##RandomSlope
+  if(!is.null(RandomSlope)){
+    stopifnot(
+      "`RandomSlope` must be a vector containing two string values" =
+        inherits(RandomSlope, "character"),
+      
+      "`RandomSlope` must contain two values (e.g. RandomSlope = c('covariate name', 
+  'random effect')" = length(RandomSlope) == 2)
+  }
+
+## Chainset
+  stopifnot("`Chainset` must be a numeric value" = inherits(Chainset, "numeric"))
+
   
-  print(paste("No problems so far", sample(emojis, size = 1)))
-}
+## Family
+  stopifnot("`Family` must be a string" = inherits(Family, "character"))
 
-testfunction()
+### Poisson cases
+  if(Family == "poisson"){
+    stopifnot("Family 'poisson' requires an integer response variable." =inherits(Data[[Response]], "integer"))
+  }
+  
+  
+### Binomial cases
+  if(Family == "binomial"){
+    
+    Successes = Data[[Response]]
+    stopifnot("Family 'binomial' requires an integer response variable." =inherits(Successes, "integer"))
+    
+    if(is.null(Trials)){
+      stop("Binomial models require the total number of trials (use `Trial =` for inputing the corresponding variable) and a response variable with the number of successes (use  `Response =` for inputing the variable with the count of successes).")
+    }
+    
+    Attempts = Data[[Response]]  
+    stopifnot("Family 'binomial' requires an integer trial variable." =inherits(Attempts, "integer"))
+    
+  }
+  
 
+## Seed
+  if(is.null(Seed)){
+    Seed = as.numeric(sample(1000:9999, 1))
+  } else {
+    stopifnot("`Seed` must be numeric" = inherits(Seed, "numeric"))
+  }
+
+## PriorSamples
+  stopifnot("`PriorSamples` must be logical" = inherits(PriorSamples, "logical"))
+
+
+# Test function 
+  testfunction = function(){
+    emojis = c("\U1F600", "\U1F604", "\U1F601", "\U1F643", "\U1F609", "\U1F60A", "\U1F929", 
+    "\U1F917", "\U1F92D", "\U1F973", "\U1F920", "\U1F978", "\U1F60E", "\U1F913", "\U1F47D", 
+    "\U1F638", "\U1F596", "\U1F44C", "\U270C", "\U1F44D", "\U1F44F", "\U1F64C", "\U1F40C", 
+    "\U1F41B", "\U1F41E", "\U1F997")  
+    
+    print(paste("No problems so far", sample(emojis, size = 1)))
+  }
+  
+  testfunction()
+
+  
 # Setting chains 
-if(Chainset ==0){
-  Warmup=10; Iter=110; Thin=10; Chains=2
-
-} else {
-  Warmup=15000*Chainset
-  Iter=30000*Chainset
-  Thin=15*Chainset
-  Chains=2
-}
+  if(Chainset ==0){
+    Warmup=10; Iter=110; Thin=10; Chains=2
+  } 
+  
+  if(Chainset != 0){
+    Warmup=15000*Chainset
+    Iter=30000*Chainset
+    Thin=15*Chainset
+    Chains=2
+  }
 
 # Add an observation ID for models of binomial or poisson families
 if(Family == "binomial" | Family == "poisson"){
@@ -142,58 +161,113 @@ if(Family == "binomial" | Family == "poisson"){
 
 # Construct model formula if binomial family 
 if(Family == "binomial"){
-  bfform = 
   
   if(is.null(RandomEffect)){
-    paste0(Response, " | trials(", Trials, ") ~ ", paste(FixedEffect, collapse = " + "),
-    " + (1|gr(", ID,", cov = A)) + (1|observationID)")
-  
-  } else {
+    if(is.null(RandomSlope)){
+      bfform = 
+      paste0(Response, " | trials(", Trials, ") ~ ", paste(FixedEffect, collapse = " + "),
+      " + (1|gr(", ID,", cov = A)) + (1|observationID)")
+    }
+    
+    if(!is.null(RandomSlope)){
+      bfform = 
+      paste0(Response, " | trials(", Trials, ") ~ ", paste(FixedEffect, collapse = " + "),
+      " + (1 + ", RandomSlope[1], " |", RandomSlope[2], ") + (1|gr(", ID,", cov = A)) + (1|observationID)")
+    }
+  } 
   
   if(!is.null(RandomEffect)){
-    paste0(Response, " | trials(", Trials, ") ~ ", paste(FixedEffect, collapse = " + "),
-    " + (1|gr(", ID,", cov = A)) + ", paste("(1|", RandomEffect, ")", sep = "", collapse = " + "),
-    " + (1|observationID)")
+    if(is.null(RandomSlope)){
+      bfform = 
+      paste0(Response, " | trials(", Trials, ") ~ ", paste(FixedEffect, collapse = " + "),
+      " + (1|gr(", ID,", cov = A)) + ", paste("(1|", RandomEffect, ")", sep = "", collapse = " + "),
+      " + (1|observationID)")
+    }
+    
+    if(!is.null(RandomSlope)){
+      bfform = 
+      paste0(Response, " | trials(", Trials, ") ~ ", paste(FixedEffect, collapse = " + "),
+      " + (1 + ", RandomSlope[1], " |", RandomSlope[2], ") + (1|gr(", ID,", cov = A)) + ", 
+      paste("(1|", RandomEffect, ")", sep = "", collapse = " + "),  " + (1|observationID)")
+    }
   }
-  }
-} else {
+}
+  
+
 
 # Construct the formula object if poisson family
   
 if(Family == "poisson"){
-  bfform =  
-
+ 
   if(is.null(RandomEffect)){
-    paste0(Response, " ~ ", paste(FixedEffect, collapse = " + "), 
-    " + (1|gr(", ID,", cov = A)) + (1|observationID)")
+    if(is.null(RandomSlope)){
+      bfform =  
+      paste0(Response, " ~ ", paste(FixedEffect, collapse = " + "), 
+      " + (1|gr(", ID,", cov = A)) + (1|observationID)")
+    }
+    
+    if(!is.null(RandomSlope)){
+      bfform =  
+      paste0(Response, " ~ ", paste(FixedEffect, collapse = " + "), 
+      " + (1 + ", RandomSlope[1], " |", RandomSlope[2], ") + (1|gr(", ID,", cov = A)) + (1|observationID)")
+    }
+  }
+    
   
-  } else {
   if(!is.null(RandomEffect)){
-    paste0(Response, " ~ ", paste(FixedEffect, collapse = " + "), " + (1|gr(", ID,", cov = A)) + ", 
-    paste("(1|", RandomEffect, ")", sep = "", collapse = " + "), " + (1|observationID)")
+    if(is.null(RandomSlope)){
+      bfform =  
+      paste0(Response, " ~ ", paste(FixedEffect, collapse = " + "), " + (1|gr(", ID,", cov = A)) + ", 
+      paste("(1|", RandomEffect, ")", sep = "", collapse = " + "), " + (1|observationID)")
+    }
+    
+    if(!is.null(RandomSlope)){
+      bfform =  
+      paste0(Response, " ~ ", paste(FixedEffect, collapse = " + "), 
+             " + (1 + ", RandomSlope[1], " |", RandomSlope[2], ") + (1|gr(", ID,", cov = A)) + ", 
+      paste("(1|", RandomEffect, ")", sep = "", collapse = " + "), " + (1|observationID)")
+    }
+    
   }
-  }
+}
 
-} else {
-  
-# Construct the formula object for other model families
-bfform = 
+
+# Construct the formula object for gaussian family
+if(Family == "gaussian"){
 
   if(is.null(RandomEffect)){
-    paste0(Response, " ~ ", paste(FixedEffect, collapse = " + "),
-    " + (1|gr(", ID,", cov = A))")
+    if(is.null(RandomSlope)){
+      bfform =  
+      paste0(Response, " ~ ", paste(FixedEffect, collapse = " + "),
+      " + (1|gr(", ID,", cov = A))")
+    }
+    
+   if(!is.null(RandomSlope)){
+      bfform =  
+      paste0(Response, " ~ ", paste(FixedEffect, collapse = " + "),
+      " + (1 + ", RandomSlope[1], " |", RandomSlope[2], ") + (1|gr(", ID,", cov = A))")
+    }
+    
+  }
 
-  } else{
-  
-    if(!is.null(RandomEffect)){
+
+  if(!is.null(RandomEffect)){
+    if(is.null(RandomSlope)){
+      bfform =  
       paste0(Response, " ~ ", paste(FixedEffect, collapse = " + "), 
       " + (1|gr(", ID,", cov = A)) + ", 
       paste("(1|", RandomEffect, ")", sep = "", collapse = " + "))
     }
-}
-}
-}
+    
+    if(!is.null(RandomSlope)){
+      bfform =  
+      paste0(Response, " ~ ", paste(FixedEffect, collapse = " + "), 
+      " + (1 + ", RandomSlope[1], " |", RandomSlope[2], ") + (1|gr(", ID,", cov = A)) + ", 
+      paste("(1|", RandomEffect, ")", sep = "", collapse = " + "))
+    }
+  }
 
+}
 
 mod =  brms::brm(brms::bf(stats::as.formula(bfform)),
                 family = Family,

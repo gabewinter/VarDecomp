@@ -10,36 +10,29 @@ var_decomp(brmsfit)
 \item{brmsfit}{The output of a brms model. You can use VarDecomp::brms_model() to produce a brmsfit.}
 }
 \value{
-Returns a data frame with the summaries of posterior estimates.
+Returns a data frame with posterior estimates.
 }
 \description{
 Variance decomposition for brms models
 }
 \examples{
 
-\dontrun{
+# Simulate data
+md = tibble::tibble(
+  group = factor(sample(1:10, 1000, replace = TRUE)),
+  f_var = factor(sample(1:3, 1000, replace = TRUE)),
+  n_var = rnorm(1000, mean = 0, sd = 1),
+  resp = rnorm(1000, mean = 10, sd = 3))
 
-md = dplyr::starwars
-
-# Centering variables
-md = md \%>\% 
-  dplyr::select(mass, sex, species) \%>\% 
-  dplyr::mutate(mass = log(mass),
-         sex = dplyr::recode(sex, "male" = 1, 
-                      "female" = -1, 
-                      "hermaphroditic" = 0,
-                      "none" = as.numeric(NA)))
-  
-  
-mod = brms_model(Chainset = 2,
-                 Response = "mass", 
-                 FixedEffect = "sex", 
-                 RandomEffect = "species",
+# Run model
+mod = brms_model(Response = "resp", 
+                 FixedEffect = c("f_var","n_var"), 
+                 RandomEffect = "group", 
                  Family = "gaussian", 
                  Data = md)
 
-var_decomp(mod)
 
-}
+# Variance decomposition
+var_decomp(mod)
 
 }

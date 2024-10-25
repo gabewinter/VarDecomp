@@ -4,12 +4,10 @@
 \alias{model_fit}
 \title{Perform model fit checks for brms models}
 \usage{
-model_fit(brmsfit, Group = NULL, Prior = FALSE)
+model_fit(brmsfit, Prior = FALSE)
 }
 \arguments{
 \item{brmsfit}{The output of a brms model. You can use VarDecomp::brms_model() to produce a brmsfit.}
-
-\item{Group}{A string containing the name of a grouping variable for the visualization of a posterior predictive check plot (e.g. "sex"). To add multiple grouping variables, use c() (e.g. c("sex", "species")).}
 
 \item{Prior}{A logical argument defining whether the \code{brmsfit} contains prior samples. If set to \code{TRUE} it will produce plots comparing the log distributions of priors and posterior samples for each covariate.}
 }
@@ -20,30 +18,23 @@ Returns a list containing (a) the maximum R-hat value, (b) the minimum effective
 Perform model fit checks for brms models
 }
 \examples{
-\dontrun{
 
-md = dplyr::starwars
+# Simulate data
+md = tibble::tibble(
+  group = factor(sample(1:10, 1000, replace = TRUE)),
+  f_var = factor(sample(1:3, 1000, replace = TRUE)),
+  n_var = rnorm(1000, mean = 0, sd = 1),
+  resp = rnorm(1000, mean = 10, sd = 3))
 
-# Centering variables
-md = md \%>\% 
-  dplyr::select(mass, sex, height, species) \%>\% 
-  dplyr::mutate(mass = log(mass),
-         sex = dplyr::recode(sex, "male" = 1, 
-                      "female" = -1, 
-                      "hermaphroditic" = 0,
-                      "none" = as.numeric(NA)))
-
-
-# Without random effects
-
-mod = brms_model(Chainset = 2,
-                 Response = "mass", 
-                 FixedEffect = c("sex","height"), 
+# Run model
+mod = brms_model(Response = "resp", 
+                 FixedEffect = c("f_var","n_var"), 
+                 RandomEffect = "group", 
                  Family = "gaussian", 
-                 Data = md,
-                 PriorSamples = TRUE)
+                 Data = md)
 
-model_fit(mod, Group = "sex", Prior = TRUE)
 
-}
+# Check model fit 
+model_fit(mod, Prior = TRUE)
+
 }

@@ -13,7 +13,7 @@ brms_model(
   Chainset = 1,
   Family = "gaussian",
   Seed = NULL,
-  Trials = NA,
+  Trials = NULL,
   PriorSamples = TRUE
 )
 }
@@ -28,7 +28,7 @@ brms_model(
 
 \item{RandomSlope}{Vector containing two values: first a string with the name of the column in Data containing the covariate to be added as a random slope, second the random effect to which the  random slope will be applied (e.g. RandomSlope = c("height", "species")). The current package version allows the use of a single random slope.}
 
-\item{Chainset}{Defines the number of iterations. Start with Chainset = 1 and increase as needed until convergence. The value of Chainsetis multiplied by 15000 in warmup, 30000 in iterations and 15 in thin intervale. For quick tests use Chainset = 0 (warmup=10; iter=110; thin=10; chains=2)}
+\item{Chainset}{Defines the number of iterations. Start with Chainset = 1 and increase as needed until convergence. The value of Chainsetis multiplied by 15000 in warmup, 30000 in iterations and 15 in thin intervale. For quick tests use Chainset = 1 (warmup=10; iter=110; thin=10; chains=2)}
 
 \item{Family}{String to define the family function in the brms model. Current supported families: "gaussian", "binomial", "poisson".}
 
@@ -45,28 +45,21 @@ Returns a brmsfit
 Run a brms model
 }
 \examples{
-\dontrun{
+# Simulate data
+md = tibble::tibble(
+  group = factor(sample(1:10, 1000, replace = TRUE)),
+  f_var = factor(sample(1:3, 1000, replace = TRUE)),
+  n_var = rnorm(1000, mean = 0, sd = 1),
+  resp = rnorm(1000, mean = 10, sd = 3))
 
-md = dplyr::starwars
+# Run model
+mod = brms_model(Response = "resp", 
+                 FixedEffect = c("f_var","n_var"), 
+                 RandomEffect = "group", 
+                 Family = "gaussian", 
+                 Data = md)
 
-# Centering variables
-md = md \%>\% 
-  dplyr::select(mass, sex, height, species) \%>\% 
-  dplyr::mutate(mass = log(mass),
-         sex = dplyr::recode(sex, "male" = 1, 
-                      "female" = -1, 
-                      "hermaphroditic" = 0,
-                      "none" = as.numeric(NA)))
-  
-  
-mod = brms_model(Chainset = 2, 
-           Response = "mass", 
-           FixedEffect = c("sex","height"),
-           RandomSlope = c("height", "species"),
-           Family = "gaussian", 
-           Data = md, 
-           Seed = 0405)
 
-}
+
 
 }

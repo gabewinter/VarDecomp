@@ -3,7 +3,7 @@ title: "VarDecomp"
 output: html_document
 editor_options: 
   
-  chunk_output_type: console
+  chunk_output_type: inline
 ---
 
 
@@ -13,13 +13,10 @@ editor_options:
 
 # Add multivariate
 
-# Add multiple random effects in var_decomp
-
 ```
 
 ```{r development, include=FALSE}
 options(rmarkdown.html_vignette.check_title = FALSE)
-library(ggplot2)
 ```
 
 
@@ -42,11 +39,11 @@ fusen::inflate(flat_file = "dev/VarDecomp_package.Rmd", vignette_name = "vignett
 #' Run a brms model
 #'
 #' @param Data A data frame containing the data - covariates should be centered to a the mean or to a meaningful zero (see Schielzeth H. 2010. Simple means to improve the interpretability of regression coefficients. Methods Ecol Evol. 1:103–113. doi:10.1111/j.2041-210X.2010.00012.x.).
-#' @param Response String with the name of the column in Data containing the response variable (e.g. "mass"). 
+#' @param Response String with the name of the column in Data containing the response variable (e.g. "mass").
 #' @param FixedEffect String with the name of the column in Data containing the fixed effect variable (e.g. "height"). To add multiple fixed effects, use c() (e.g. c("height", "sex")). 
 #' @param RandomEffect String with the name of the column in Data containing the random effect variable (e.g. "species"). The current package version allows the use of a single random effect.
 #' @param RandomSlope Vector containing two values: first a string with the name of the column in Data containing the covariate to be added as a random slope, second the random effect to which the  random slope will be applied (e.g. RandomSlope = c("height", "species")). The current package version allows the use of a single random slope.
-#' @param Chainset Defines the number of iterations. Start with Chainset = 1 and increase as needed until convergence. The value of Chainsetis multiplied by 15000 in warmup, 30000 in iterations and 15 in thin intervale. For quick tests use Chainset = 0 (warmup=10; iter=110; thin=10; chains=2) 
+#' @param Chainset Defines the number of iterations. Start with Chainset = 1 and increase as needed until convergence. The value of Chainsetis multiplied by 15000 in warmup, 30000 in iterations and 15 in thin intervale. For quick tests use Chainset = 1 (warmup=10; iter=110; thin=10; chains=2) 
 #' @param Family String to define the family function in the brms model. Current supported families: "gaussian", "binomial", "poisson".
 #' @param Seed Numeric and optional. Set a seed in order to repeat the results from the model when running it more than once. 
 #' @param Trials The total number of trials in a binomial model. The number of successes should be imputed on Response.
@@ -60,33 +57,26 @@ fusen::inflate(flat_file = "dev/VarDecomp_package.Rmd", vignette_name = "vignett
 #'
 
 brms_model = function(Data, Response, FixedEffect, RandomEffect = NULL, RandomSlope = NULL, 
-  Chainset = 1, Family = "gaussian", Seed = NULL, Trials = NA, PriorSamples = TRUE) {
+  Chainset = 1, Family = "gaussian", Seed = NULL, Trials = NULL, PriorSamples = TRUE) {
 
+# Testing inputs
+
+## Data  
 stopifnot("`Data` must be a data frame" = inherits(Data, "data.frame"))
-  
+
+## Response  
 stopifnot("`Response` must be a string" = inherits(Response, "character"))
 
-if(Family == "binomial"){
-  Successes = Data[[Response]]
-  stopifnot("Family 'binomial' requires an integer response variable." =inherits(Successes, "integer"))
-}
 
-if(Family == "binomial"){
-  Attempts = Data[[Trials]]
-  stopifnot("Family 'binomial' requires an integer trial variable." =inherits(Attempts, "integer"))
-}
-
-if(Family == "poisson"){
-  Resp = Data[[Response]]
-  stopifnot("Family 'poisson' requires an integer response variable." =inherits(Resp, "integer"))
-}
-
+## FixedEffect
 stopifnot("`FixedEffect` must be a string" = inherits(FixedEffect, "character"))
 
+## RandomEffect
 if(!is.null(RandomEffect)) {
   stopifnot("`RandomEffect` must be a string" = inherits(RandomEffect, "character"))
 }
 
+##RandomSlope
 if(!is.null(RandomSlope)){
   stopifnot(
   "`RandomSlope` must be a vector containing two string values" =
@@ -96,28 +86,46 @@ if(!is.null(RandomSlope)){
   'random effect')" = length(RandomSlope) == 2)
 }
 
+## Chainset
 stopifnot("`Chainset` must be a numeric value" = inherits(Chainset, "numeric"))
 
+## Family
 stopifnot("`Family` must be a string" = inherits(Family, "character"))
 
-if(Family == "binomial" && is.na(Trials)){
-  stop("Binomial models require the total number of trials (use `Trial =` for inputing 
-  the corresponding variable) and a response variable with the number of successes (use 
-  `Response =` for inputing the variable with the count of successes).")
+### Poisson cases
+if(Family == "poisson"){
+  stopifnot("Family 'poisson' requires an integer response variable." =inherits(Data[[Response]], "integer"))
 }
 
+
+### Binomial cases
+if(Family == "binomial"){
+
+  Successes = Data[[Response]]
+  stopifnot("Family 'binomial' requires an integer response variable." =inherits(Successes, "integer"))
+
+  if(is.null(Trials)){
+    stop("Binomial models require the total number of trials (use `Trial =` for inputing the corresponding variable) and a response variable with the number of successes (use  `Response =` for inputing the variable with the count of successes).")
+  }
+
+  Attempts = Data[[Response]]  
+  stopifnot("Family 'binomial' requires an integer trial variable." =inherits(Attempts, "integer"))
+
+}
+
+
+## Seed
 if(is.null(Seed)){
- Seed = sample(1000:9999, 1)
-
+ Seed = as.numeric(sample(1000:9999, 1))
 } else {
-  if(!is.null(Seed)){
-  stopifnot("`Seed` must be numeric" = inherits(Seed, "numeric"))
-  } 
+stopifnot("`Seed` must be numeric" = inherits(Seed, "numeric"))
 }
 
+## PriorSamples
 stopifnot("`PriorSamples` must be logical" = inherits(PriorSamples, "logical"))
 
 
+# Test function 
 testfunction = function(){
   emojis = c("\U1F600", "\U1F604", "\U1F601", "\U1F643", "\U1F609", "\U1F60A", "\U1F929", 
   "\U1F917", "\U1F92D", "\U1F973", "\U1F920", "\U1F978", "\U1F60E", "\U1F913", "\U1F47D", 
@@ -128,17 +136,21 @@ testfunction = function(){
 }
 
 testfunction()
+
+
   
 # Setting chains 
 if(Chainset ==0){
   Warmup=10; Iter=110; Thin=10; Chains=2
+} 
 
-} else {
+if(Chainset != 0){
   Warmup=15000*Chainset
   Iter=30000*Chainset
   Thin=15*Chainset
   Chains=2
 }
+
 
 # Add an observation ID for models of binomial or poisson families
 if(Family == "binomial" | Family == "poisson"){
@@ -148,116 +160,111 @@ if(Family == "binomial" | Family == "poisson"){
 
 # Construct model formula if binomial family 
 if(Family == "binomial"){
-  bfform = 
     
     if(is.null(RandomEffect)) {
       
       if(is.null(RandomSlope)){
+        bfform = 
         paste0(Response, " | trials(", Trials, ") ~ ", 
         paste(FixedEffect, collapse = " + "), " + (1|observationID)")
-        
-      } else {
-        
+      }
+      
       if(!is.null(RandomSlope)) {
+        bfform = 
         paste0(Response, " | trials(", Trials, ") ~ ", paste(FixedEffect, collapse = " + "), 
         " + (1 + ", RandomSlope[1], " |", RandomSlope[2], ") + (1|observationID)")
       }
-      }
-
-    } else {
-    
+    }
+  
     if(!is.null(RandomEffect)) {
         
       if(is.null(RandomSlope)){
+        bfform = 
         paste0(Response, " | trials(", Trials, ") ~ ", paste(FixedEffect, collapse = " + "),
         " + ", paste("(1|", RandomEffect, ")", sep = "", collapse = " + "), " + (1|observationID)")
-       
-      } else {
+      }
         
       if(!is.null(RandomSlope)){ 
+          bfform = 
           paste0(Response, " | trials(", Trials, ") ~ ", paste(FixedEffect, collapse = " + "),
           " + (1 + ", RandomSlope[1], " |", RandomSlope[2],") + ", 
           paste("(1|", RandomEffect, ")", sep = "", collapse = " + ")," + (1|observationID)")
-        }
+      }
       }
     }
-    } 
   
-} else {
 
 # Construct the formula object if poisson family
   
 if(Family == "poisson"){
-  bfform = 
     
     if(is.null(RandomEffect)) {
       
       if(is.null(RandomSlope)){
-        paste0(Response, " ~ ", paste(FixedEffect, collapse = " + "), " + (1|observationID)")
-      
-      } else {
+        bfform = 
+          paste0(Response, " ~ ", paste(FixedEffect, collapse = " + "), " + (1|observationID)")
+      } 
         
       if(!is.null(RandomSlope)){
-        paste0(Response, " ~ ", paste(FixedEffect, collapse = " + "),
+        bfform = 
+          paste0(Response, " ~ ", paste(FixedEffect, collapse = " + "),
         " + (1 + ", RandomSlope[1], " |", RandomSlope[2], ") + (1|observationID)")
-        }
       }
+    }
     
-    } else {
+    
     
     if(!is.null(RandomEffect)) {  
       
       if(is.null(RandomSlope)){
+        bfform = 
         paste0(Response, " ~ ", paste(FixedEffect, collapse = " + "), " + ",
         paste("(1|", RandomEffect, ")", sep = "", collapse = " + "), " + (1|observationID)")
-
-      } else {
+      }
       
       if(!is.null(RandomSlope)){    
+        bfform = 
         paste0(Response, " ~ ", paste(FixedEffect, collapse = " + "), 
         " + (1 + ", RandomSlope[1], " |", RandomSlope[2],") + ", 
-        paste("(1|", RandomEffect, ")", sep = "", collapse = " + "), " + (1|observationID)")}
+        paste("(1|", RandomEffect, ")", sep = "", collapse = " + "), " + (1|observationID)")
+        }
       }
     }
-    }
 
-} else {
-
-# Construct the formula object for other model families
-  bfform = 
+# Construct the formula object for gaussian families
+if(Family == "gaussian"){
     
     if(is.null(RandomEffect)) {
       
       if(is.null(RandomSlope)){
+        bfform = 
         paste0(Response, " ~ ", paste(FixedEffect, collapse = " + "))
-      
-      } else {
+      } 
       
       if(!is.null(RandomSlope)){
+        bfform = 
         paste0(Response, " ~ ", paste(FixedEffect, collapse = " + "),
         " + (1 + ", RandomSlope[1], " |", RandomSlope[2], ")")
       }
-      }
-    } else {
-
-      if(!is.null(RandomEffect)) {
-        
-        if(is.null(RandomSlope)){
-          paste0(Response, " ~ ", paste(FixedEffect, collapse = " + "), " + ", 
-          paste("(1|", RandomEffect, ")", sep = "", collapse = " + "))
-
-        } else {
-        
-        if(!is.null(RandomSlope)){
-            paste0(Response, " ~ ", paste(FixedEffect, collapse = " + "),
-            " + (1 + ", RandomSlope[1], " |", RandomSlope[2],") + ",
-            paste("(1|", RandomEffect, ")", sep = "", collapse = " + "))
-        }
-        }
+    }
+  
+    if(!is.null(RandomEffect)) {
+      
+      if(is.null(RandomSlope)){
+        bfform = 
+        paste0(Response, " ~ ", paste(FixedEffect, collapse = " + "), " + ", 
+        paste("(1|", RandomEffect, ")", sep = "", collapse = " + "))
+      } 
+      
+      if(!is.null(RandomSlope)){
+        bfform = 
+        paste0(Response, " ~ ", paste(FixedEffect, collapse = " + "),
+        " + (1 + ", RandomSlope[1], " |", RandomSlope[2],") + ",
+        paste("(1|", RandomEffect, ")", sep = "", collapse = " + "))
       }
     }
   }
-}
+
 
 mod =  brms::brm(brms::bf(stats::as.formula(bfform)),
                 family = Family,
@@ -286,39 +293,240 @@ return(brmsfit)
 ```
 
 ```{r examples-brms_model, eval=FALSE}
-#' \dontrun{
+# Simulate data
+md = tibble::tibble(
+  group = factor(sample(1:10, 1000, replace = TRUE)),
+  f_var = factor(sample(1:3, 1000, replace = TRUE)),
+  n_var = rnorm(1000, mean = 0, sd = 1),
+  resp = rnorm(1000, mean = 10, sd = 3))
 
-md = dplyr::starwars
+# Run model
+mod = brms_model(Response = "resp", 
+                 FixedEffect = c("f_var","n_var"), 
+                 RandomEffect = "group", 
+                 Family = "gaussian", 
+                 Data = md)
 
-# Centering variables
-md = md %>% 
-  dplyr::select(mass, sex, height, species) %>% 
-  dplyr::mutate(mass = log(mass),
-         sex = dplyr::recode(sex, "male" = 1, 
-                      "female" = -1, 
-                      "hermaphroditic" = 0,
-                      "none" = as.numeric(NA)))
-  
-  
-mod = brms_model(Chainset = 2, 
-           Response = "mass", 
-           FixedEffect = c("sex","height"),
-           RandomSlope = c("height", "species"),
-           Family = "gaussian", 
-           Data = md, 
-           Seed = 0405)
 
-#' }
+
 
 ```
 
-```{r test-brms_model}
+```{r test-brms_model, eval=FALSE}
 
-#included on model_examples function
+
+# Define parameters for the simulation
+n = 1000  # number of observations
+
+# Simulate the data directly into a tibble
+md = tibble::tibble(
+  group1 = factor(sample(1:5, n, replace = TRUE)),
+  group2 = factor(sample(1:10, n, replace = TRUE)),
+  f_var = factor(sample(1:3, n, replace = TRUE)),
+  n_var1 = rnorm(n, mean = 0, sd = 1),
+  n_var2 = rnorm(n, mean = 5, sd = 2),
+  resp_gaussian = rnorm(n, mean = 10, sd = 3),
+  resp_poisson = rpois(n, lambda = 2),
+  successes = rbinom(n, size = 20, prob = 0.3)
+) %>% 
+  dplyr::mutate(trials = sample(1:4, n, replace = TRUE)*successes)
+
+# Gaussian models
+
+## Fixed effects only
+
+gau_mod = brms_model(Chainset = 1,
+                 Response = "resp_gaussian", 
+                 FixedEffect = c("f_var","n_var1"), 
+                 Family = "gaussian", 
+                 Data = md)
+
+#save(gau_mod, file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/gau_mod.RData", compress = "xz")
+
+
+## With random effect
+gau_mod_re = brms_model(Chainset = 1,
+                     Response = "resp_gaussian", 
+                     FixedEffect = c("f_var","n_var1"), 
+                     RandomEffect = "group1", 
+                     Family = "gaussian", 
+                     Data = md)
+
+
+#save(gau_mod_re, file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/gau_mod_re.RData", compress = "xz")
+
+## With two random effects
+gau_mod_2re = brms_model(Chainset = 1,
+                     Response = "resp_gaussian", 
+                     FixedEffect = c("f_var","n_var1"), 
+                     RandomEffect = c("group1","group2"), 
+                     Family = "gaussian", 
+                     Data = md)
+
+
+#save(gau_mod_2re, file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/gau_mod_2re.RData", compress = "xz")
+
+
+## With random slope
+gau_mod_rs = brms_model(Chainset = 1,
+                     Response = "resp_gaussian", 
+                     FixedEffect = c("f_var","n_var1"),
+                     RandomSlope = c("n_var1", "group1"),
+                     Family = "gaussian", 
+                     Data = md)
+
+#save(gau_mod_rs, file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/gau_mod_rs.RData",compress = "xz")
+
+
+## With random slope and an additional random effect
+gau_mod_rsre = brms_model(Chainset = 1,
+                     Response = "resp_gaussian", 
+                     FixedEffect = c("f_var","n_var1"),
+                     RandomSlope = c("n_var1", "group1"),
+                     RandomEffect = "group2",
+                     Family = "gaussian", 
+                     Data = md)
+
+# save(gau_mod_rsre, file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/gau_mod_rsre.RData",compress = "xz")
+
+
+
+
+
+# Poisson models
+
+## Fixed effects only
+
+poi_mod = brms_model(Chainset = 1,
+                 Response = "resp_poisson", 
+                 FixedEffect = c("f_var","n_var1"), 
+                 Family = "poisson", 
+                 Data = md)
+
+# save(poi_mod, file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/poi_mod.RData", compress = "xz")
+
+
+## With random effect
+poi_mod_re = brms_model(Chainset = 1,
+                     Response = "resp_poisson", 
+                     FixedEffect = c("f_var","n_var1"), 
+                     RandomEffect = "group1", 
+                     Family = "poisson", 
+                     Data = md)
+
+
+# save(poi_mod_re, file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/poi_mod_re.RData", compress = "xz")
+
+## With two random effects
+poi_mod_2re = brms_model(Chainset = 1,
+                     Response = "resp_poisson", 
+                     FixedEffect = c("f_var","n_var1"), 
+                     RandomEffect = c("group1","group2"), 
+                     Family = "poisson", 
+                     Data = md)
+
+
+# save(poi_mod_2re, file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/poi_mod_2re.RData", compress = "xz")
+
+
+## With random slope
+poi_mod_rs = brms_model(Chainset = 1,
+                     Response = "resp_poisson", 
+                     FixedEffect = c("f_var","n_var1"),
+                     RandomSlope = c("n_var1", "group1"),
+                     Family = "poisson", 
+                     Data = md)
+
+# save(poi_mod_rs, file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/poi_mod_rs.RData",compress = "xz")
+
+
+## With random slope and an additional random effect
+poi_mod_rsre = brms_model(Chainset = 1,
+                     Response = "resp_poisson", 
+                     FixedEffect = c("f_var","n_var1"),
+                     RandomSlope = c("n_var1", "group1"),
+                     RandomEffect = "group2",
+                     Family = "poisson", 
+                     Data = md)
+
+# save(poi_mod_rsre, file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/poi_mod_rsre.RData",compress = "xz")
+
+
+
+
+
+
+# Binomial models
+
+## Fixed effects only
+
+bin_mod = brms_model(Chainset = 1,
+                 Response = "successes",
+                 Trials = "trials",
+                 FixedEffect = c("f_var","n_var1"), 
+                 Family = "binomial", 
+                 Data = md)
+
+# save(bin_mod, file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/bin_mod.RData", compress = "xz")
+
+
+## With random effect
+bin_mod_re = brms_model(Chainset = 1,
+                     Response = "successes",
+                     Trials = "trials",
+                     FixedEffect = c("f_var","n_var1"), 
+                     RandomEffect = "group1", 
+                     Family = "binomial", 
+                     Data = md)
+
+
+# save(bin_mod_re, file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/bin_mod_re.RData", compress = "xz")
+
+## With two random effects
+bin_mod_2re = brms_model(Chainset = 1,
+                     Response = "successes",
+                     Trials = "trials",
+                     FixedEffect = c("f_var","n_var1"), 
+                     RandomEffect = c("group1","group2"), 
+                     Family = "binomial", 
+                     Data = md)
+
+
+# save(bin_mod_2re, file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/bin_mod_2re.RData", compress = "xz")
+
+
+## With random slope
+bin_mod_rs = brms_model(Chainset = 1,
+                     Response = "successes",
+                     Trials = "trials",
+                     FixedEffect = c("f_var","n_var1"),
+                     RandomSlope = c("n_var1", "group1"),
+                     Family = "binomial", 
+                     Data = md)
+
+# save(bin_mod_rs, file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/bin_mod_rs.RData",compress = "xz")
+
+
+## With random slope and an additional random effect
+bin_mod_rsre = brms_model(Chainset = 1,
+                     Response = "successes",
+                     Trials = "trials",
+                     FixedEffect = c("f_var","n_var1"),
+                     RandomSlope = c("n_var1", "group1"),
+                     RandomEffect = "group2",
+                     Family = "binomial", 
+                     Data = md)
+
+# save(bin_mod_rsre, file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/bin_mod_rsre.RData",compress = "xz")
+
+
+
 
 ```
+
 
 ______
+
 
 # brms_cov_model
 
@@ -329,10 +537,11 @@ ______
 #' @param Data A data frame containing the data - covariates should be centered to a the mean or to a meaningful zero (see Schielzeth H. 2010. Simple means to improve the interpretability of regression coefficients. Methods Ecol Evol. 1:103–113. doi:10.1111/j.2041-210X.2010.00012.x.).
 #' @param Response String with the name of the column in Data containing the response variable (e.g. "mass"). 
 #' @param FixedEffect String with the name of the column in Data containing the fixed effect variable (e.g. "height"). To add multiple fixed effects, use c() (e.g. c("height", "sex")). 
-#' @param RandomEffect String with the name of the column in Data containing the random effect variable (e.g. "species"). To add multiple random effects, use c() (e.g. c("species", "date")). 
+#' @param RandomEffect String with the name of the column in Data containing the random effect variable (e.g. "species"). To add multiple random effects, use c() (e.g. c("species", "date")).
+#' @param RandomSlope Vector containing two values: first a string with the name of the column in Data containing the covariate to be added as a random slope, second the random effect to which the  random slope will be applied (e.g. RandomSlope = c("height", "species")). The current package version allows the use of a single random slope.
 #' @param ID String with the name of the column in Data containing the ID of correlated individuals/groups. The current package version allows the use of a single random effect, so no additional random effects are possible yet. 
 #' @param Matrix A matrix containing the IDs as row/column names and covariance values (ex. A pedigree relatedness matrix). 
-#' @param Chainset Defines the number of iterations. Start with Chainset = 1 and increase as needed until convergence. The value of Chainsetis multiplied by 15000 in warmup, 30000 in iterations and 15 in thin intervale. For quick tests use Chainset = 0 (warmup=10; iter=110; thin=10; chains=2) 
+#' @param Chainset Defines the number of iterations. Start with Chainset = 1 and increase as needed until convergence. The value of Chainsetis multiplied by 15000 in warmup, 30000 in iterations and 15 in thin intervale. For quick tests use Chainset = 1 (warmup=10; iter=110; thin=10; chains=2) 
 #' @param Family String to define the family function in the brms model. Current supported families: "gaussian", "binomial", "poisson".
 #' @param Seed Numeric and optional. Set a seed in order to repeat the results from the model when running it more than once. 
 #' @param Trials The total number of trials in a binomial model. The number of successes should be imputed on Response.
@@ -345,82 +554,106 @@ ______
 #' @export 
 #'
 
-brms_cov_model = function(Data, Response, FixedEffect, ID, RandomEffect = NULL, Matrix, Chainset = 1, Family = "gaussian", Seed = NULL, Trials = NA, PriorSamples = TRUE){
+brms_cov_model = function(Data, Response, FixedEffect, ID, RandomEffect = NULL, RandomSlope = NULL, Matrix, Chainset = 1, Family = "gaussian", Seed = NULL, Trials = NULL, PriorSamples = TRUE){
 
-stopifnot("`Data` must be a data frame" = inherits(Data, "data.frame"))
+## Data  
+  stopifnot("`Data` must be a data frame" = inherits(Data, "data.frame"))
   
-stopifnot("`Response` must be a string" = inherits(Response, "character"))
-
-if(Family == "binomial"){
-  Successes = Data[[Response]]
-  stopifnot("Family 'binomial' requires an integer response variable." =inherits(Successes, "integer"))
-}
-
-if(Family == "binomial"){
-  Attempts = Data[[Trials]]
-  stopifnot("Family 'binomial' requires an integer trial variable." =inherits(Attempts, "integer"))
-}
-
-if(Family == "poisson"){
-  Resp = Data[[Response]]
-  stopifnot("Family 'poisson' requires an integer response variable." =inherits(Resp, "integer"))
-}
-
-stopifnot("`FixedEffect` must be a string" = inherits(FixedEffect, "character"))
-
-stopifnot("`ID` must be a string" = inherits(ID, "character"))
+  
+## Response  
+  stopifnot("`Response` must be a string" = inherits(Response, "character"))
 
 
-if(!is.null(RandomEffect)){
-  stopifnot("`RandomEffect` must be a string" = inherits(RandomEffect, "character"))
-}
+## FixedEffect
+  stopifnot("`FixedEffect` must be a string" = inherits(FixedEffect, "character"))
 
-if(!is.null(Matrix)){
-  stopifnot("`Matrix` must be a matrix" = inherits(Matrix, "matrix"))
-}
 
-stopifnot("`Chainset` must be a numeric value" = inherits(Chainset, "numeric"))
+## ID
+  stopifnot("`ID` must be a string" = inherits(ID, "character"))
 
-stopifnot("`Family` must be a string" = inherits(Family, "character"))
 
-if(Family == "binomial" && is.na(Trials)){
-  stop("Binomial models require the total number of trials (use `Trial =` for inputing 
-  the corresponding variable) and a response variable with the number of successes (use 
-  `Response =` for inputing the variable with the count of successes).")
-}
-
-if(is.null(Seed)){
-  Seed = sample(1000:9999, 1)
-
-} else {
-  if(!is.null(Seed)){
-  stopifnot("`Seed` must be numeric" = inherits(Seed, "numeric"))
+## RandomEffect
+  if(!is.null(RandomEffect)) {
+    stopifnot("`RandomEffect` must be a string" = inherits(RandomEffect, "character"))
   }
-}
 
-stopifnot("`PriorSamples` must be logical" = inherits(PriorSamples, "logical"))
+## Matrix
+  stopifnot("`Matrix` must be a matrix" = inherits(Matrix, "matrix"))
 
-testfunction = function(){
-  emojis = c("\U1F600", "\U1F604", "\U1F601", "\U1F643", "\U1F609", "\U1F60A", "\U1F929", 
-  "\U1F917", "\U1F92D", "\U1F973", "\U1F920", "\U1F978", "\U1F60E", "\U1F913", "\U1F47D", 
-  "\U1F638", "\U1F596", "\U1F44C", "\U270C", "\U1F44D", "\U1F44F", "\U1F64C", "\U1F40C", 
-  "\U1F41B", "\U1F41E", "\U1F997")  
+##RandomSlope
+  if(!is.null(RandomSlope)){
+    stopifnot(
+      "`RandomSlope` must be a vector containing two string values" =
+        inherits(RandomSlope, "character"),
+      
+      "`RandomSlope` must contain two values (e.g. RandomSlope = c('covariate name', 
+  'random effect')" = length(RandomSlope) == 2)
+  }
+
+## Chainset
+  stopifnot("`Chainset` must be a numeric value" = inherits(Chainset, "numeric"))
+
   
-  print(paste("No problems so far", sample(emojis, size = 1)))
-}
+## Family
+  stopifnot("`Family` must be a string" = inherits(Family, "character"))
 
-testfunction()
+### Poisson cases
+  if(Family == "poisson"){
+    stopifnot("Family 'poisson' requires an integer response variable." =inherits(Data[[Response]], "integer"))
+  }
+  
+  
+### Binomial cases
+  if(Family == "binomial"){
+    
+    Successes = Data[[Response]]
+    stopifnot("Family 'binomial' requires an integer response variable." =inherits(Successes, "integer"))
+    
+    if(is.null(Trials)){
+      stop("Binomial models require the total number of trials (use `Trial =` for inputing the corresponding variable) and a response variable with the number of successes (use  `Response =` for inputing the variable with the count of successes).")
+    }
+    
+    Attempts = Data[[Response]]  
+    stopifnot("Family 'binomial' requires an integer trial variable." =inherits(Attempts, "integer"))
+    
+  }
+  
 
+## Seed
+  if(is.null(Seed)){
+    Seed = as.numeric(sample(1000:9999, 1))
+  } else {
+    stopifnot("`Seed` must be numeric" = inherits(Seed, "numeric"))
+  }
+
+## PriorSamples
+  stopifnot("`PriorSamples` must be logical" = inherits(PriorSamples, "logical"))
+
+
+# Test function 
+  testfunction = function(){
+    emojis = c("\U1F600", "\U1F604", "\U1F601", "\U1F643", "\U1F609", "\U1F60A", "\U1F929", 
+    "\U1F917", "\U1F92D", "\U1F973", "\U1F920", "\U1F978", "\U1F60E", "\U1F913", "\U1F47D", 
+    "\U1F638", "\U1F596", "\U1F44C", "\U270C", "\U1F44D", "\U1F44F", "\U1F64C", "\U1F40C", 
+    "\U1F41B", "\U1F41E", "\U1F997")  
+    
+    print(paste("No problems so far", sample(emojis, size = 1)))
+  }
+  
+  testfunction()
+
+  
 # Setting chains 
-if(Chainset ==0){
-  Warmup=10; Iter=110; Thin=10; Chains=2
-
-} else {
-  Warmup=15000*Chainset
-  Iter=30000*Chainset
-  Thin=15*Chainset
-  Chains=2
-}
+  if(Chainset ==0){
+    Warmup=10; Iter=110; Thin=10; Chains=2
+  } 
+  
+  if(Chainset != 0){
+    Warmup=15000*Chainset
+    Iter=30000*Chainset
+    Thin=15*Chainset
+    Chains=2
+  }
 
 # Add an observation ID for models of binomial or poisson families
 if(Family == "binomial" | Family == "poisson"){
@@ -430,58 +663,113 @@ if(Family == "binomial" | Family == "poisson"){
 
 # Construct model formula if binomial family 
 if(Family == "binomial"){
-  bfform = 
   
   if(is.null(RandomEffect)){
-    paste0(Response, " | trials(", Trials, ") ~ ", paste(FixedEffect, collapse = " + "),
-    " + (1|gr(", ID,", cov = A)) + (1|observationID)")
-  
-  } else {
+    if(is.null(RandomSlope)){
+      bfform = 
+      paste0(Response, " | trials(", Trials, ") ~ ", paste(FixedEffect, collapse = " + "),
+      " + (1|gr(", ID,", cov = A)) + (1|observationID)")
+    }
+    
+    if(!is.null(RandomSlope)){
+      bfform = 
+      paste0(Response, " | trials(", Trials, ") ~ ", paste(FixedEffect, collapse = " + "),
+      " + (1 + ", RandomSlope[1], " |", RandomSlope[2], ") + (1|gr(", ID,", cov = A)) + (1|observationID)")
+    }
+  } 
   
   if(!is.null(RandomEffect)){
-    paste0(Response, " | trials(", Trials, ") ~ ", paste(FixedEffect, collapse = " + "),
-    " + (1|gr(", ID,", cov = A)) + ", paste("(1|", RandomEffect, ")", sep = "", collapse = " + "),
-    " + (1|observationID)")
+    if(is.null(RandomSlope)){
+      bfform = 
+      paste0(Response, " | trials(", Trials, ") ~ ", paste(FixedEffect, collapse = " + "),
+      " + (1|gr(", ID,", cov = A)) + ", paste("(1|", RandomEffect, ")", sep = "", collapse = " + "),
+      " + (1|observationID)")
+    }
+    
+    if(!is.null(RandomSlope)){
+      bfform = 
+      paste0(Response, " | trials(", Trials, ") ~ ", paste(FixedEffect, collapse = " + "),
+      " + (1 + ", RandomSlope[1], " |", RandomSlope[2], ") + (1|gr(", ID,", cov = A)) + ", 
+      paste("(1|", RandomEffect, ")", sep = "", collapse = " + "),  " + (1|observationID)")
+    }
   }
-  }
-} else {
+}
+  
+
 
 # Construct the formula object if poisson family
   
 if(Family == "poisson"){
-  bfform =  
-
+ 
   if(is.null(RandomEffect)){
-    paste0(Response, " ~ ", paste(FixedEffect, collapse = " + "), 
-    " + (1|gr(", ID,", cov = A)) + (1|observationID)")
+    if(is.null(RandomSlope)){
+      bfform =  
+      paste0(Response, " ~ ", paste(FixedEffect, collapse = " + "), 
+      " + (1|gr(", ID,", cov = A)) + (1|observationID)")
+    }
+    
+    if(!is.null(RandomSlope)){
+      bfform =  
+      paste0(Response, " ~ ", paste(FixedEffect, collapse = " + "), 
+      " + (1 + ", RandomSlope[1], " |", RandomSlope[2], ") + (1|gr(", ID,", cov = A)) + (1|observationID)")
+    }
+  }
+    
   
-  } else {
   if(!is.null(RandomEffect)){
-    paste0(Response, " ~ ", paste(FixedEffect, collapse = " + "), " + (1|gr(", ID,", cov = A)) + ", 
-    paste("(1|", RandomEffect, ")", sep = "", collapse = " + "), " + (1|observationID)")
+    if(is.null(RandomSlope)){
+      bfform =  
+      paste0(Response, " ~ ", paste(FixedEffect, collapse = " + "), " + (1|gr(", ID,", cov = A)) + ", 
+      paste("(1|", RandomEffect, ")", sep = "", collapse = " + "), " + (1|observationID)")
+    }
+    
+    if(!is.null(RandomSlope)){
+      bfform =  
+      paste0(Response, " ~ ", paste(FixedEffect, collapse = " + "), 
+             " + (1 + ", RandomSlope[1], " |", RandomSlope[2], ") + (1|gr(", ID,", cov = A)) + ", 
+      paste("(1|", RandomEffect, ")", sep = "", collapse = " + "), " + (1|observationID)")
+    }
+    
   }
-  }
+}
 
-} else {
-  
-# Construct the formula object for other model families
-bfform = 
+
+# Construct the formula object for gaussian family
+if(Family == "gaussian"){
 
   if(is.null(RandomEffect)){
-    paste0(Response, " ~ ", paste(FixedEffect, collapse = " + "),
-    " + (1|gr(", ID,", cov = A))")
+    if(is.null(RandomSlope)){
+      bfform =  
+      paste0(Response, " ~ ", paste(FixedEffect, collapse = " + "),
+      " + (1|gr(", ID,", cov = A))")
+    }
+    
+   if(!is.null(RandomSlope)){
+      bfform =  
+      paste0(Response, " ~ ", paste(FixedEffect, collapse = " + "),
+      " + (1 + ", RandomSlope[1], " |", RandomSlope[2], ") + (1|gr(", ID,", cov = A))")
+    }
+    
+  }
 
-  } else{
-  
-    if(!is.null(RandomEffect)){
+
+  if(!is.null(RandomEffect)){
+    if(is.null(RandomSlope)){
+      bfform =  
       paste0(Response, " ~ ", paste(FixedEffect, collapse = " + "), 
       " + (1|gr(", ID,", cov = A)) + ", 
       paste("(1|", RandomEffect, ")", sep = "", collapse = " + "))
     }
-}
-}
-}
+    
+    if(!is.null(RandomSlope)){
+      bfform =  
+      paste0(Response, " ~ ", paste(FixedEffect, collapse = " + "), 
+      " + (1 + ", RandomSlope[1], " |", RandomSlope[2], ") + (1|gr(", ID,", cov = A)) + ", 
+      paste("(1|", RandomEffect, ")", sep = "", collapse = " + "))
+    }
+  }
 
+}
 
 mod =  brms::brm(brms::bf(stats::as.formula(bfform)),
                 family = Family,
@@ -510,65 +798,14 @@ return(brmsfit)
 
 
 ```{r examples-brms_cov_model, eval=FALSE}
-#' \dontrun{
-
- library(tidyverse)
  
-# Create a group (ID) variable
+# Simulate the data directly into a tibble
 md = tibble::tibble(
-  ID = as.factor(rep(1:10, each = 100))) %>% 
+  ID = factor(sample(1:10, 1000, replace = TRUE)),
+  var1 = rnorm(1000, mean = 0, sd = 1),
+  var2 = rnorm(1000, mean = 5, sd = 2),
+  resp = rnorm(1000, mean = 10, sd = 3))
 
-# Create a variables 
-  dplyr::mutate(height = rnorm(1000, mean = 170, sd = 10),
-         mass = 5 + 0.5 * height + rnorm(1000, mean = 0, sd = 5)) %>% 
-  dplyr::mutate(height = height - mean(height))
-
-# Create a covariance matrix (e.g., relatedness matrix)
-cov_matrix = matrix(rnorm(10 * 10), 10, 10)
-cov_matrix = cov_matrix %*% t(cov_matrix)  # Make it positive semi-definite
-rownames(cov_matrix) = colnames(cov_matrix) = 1:10
-
-# Ensure the covariance matrix is symmetric
-cov_matrix = (cov_matrix + t(cov_matrix)) / 2
-
-
-  
-mod = brms_cov_model(Chainset = 3, 
-           Response = "mass", 
-           FixedEffect = "height", 
-           ID = "ID", 
-           Matrix = cov_matrix,
-           Family = "gaussian", 
-           Data = md, 
-           Seed = 0405)
-
-#' }
-
-```
-
-
-```{r test-brms_cov_model}
-
-#included on model_examples function
-
-```
-
-
-# model_examples
-```{r dev-model_examples, eval=FALSE}
-
-library(tidyverse)
-
-md = tibble::tibble(
-  ID = as.factor(rep(1:10, each = 100)),
-  sex = sample(rep(c(-0.5, 0.5), each = 500)),
-  species = sample(rep(c("species1","species2","species3","species4","species5"), each = 200))) %>% 
-
-## Create a variables 
-  dplyr::mutate(height = rnorm(1000, mean = 170, sd = 10),
-                mass = 5 + 0.5 * height + rnorm(1000, mean = 0, sd = 5)) %>% 
-  dplyr::mutate(height = height - mean(height),
-                mass = log(mass))
 
 
 ## Create a covariance matrix (e.g., relatedness matrix)
@@ -580,280 +817,288 @@ rownames(cov_matrix) = colnames(cov_matrix) = 1:10
 cov_matrix = (cov_matrix + t(cov_matrix)) / 2
 
 
-mod = brms_model(Chainset = 2,
-                 Response = "mass", 
-                 FixedEffect = c("sex","height"), 
-                 Family = "gaussian", 
-                 Data = md)
-
-save(mod, file = "data/mod.RData", compress = "xz")
-
-
-# With random effect
-mod_re = brms_model(Chainset = 2,
-                     Response = "mass", 
-                     FixedEffect = c("sex","height"), 
-                     RandomEffect = "species", 
-                     Family = "gaussian", 
-                     Data = md)
-
-save(mod_re, file = "data/mod_re.RData", compress = "xz")
-
-
-# With random slope
-mod_rs = brms_model(Chainset = 3,
-                     Response = "mass", 
-                     FixedEffect = c("sex","height"),
-                     RandomSlope = c("height", "species"),
-                     Family = "gaussian", 
-                     Data = md)
-
-save(mod_rs, file = "data/mod_rs.RData",compress = "xz")
-
-
-
-# mod_cov
-
-
-
-  
-mod_cov = brms_cov_model(Chainset = 3, 
-           Response = "mass", 
-           FixedEffect = "height", 
+mod = brms_cov_model(Chainset = 3, 
+           Response = "resp", 
+           FixedEffect = c("var1", "var2"), 
            ID = "ID", 
            Matrix = cov_matrix,
            Family = "gaussian", 
            Data = md, 
            Seed = 0405)
 
-save(mod_cov, file = "data/mod_cov.RData", compress = "xz")
-
-```
-
-## mod
-```{r function-mod}
-#' Model example that can be used to test other functions of `VarDecomp`. A model with fixed effects only.
- 
-#' @format An object of class `brmsfit` with the following components:
-#' \describe{
-#'   \item{formula}{The formula or formulas specifying the model.}
-#'   \item{data}{The data frame containing the variables used in the model.}
-#'   \item{prior}{The prior distributions for the model parameters.}
-#'   \item{sample_prior}{The prior samples, if `sample_prior` was set to `TRUE` during fitting.}
-#'   \item{stanmodel}{The Stan model code used for fitting.}
-#'   \item{stanfit}{The fitted model object returned by Stan.}
-#'   \item{algorithm}{The algorithm used for fitting the model, typically 'sampling' or 'meanfield'.}
-#'   \item{family}{The family object specifying the model family (e.g., Gaussian, Bernoulli).}
-#'   \item{data2}{Additional data used in the model, if any.}
-#'   \item{ranef}{A list of random effects structures in the model.}
-#'   \item{autocor}{The autocorrelation structure, if any, used in the model.}
-#'   \item{cov_ranef}{The covariance matrix of the random effects.}
-#'   \item{smooth}{A list of smooth terms in the model, if any.}
-#'   \item{stanvars}{A list of Stan variables defined in the model code.}
-#'   \item{inits}{Initial values used for the parameters in the Stan model.}
-#'   \item{fun}{The function used for sampling or variational inference.}
-#'   \item{stan_args}{A list of arguments passed to the Stan function.}
-#'   \item{control}{A list of control parameters for the Stan sampling algorithm.}
-#'   \item{mcmc_levs}{A list of MCMC settings used in the model fitting.}
-#'   \item{converged}{A logical indicating if the model has converged.}
-#'   \item{loo}{The leave-one-out cross-validation (LOO) results for the model, if computed.}
-#'   \item{waic}{The Watanabe-Akaike Information Criterion (WAIC) results for the model, if computed.}
-#'   \item{log_lik}{The log-likelihood values for the model, if computed.}
-#'   \item{fitted}{The fitted values from the model.}
-#'   \item{residuals}{The residuals from the model.}
-#'   \item{summary}{A summary of the model, including parameter estimates and diagnostics.}
-#'   \item{posterior_samples}{A matrix of posterior samples for the model parameters.}
-#'   \item{diagnostics}{Diagnostic information for the model, including convergence diagnostics.}
-#'   \item{user_data}{Any additional user data stored in the model object.}
-#' }
-#'
-#' @seealso \code{\link[brms]{brmsfit}} for more details on the `brmsfit` object.
-#' @source Generated using the `brms_model` function.
-#' @usage data(mod, package = "VarDecomp")
-
-"mod" 
-
 ```
 
 
-```{r examples-mod, eval=FALSE}
+```{r test-brms_cov_model, eval = FALSE}
+# Define parameters for the simulation
+n = 1000  # number of observations
 
-#' \dontrun{
+# Simulate the data directly into a tibble
+md = tibble::tibble(
+  group1 = factor(sample(1:5, n, replace = TRUE)),
+  group2 = factor(sample(1:10, n, replace = TRUE)),
+  group3 = factor(sample(1:7, n, replace = TRUE)),
+  f_var = factor(sample(1:3, n, replace = TRUE)),
+  n_var1 = rnorm(n, mean = 0, sd = 1),
+  n_var2 = rnorm(n, mean = 5, sd = 2),
+  resp_gaussian = rnorm(n, mean = 10, sd = 3),
+  resp_poisson = rpois(n, lambda = 2),
+  successes = rbinom(n, size = 20, prob = 0.3)
+) %>% 
+  dplyr::mutate(trials = sample(1:4, n, replace = TRUE)*successes)
 
-# A model with fixed effects only
-data("mod", package = "VarDecomp")
 
-#' }
+
+## Create a covariance matrix (e.g., relatedness matrix)
+cov_matrix = matrix(rnorm(10 * 10), 10, 10)
+cov_matrix = cov_matrix %*% t(cov_matrix)  # Make it positive semi-definite
+rownames(cov_matrix) = colnames(cov_matrix) = 1:10
+
+## Ensure the covariance matrix is symmetric
+cov_matrix = (cov_matrix + t(cov_matrix)) / 2
+
+
+
+
+# Gaussian model
+
+gau_mod_cov = brms_cov_model(Chainset = 1, 
+           Response = "resp_gaussian", 
+           FixedEffect = c("f_var","n_var1"),
+           ID = "group2", 
+           Matrix = cov_matrix,
+           Family = "gaussian", 
+           Data = md)
+
+# save(gau_mod_cov, file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/gau_mod_cov.RData", compress = "xz")
+
+
+# Gaussian models
+
+## Fixed effects only
+
+gau_mod_cov = brms_cov_model(Chainset = 1,
+                 Response = "resp_gaussian", 
+                 ID = "group2", 
+                 Matrix = cov_matrix,
+                 FixedEffect = c("f_var","n_var1"), 
+                 Family = "gaussian", 
+                 Data = md)
+
+# save(gau_mod_cov, file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/gau_mod_cov.RData", compress = "xz")
+
+
+## With random effect
+gau_mod_cov_re = brms_cov_model(Chainset = 1,
+                     Response = "resp_gaussian", 
+                     ID = "group2", 
+                     Matrix = cov_matrix,
+                     FixedEffect = c("f_var","n_var1"), 
+                     RandomEffect = "group1", 
+                     Family = "gaussian", 
+                     Data = md)
+
+
+# save(gau_mod_cov_re, file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/gau_mod_cov_re.RData", compress = "xz")
+
+## With two random effects
+gau_mod_cov_2re = brms_cov_model(Chainset = 1,
+                     Response = "resp_gaussian", 
+                     ID = "group2", 
+                     Matrix = cov_matrix,
+                     FixedEffect = c("f_var","n_var1"), 
+                     RandomEffect = c("group1","group3"), 
+                     Family = "gaussian", 
+                     Data = md)
+
+
+# save(gau_mod_cov_2re, file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/gau_mod_cov_2re.RData", compress = "xz")
+
+
+## With random slope
+gau_mod_cov_rs = brms_cov_model(Chainset = 1,
+                     Response = "resp_gaussian", 
+                     ID = "group2", 
+                     Matrix = cov_matrix,
+                     FixedEffect = c("f_var","n_var1"),
+                     RandomSlope = c("n_var1", "group1"),
+                     Family = "gaussian", 
+                     Data = md)
+
+# save(gau_mod_cov_rs, file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/gau_mod_cov_rs.RData",compress = "xz")
+
+
+## With random slope and an additional random effect
+gau_mod_cov_rsre = brms_cov_model(Chainset = 1,
+                     Response = "resp_gaussian", 
+                     ID = "group2", 
+                     Matrix = cov_matrix,
+                     FixedEffect = c("f_var","n_var1"),
+                     RandomSlope = c("n_var1", "group1"),
+                     RandomEffect = "group3",
+                     Family = "gaussian", 
+                     Data = md)
+
+# save(gau_mod_cov_rsre, file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/gau_mod_cov_rsre.RData",compress = "xz")
+
+
+
+
+
+# Poisson models
+
+## Fixed effects only
+
+poi_mod_cov = brms_cov_model(Chainset = 1,
+                 Response = "resp_poisson", 
+                 ID = "group2", 
+                 Matrix = cov_matrix,
+                 FixedEffect = c("f_var","n_var1"), 
+                 Family = "poisson", 
+                 Data = md)
+
+# save(poi_mod_cov, file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/poi_mod_cov.RData", compress = "xz")
+
+
+## With random effect
+poi_mod_cov_re = brms_cov_model(Chainset = 1,
+                     Response = "resp_poisson", 
+                     ID = "group2", 
+                     Matrix = cov_matrix,
+                     FixedEffect = c("f_var","n_var1"), 
+                     RandomEffect = "group1", 
+                     Family = "poisson", 
+                     Data = md)
+
+
+# save(poi_mod_cov_re, file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/poi_mod_cov_re.RData", compress = "xz")
+
+## With two random effects
+poi_mod_cov_2re = brms_cov_model(Chainset = 1,
+                     Response = "resp_poisson", 
+                     ID = "group2", 
+                     Matrix = cov_matrix,
+                     FixedEffect = c("f_var","n_var1"), 
+                     RandomEffect = c("group1","group3"), 
+                     Family = "poisson", 
+                     Data = md)
+
+
+# save(poi_mod_cov_2re, file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/poi_mod_cov_2re.RData", compress = "xz")
+
+
+## With random slope
+poi_mod_cov_rs = brms_cov_model(Chainset = 1,
+                     Response = "resp_poisson", 
+                     ID = "group2", 
+                     Matrix = cov_matrix,
+                     FixedEffect = c("f_var","n_var1"),
+                     RandomSlope = c("n_var1", "group1"),
+                     Family = "poisson", 
+                     Data = md)
+
+# save(poi_mod_cov_rs, file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/poi_mod_cov_rs.RData",compress = "xz")
+
+
+## With random slope and an additional random effect
+poi_mod_cov_rsre = brms_cov_model(Chainset = 1,
+                     Response = "resp_poisson", 
+                     ID = "group2", 
+                     Matrix = cov_matrix,
+                     FixedEffect = c("f_var","n_var1"),
+                     RandomSlope = c("n_var1", "group1"),
+                     RandomEffect = "group3",
+                     Family = "poisson", 
+                     Data = md)
+
+# save(poi_mod_cov_rsre, file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/poi_mod_cov_rsre.RData",compress = "xz")
+
+
+
+
+
+
+# Binomial models
+
+## Fixed effects only
+
+bin_mod_cov = brms_cov_model(Chainset = 1,
+                 Response = "successes",
+                 Trials = "trials",
+                 ID = "group2", 
+                 Matrix = cov_matrix,
+                 FixedEffect = c("f_var","n_var1"), 
+                 Family = "binomial", 
+                 Data = md)
+
+# save(bin_mod_cov, file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/bin_mod_cov.RData", compress = "xz")
+
+
+## With random effect
+bin_mod_cov_re = brms_cov_model(Chainset = 1,
+                     Response = "successes",
+                     Trials = "trials",
+                     ID = "group2", 
+                     Matrix = cov_matrix,
+                     FixedEffect = c("f_var","n_var1"), 
+                     RandomEffect = "group1", 
+                     Family = "binomial", 
+                     Data = md)
+
+
+# save(bin_mod_cov_re, file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/bin_mod_cov_re.RData", compress = "xz")
+
+## With two random effects
+bin_mod_cov_2re = brms_cov_model(Chainset = 1,
+                     Response = "successes",
+                     Trials = "trials",
+                     ID = "group2", 
+                     Matrix = cov_matrix,
+                     FixedEffect = c("f_var","n_var1"), 
+                     RandomEffect = c("group1","group3"), 
+                     Family = "binomial", 
+                     Data = md)
+
+
+# save(bin_mod_cov_2re, file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/bin_mod_cov_2re.RData", compress = "xz")
+
+
+## With random slope
+bin_mod_cov_rs = brms_cov_model(Chainset = 1,
+                     Response = "successes",
+                     Trials = "trials",
+                     ID = "group2", 
+                     Matrix = cov_matrix,
+                     FixedEffect = c("f_var","n_var1"),
+                     RandomSlope = c("n_var1", "group1"),
+                     Family = "binomial", 
+                     Data = md)
+
+# save(bin_mod_cov_rs, file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/bin_mod_cov_rs.RData",compress = "xz")
+
+
+## With random slope and an additional random effect
+bin_mod_cov_rsre = brms_cov_model(Chainset = 1,
+                     Response = "successes",
+                     Trials = "trials",
+                     ID = "group2", 
+                     Matrix = cov_matrix,
+                     FixedEffect = c("f_var","n_var1"),
+                     RandomSlope = c("n_var1", "group1"),
+                     RandomEffect = "group3",
+                     Family = "binomial", 
+                     Data = md)
+
+# save(bin_mod_cov_rsre, file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/bin_mod_cov_rsre.RData",compress = "xz")
+
 
 ```
 
-## mod_re
-```{r function-mod_re}
-#' Model example that can be used to test other functions of `VarDecomp`. A model with fixed and random effects.
-#' @format An object of class `brmsfit` with the following components:
-#' \describe{
-#'   \item{formula}{The formula or formulas specifying the model.}
-#'   \item{data}{The data frame containing the variables used in the model.}
-#'   \item{prior}{The prior distributions for the model parameters.}
-#'   \item{sample_prior}{The prior samples, if `sample_prior` was set to `TRUE` during fitting.}
-#'   \item{stanmodel}{The Stan model code used for fitting.}
-#'   \item{stanfit}{The fitted model object returned by Stan.}
-#'   \item{algorithm}{The algorithm used for fitting the model, typically 'sampling' or 'meanfield'.}
-#'   \item{family}{The family object specifying the model family (e.g., Gaussian, Bernoulli).}
-#'   \item{data2}{Additional data used in the model, if any.}
-#'   \item{ranef}{A list of random effects structures in the model.}
-#'   \item{autocor}{The autocorrelation structure, if any, used in the model.}
-#'   \item{cov_ranef}{The covariance matrix of the random effects.}
-#'   \item{smooth}{A list of smooth terms in the model, if any.}
-#'   \item{stanvars}{A list of Stan variables defined in the model code.}
-#'   \item{inits}{Initial values used for the parameters in the Stan model.}
-#'   \item{fun}{The function used for sampling or variational inference.}
-#'   \item{stan_args}{A list of arguments passed to the Stan function.}
-#'   \item{control}{A list of control parameters for the Stan sampling algorithm.}
-#'   \item{mcmc_levs}{A list of MCMC settings used in the model fitting.}
-#'   \item{converged}{A logical indicating if the model has converged.}
-#'   \item{loo}{The leave-one-out cross-validation (LOO) results for the model, if computed.}
-#'   \item{waic}{The Watanabe-Akaike Information Criterion (WAIC) results for the model, if computed.}
-#'   \item{log_lik}{The log-likelihood values for the model, if computed.}
-#'   \item{fitted}{The fitted values from the model.}
-#'   \item{residuals}{The residuals from the model.}
-#'   \item{summary}{A summary of the model, including parameter estimates and diagnostics.}
-#'   \item{posterior_samples}{A matrix of posterior samples for the model parameters.}
-#'   \item{diagnostics}{Diagnostic information for the model, including convergence diagnostics.}
-#'   \item{user_data}{Any additional user data stored in the model object.}
-#' }
-#'
-#' @seealso \code{\link[brms]{brmsfit}} for more details on the `brmsfit` object.
-#'
-#' @source Generated using the `brms_model` function.
-#' @usage data(mod_re, package = "VarDecomp") 
-"mod_re"
-```
-
-```{r examples-mod_re, eval=FALSE}
-
-#' \dontrun{
-
-# A model with fixed and random effects
-data("mod_re", package = "VarDecomp")
 
 
-#' }
-
-```
-
-## mod_rs
-```{r function-mod_rs}
-#' Model example that can be used to test other functions of `VarDecomp`. A model with random slopes.
-#' @format An object of class `brmsfit` with the following components:
-#' \describe{
-#'   \item{formula}{The formula or formulas specifying the model.}
-#'   \item{data}{The data frame containing the variables used in the model.}
-#'   \item{prior}{The prior distributions for the model parameters.}
-#'   \item{sample_prior}{The prior samples, if `sample_prior` was set to `TRUE` during fitting.}
-#'   \item{stanmodel}{The Stan model code used for fitting.}
-#'   \item{stanfit}{The fitted model object returned by Stan.}
-#'   \item{algorithm}{The algorithm used for fitting the model, typically 'sampling' or 'meanfield'.}
-#'   \item{family}{The family object specifying the model family (e.g., Gaussian, Bernoulli).}
-#'   \item{data2}{Additional data used in the model, if any.}
-#'   \item{ranef}{A list of random effects structures in the model.}
-#'   \item{autocor}{The autocorrelation structure, if any, used in the model.}
-#'   \item{cov_ranef}{The covariance matrix of the random effects.}
-#'   \item{smooth}{A list of smooth terms in the model, if any.}
-#'   \item{stanvars}{A list of Stan variables defined in the model code.}
-#'   \item{inits}{Initial values used for the parameters in the Stan model.}
-#'   \item{fun}{The function used for sampling or variational inference.}
-#'   \item{stan_args}{A list of arguments passed to the Stan function.}
-#'   \item{control}{A list of control parameters for the Stan sampling algorithm.}
-#'   \item{mcmc_levs}{A list of MCMC settings used in the model fitting.}
-#'   \item{converged}{A logical indicating if the model has converged.}
-#'   \item{loo}{The leave-one-out cross-validation (LOO) results for the model, if computed.}
-#'   \item{waic}{The Watanabe-Akaike Information Criterion (WAIC) results for the model, if computed.}
-#'   \item{log_lik}{The log-likelihood values for the model, if computed.}
-#'   \item{fitted}{The fitted values from the model.}
-#'   \item{residuals}{The residuals from the model.}
-#'   \item{summary}{A summary of the model, including parameter estimates and diagnostics.}
-#'   \item{posterior_samples}{A matrix of posterior samples for the model parameters.}
-#'   \item{diagnostics}{Diagnostic information for the model, including convergence diagnostics.}
-#'   \item{user_data}{Any additional user data stored in the model object.}
-#' }
-#'
-#' @seealso \code{\link[brms]{brmsfit}} for more details on the `brmsfit` object.
-#'
-#' @source Generated using the `brms_model` function.
-#' @usage data(mod_rs, package = "VarDecomp")
-
-"mod_rs"
-
-```
-
-```{r examples-mod_rs, eval=FALSE}
-
-#' \dontrun{
-
-# A model with random slopes
-data("mod_rs", package = "VarDecomp")
-
-#' }
-
-```
-
-## mod_cov
-```{r function-mod_cov}
-#' Model example that can be used to test other functions of `VarDecomp`. A model with a covariance matrix.
-#' @format An object of class `brmsfit` with the following components:
-#' \describe{
-#'   \item{formula}{The formula or formulas specifying the model.}
-#'   \item{data}{The data frame containing the variables used in the model.}
-#'   \item{prior}{The prior distributions for the model parameters.}
-#'   \item{sample_prior}{The prior samples, if `sample_prior` was set to `TRUE` during fitting.}
-#'   \item{stanmodel}{The Stan model code used for fitting.}
-#'   \item{stanfit}{The fitted model object returned by Stan.}
-#'   \item{algorithm}{The algorithm used for fitting the model, typically 'sampling' or 'meanfield'.}
-#'   \item{family}{The family object specifying the model family (e.g., Gaussian, Bernoulli).}
-#'   \item{data2}{Additional data used in the model, if any.}
-#'   \item{ranef}{A list of random effects structures in the model.}
-#'   \item{autocor}{The autocorrelation structure, if any, used in the model.}
-#'   \item{cov_ranef}{The covariance matrix of the random effects.}
-#'   \item{smooth}{A list of smooth terms in the model, if any.}
-#'   \item{stanvars}{A list of Stan variables defined in the model code.}
-#'   \item{inits}{Initial values used for the parameters in the Stan model.}
-#'   \item{fun}{The function used for sampling or variational inference.}
-#'   \item{stan_args}{A list of arguments passed to the Stan function.}
-#'   \item{control}{A list of control parameters for the Stan sampling algorithm.}
-#'   \item{mcmc_levs}{A list of MCMC settings used in the model fitting.}
-#'   \item{converged}{A logical indicating if the model has converged.}
-#'   \item{loo}{The leave-one-out cross-validation (LOO) results for the model, if computed.}
-#'   \item{waic}{The Watanabe-Akaike Information Criterion (WAIC) results for the model, if computed.}
-#'   \item{log_lik}{The log-likelihood values for the model, if computed.}
-#'   \item{fitted}{The fitted values from the model.}
-#'   \item{residuals}{The residuals from the model.}
-#'   \item{summary}{A summary of the model, including parameter estimates and diagnostics.}
-#'   \item{posterior_samples}{A matrix of posterior samples for the model parameters.}
-#'   \item{diagnostics}{Diagnostic information for the model, including convergence diagnostics.}
-#'   \item{user_data}{Any additional user data stored in the model object.}
-#' }
-#'
-#' @seealso \code{\link[brms]{brmsfit}} for more details on the `brmsfit` object.
-#'
-#' @source Generated using the `brms_model` function.
-#' @usage data(mod_cov, package = "VarDecomp")
-
-"mod_cov"
-
-```
-
-```{r examples-mod_cov, eval=FALSE}
-
-#' \dontrun{
-
-# A model with a covariance matrix
-data("mod_cov", package = "VarDecomp")
-
-#' }
-
-```
 ______
+
+
 
 # var_decomp
 ```{r function-var_decomp}
@@ -861,7 +1106,7 @@ ______
 #'
 #' @param brmsfit The output of a brms model. You can use VarDecomp::brms_model() to produce a brmsfit. 
 #'
-#' @return Returns a data frame with the summaries of posterior estimates.
+#' @return Returns a data frame with posterior estimates.
 #'
 #' @export
 #'
@@ -877,306 +1122,321 @@ var_decomp = function(brmsfit){
     dplyr::filter(dplyr::if_all(1:ncol(Data),~ !is.na(.)))
   
   
+#Extract family
+Family = brmsfit$family[[1]][1]
+
+
+
+#Extract formula
+Formula = as.character(stats::formula(brmsfit)[1])
+
+if(Family != "binomial"){
+
+# Extract "Response" (everything before the tilde)
+ResponseName = stringr::str_extract(Formula, "^[^~]+")
+}
+
+
+if(Family == "binomial"){
+
+# Extract "Trials" (value inside parenthesis after 'trials')
+
+SuccessesName = stringr::str_extract(Formula, "^[^|]+") %>% 
+  stringr::str_trim()
+
+# Extract "Trials" (value inside parenthesis after 'trials')
+TrialsName = stringr::str_extract(Formula, "(?<=trials\\().+?(?=\\))")
+  
+}
+
+
+# Extract "Fixed effects" (everything after the tilde not within parenthesis)
+FixedEffectName = stringr::str_extract(Formula, "(?<=~ ).*") %>%
+  stringr::str_remove_all("\\(.*?\\)") %>% 
+  stringr::str_split("\\s*\\+\\s*") %>% 
+  unlist() %>% 
+  stringr::str_trim() %>% 
+  purrr::discard(~ . == "")
+
+
+# Extract "Random effects" (everything inside parenthesis after the tilde)
+RandomEffectName = stringr::str_extract_all(Formula, "(?<=\\().+?(?=\\))") %>% 
+  unlist() %>% 
+  stringr::str_split("\\s*\\+\\s*|\\s*\\|\\s*") %>% 
+  unlist() %>% 
+  stringr::str_trim() %>% 
+  purrr::discard(~ . == 1) %>% 
+  stringr::str_remove_all(",\\s*cov\\s*=.*") %>% 
+  stringr::str_remove_all("gr\\(") %>% 
+  setdiff(FixedEffectName)
+
+
+if(Family == "binomial"){
+  RandomEffectName = RandomEffectName %>% 
+    setdiff(TrialsName)
+}
+
+if(Family == "binomial" | Family == "poisson"){
+  RandomEffectName = RandomEffectName %>% 
+    purrr::discard(~ . == "observationID")
+}
+
+
+
+# Extract "Random slopes" (everything inside parenthesis after the tilde)
+RandomSlopeName = stringr::str_extract_all(Formula, "(?<=\\().+?(?=\\))") %>% 
+  unlist() %>% 
+  purrr::keep(~ stringr::str_detect(.x, "\\|")) %>%  
+  stringr::str_replace_all("\\+|\\|", "") %>% 
+  stringr::str_replace_all("\\b1\\b", "") %>% 
+  stringr::str_trim() %>% 
+  stringr::str_replace_all("  ", "__") %>%  
+  stringr::str_split("__") %>% 
+  purrr::map(~ rev(.x) %>% paste(collapse = "__")) %>%
+  unlist() %>% 
+  purrr::keep(~ stringr::str_detect(.x, "__")) 
+  
+  
+if(Family == "binomial" | Family == "poisson"){
+  RandomSlopeName = RandomSlopeName %>% 
+  purrr::discard(~ . == "observationID")
+}
+
+
 # Extract posterior samples
   PS = as.data.frame(brmsfit) %>% 
   dplyr::select(!dplyr::starts_with("r")) %>% 
   dplyr::select(!dplyr::contains("prior")) %>% 
   dplyr::select(!lp__)
- 
-
-if("Intercept" %in% colnames(PS)){PS = PS %>% dplyr::select(-Intercept)}
-
-#Extract family
-Family = brmsfit$family[[1]][1]
-
-#Extract fixed effect names
-PS_b = PS %>% 
-  dplyr::select(dplyr::starts_with("b_")) %>% 
-  dplyr::rename_with(~ stringr::str_remove(., "^b_")) %>%  
-  dplyr::select(!Intercept)
-
-
   
-FixedEffect = colnames(PS_b)
 
-
-#Extract random effect names
-PS_sd = PS %>% 
-  dplyr::select(dplyr::starts_with("sd_")) %>% 
-  dplyr::rename_with(~ stringr::str_remove(., "^sd_"))
-
-
-RandomEffect = NULL
-  
-if(length(PS_sd) > 0){
-  
-  if(Family == "binomial" | Family == "poisson"){
-
-  PS_RE = PS_sd %>% 
-  dplyr::select(dplyr::ends_with("Intercept")) %>% 
-  dplyr::select(-dplyr::contains("observationID")) %>% 
-  dplyr::rename_with(~ stringr::str_remove(., "__Intercept"))
-  RandomEffect = colnames(PS_RE)
-  
-}else{
-
-PS_RE = PS_sd %>% 
-  dplyr::select(dplyr::ends_with("Intercept")) %>% 
-  dplyr::rename_with(~ stringr::str_remove(., "__Intercept"))
-  RandomEffect = colnames(PS_RE)
+if(length(RandomSlopeName)> 0){
+# Extract correlations 
+  PS_cor = PS %>%
+  dplyr::select(dplyr::starts_with("cor_")) %>% 
+  tidyr::pivot_longer(cols = tidyselect::everything(), names_to = "Name", values_to = "Correlation") %>% 
+  dplyr::mutate(Name = sub("^cor_", "", Name)) %>% 
+  tidyr::separate(Name, into = c("RandomEffect", "Trait1", "Trait2"), sep = "__")
 }
-}
-
-
-
-#Extract random slope names
-RandomSlope = NULL
- 
-if(!is.null(RandomEffect)){
-  
-PS_RS = PS_sd %>% 
-  dplyr::rename_with(~ stringr::str_replace_all(., "__", "_")) %>% 
-  dplyr::select(!dplyr::ends_with("Intercept"))
-
-if(length(PS_RS) > 0){
-
-  RandomSlope = colnames(PS_RS)
-
-  RandomSlope = gsub(paste0(RandomEffect, "_"), "",
-                     RandomSlope)
-}
-} 
-
-
-
-#Rename columns for tidying the data
-PS = PS %>% 
+# Tidy posterior samples
+  PS = PS %>% 
+  dplyr::select(!dplyr::starts_with("Intercept"))  %>% 
   dplyr::rename_with(~stringr::str_remove_all(., "^b_")) %>% 
   dplyr::rename_with(~stringr::str_remove_all(., "sd_")) %>% 
-  dplyr::rename_with(~stringr::str_replace_all(., "__", "_")) %>% 
-  dplyr::rename_with(~stringr::str_remove_all(., "_Intercept")) 
+  # dplyr::rename_with(~stringr::str_replace_all(., "__", "_")) %>% 
+  dplyr::rename_with(~stringr::str_remove_all(., "__Intercept")) 
+
 
 
 # Variance in fixed effects
 
-## Create a dataframe with the values used by the model for fixed effects
-if(is.null(RandomEffect)){
-  
-  if(Family == "binomial" | Family == "poisson"){
+if(length(FixedEffectName) > 0){
+  ## Create a dataframe with the values used by the model for fixed effects
   FixedEffectData = Data %>%
-  dplyr::select(-observationID) %>% 
-  dplyr::select(-1)  #Removing the response variable
-
-  } else {
-  FixedEffectData = Data %>% 
-  dplyr::select(-1)  #Removing the response variable
-  }  
-
-  } else {
+      dplyr::select(tidyselect::any_of(FixedEffectName)) 
     
-    if(Family == "binomial" | Family == "poisson"){
-      
-  FixedEffectData = Data %>% 
-  dplyr::select(c(setdiff(colnames(Data), RandomEffect))) %>% 
-  dplyr::select(-observationID) %>% 
-  dplyr::select(-1) #Removing the response variable
+  PSFixedEffectNames = as.data.frame(brmsfit) %>% 
+    dplyr::select(dplyr::starts_with("b_")) %>% 
+    dplyr::select(!tidyselect::contains("Intercept")) %>% 
+    dplyr::rename_with(~stringr::str_remove_all(., "^b_")) %>% 
+    names() %>% 
+    unlist()
   
-    } else {
-  FixedEffectData = Data %>% 
-  dplyr::select(c(setdiff(colnames(Data), RandomEffect))) %>% 
-  dplyr::select(-1) #Removing the response variable
-
+  ## For covariates with of character class 
+    
+  CharacterFE = FixedEffectData %>%
+    dplyr::select(-dplyr::one_of(PSFixedEffectNames)) %>% 
+    suppressWarnings()
+    
+  if(ncol(CharacterFE) > 0){
+  
+    for(i in colnames(CharacterFE)){
+      unique_values = unique(CharacterFE[[i]])
       
+        for (j in unique_values) {
+        
+          CharacterFE = CharacterFE %>% 
+          dplyr::mutate(!!paste(j) := dplyr::if_else(CharacterFE[[i]] == j, 1,0)) %>% 
+          dplyr::rename(!!paste0(i, j) := paste(j)) 
+        
+        }
+        
+      
+      CharacterFE = CharacterFE 
+      
+      }
+      
+      FixedEffectData = dplyr::bind_cols(FixedEffectData,CharacterFE) %>% 
+      dplyr::select_if(~ is.numeric(.)) %>% 
+      suppressMessages()
+  }
+  
+  
+  
+  ## Calculate estimated variances for each fixed effect
+  for (i in colnames(FixedEffectData)){
+    if (i %in% colnames(PS)) {
+    
+      PS[[paste0("var_", i)]] = 0
+          
+      for (j in 1:length(PS[[paste0("var_", i)]])){
+        PS[[paste0("var_", i)]][j] = stats::var(PS[[i]][j] * FixedEffectData[[i]]) 
+      }
     }
   }
-  
-  if(Family == "binomial"){
-    FixedEffectData = FixedEffectData %>% 
-      dplyr::select(-1)} # Removing the 'trials' variable
 
-## Specific for covariates with of character class 
-suppressWarnings({  
-  CharactersFE = FixedEffectData%>%
-  dplyr::select(-dplyr::one_of(FixedEffect)) 
-  })
-  
-  if(ncol(CharactersFE) == 0){
-    
-  } else {
-  
-for(i in colnames(CharactersFE)){
-unique_values = unique(CharactersFE[[i]])
 
-for (j in unique_values) {
-
-  CharactersFE = CharactersFE %>% 
-    dplyr::mutate(!!paste(j) := dplyr::if_else(CharactersFE[[i]] == j, 1,0)) %>% 
-    dplyr::rename(!!paste0(i, j) := paste(j)) 
-  
-}
-CharactersFE = CharactersFE 
-}
-
-FixedEffectData = dplyr::bind_cols(FixedEffectData,CharactersFE) %>% 
-  dplyr::select_if(~ is.numeric(.))
-}
-
-## Calculate estimated variances for each fixed effect
-for (i in colnames(FixedEffectData)){
-  if (i %in% colnames(PS)) {
-  
-    PS[[paste0("var_", i)]] = 0
-        
-    for (j in 1:length(PS[[paste0("var_", i)]])){
-      PS[[paste0("var_", i)]][j] = stats::var(PS[[i]][j] * FixedEffectData[[i]]) 
-  }
-  }
-}
-
-## Calculate total variance in fixed effects
-  
-# Total variance in fixed effects
-FixedEffectNames = intersect(names(PS), paste0("var_", names(FixedEffectData)))
-
-PS = PS %>% 
-dplyr::mutate(var_FixedEffects = rowSums(dplyr::across(tidyselect::all_of(FixedEffectNames)), na.rm = TRUE))
-    
-  
-# Calculate the estimated variances in random slope
-
-if(!is.null(RandomEffect)){
-if(!is.null(RandomSlope)){
-  
-  
+  ## Calculate total variance in fixed effects
   PS = PS %>% 
-  dplyr::mutate(!!paste0("var_", RandomEffect, "_", RandomSlope) := (get(paste0(RandomEffect, "_", RandomSlope))^2 *
-                  stats::var(FixedEffectData[[RandomSlope]])) +
-                
-                 (get(paste0(RandomEffect,"_", RandomSlope))^2 *
-                  mean(FixedEffectData[[RandomSlope]])^2))
-  }
+    dplyr::rowwise() %>%
+    dplyr::mutate(var_FixedEffects = sum(dplyr::c_across(matches(paste0("var_", FixedEffectName, collapse = "|"))), na.rm = TRUE)) %>%
+    dplyr::ungroup()
 
 }
-           
-# Variances in random effect
-if(!is.null(RandomEffect)){
+
+
+
+# Calculate the estimated variances in random effects
+
+if(length(RandomEffectName) > 0){
   
-  # for models without random slopes
-  if(is.null(RandomSlope)){ 
-PS = PS %>% 
-  dplyr::mutate(!!paste0("var_", RandomEffect) := 
-     
-                             get(paste0(RandomEffect))^2)
-                } else {
-  
-        
-        # for models with random slope (in Holger's paper on random slopes)
-                 PS = PS %>% 
-  dplyr::mutate(!!paste0("var_", RandomEffect) := 
-                  
-                  get(paste0(RandomEffect))^2 +
-                  
-              get(paste0("var_", RandomEffect, "_", RandomSlope)) +
-                        
-      2 * mean(FixedEffectData[[RandomSlope]]) *
-                   
-      get(paste0("cor_", RandomEffect, "_",
-                            RandomSlope)) *
+  for (i in RandomEffectName){
     
-      get(paste0(RandomEffect)) *
-      get(paste0(RandomEffect,"_", RandomSlope)) )
-
-                }
-}
-
-                            
-# Residual variance
-if(Family == "gaussian"){
-PS = PS %>% 
-  dplyr::mutate(residual = sigma^2)
-
-} else {
-  if(Family == "binomial"){
-
-    PS = PS %>% 
-      dplyr::mutate(residual = observationID^2 + (pi^2/3))
-
-    } else {
-     if(Family== "poisson") {
-       
+    slope_name = RandomSlopeName[stringr::str_detect(RandomSlopeName, i)]
+  
+    if(length(slope_name) == 0){
+      
       PS = PS %>% 
-        dplyr::mutate(residual =  observationID^2 + 
-                                    log(1/exp(Intercept)+1))
-     
-     } else {
-       
-       stop("`The family of this model is not yet supported by var_decomp function")
+      dplyr::mutate(!!paste0("var_", i) := get(paste0(i))^2)
     
-       
-  }
-  }
-  }
+    }
+    
+    if(length(slope_name) > 1){
+      stop("var_decomp function does not support yet models with multiple 
+      random slopes in the same random effect.")
+    }
+    
+    if(length(slope_name) == 1){
+      
+      ## Calculate estimated variance in random slopes
+      
+      fixed_effect_name = stringr::str_extract(slope_name, 
+      paste(colnames(FixedEffectData), collapse = "|"))
+      
+      PS = PS %>% 
+      dplyr::mutate(!!paste0("var_", slope_name) := (get(paste0(slope_name))^2 *
+      stats::var(FixedEffectData[[fixed_effect_name]])) +
+      (get(paste0(slope_name))^2 *
+      mean(FixedEffectData[[fixed_effect_name]])^2))
+      
+      ## Calculate estimated variance in random effect
+      PS = PS%>% 
+      dplyr::mutate(!!paste0("var_", i) :=
+      get(paste0(i))^2 +
+      get(paste0("var_", slope_name)) +
+      get(paste0("cor_", slope_name)) *
+      get(paste0(i)) * 
+      get(paste0(slope_name)) *
+      2 * mean(FixedEffectData[[fixed_effect_name]]))
+    }
+    
+  } 
+    
+    
+  ## Calculate total variance in random effects
+  var_random_effect_names = paste0("var_", RandomEffectName)
+    
+  PS = PS %>% 
+    dplyr::rowwise() %>%
+    dplyr::mutate(var_RandomEffects = sum(dplyr::c_across(tidyselect::all_of(var_random_effect_names)), 
+    na.rm = TRUE)) %>%   # MODIFIED: used sum() with c_across()
+    dplyr::ungroup()
+
+}
+
+  
+# Residual variance
+  
+if(Family == "gaussian"){
+  PS = PS %>% 
+  dplyr::mutate(var_residual = sigma^2)
+}
+  
+
+if(Family == "binomial"){
+  PS = PS %>% 
+  dplyr::mutate(var_residual = observationID^2 + (pi^2/3))
+
+}
+
+
+if(Family== "poisson") {
+  PS = PS %>% 
+  dplyr::mutate(var_residual =  observationID^2 + log(1/exp(Intercept)+1))
+
+}
+
+if(Family != "gaussian" & Family != "binomial" & Family != "poisson"){
+
+  stop("The family of this model is not yet supported by var_decomp function")
+
+}
+
 
 # Total phenotypic variance
-if(!is.null(RandomEffect)){
-PS = PS %>% 
-    dplyr::mutate(total_pv = var_FixedEffects + 
-           get(paste0("var_", RandomEffect)) + 
-           residual) 
+if(length(FixedEffectName) > 0 & length(RandomEffectName) > 0){
 
-} else {
-PS = PS %>% 
-    dplyr::mutate(total_pv = var_FixedEffects + 
-           residual)   
+  PS = PS %>% 
+  dplyr::mutate(total_variance = var_FixedEffects + var_RandomEffects + var_residual) 
+
 }
-
-
-# calculate R2 for fixed effects
-
-for (i in FixedEffectNames){
-        PS = PS %>% 
-           dplyr::mutate(!!paste0("R2_", i) := get(paste0(i))/total_pv)
-}
-
-PS = PS %>% 
-  dplyr::rename_with(~ stringr::str_replace(., "_var_", "_")) %>% 
-  dplyr::mutate(R2_sum_fixed_effects = var_FixedEffects/ total_pv) 
-                
-      
-# calculate R2 for random slopes
-    if(!is.null(RandomSlope)){
-      
-      PS = PS %>%
-        dplyr::mutate(!!paste0("R2_", RandomEffect, "_", RandomSlope) := 
-                   get(paste0("var_", RandomEffect, "_", RandomSlope))/total_pv)
-      } 
   
 
-# calculate R2 for random effect
-if(!is.null(RandomEffect)){
-PS = PS %>% 
-  dplyr::mutate(!!paste0("R2_",RandomEffect) := 
-             get(paste0("var_", RandomEffect))/total_pv) 
-}
-# Residual
-PS = PS %>% 
-  dplyr::mutate(R2_residual = 
-             residual/total_pv)
+if(length(FixedEffectName) == 0 & length(RandomEffectName) > 0){
 
+  PS = PS %>% 
+  dplyr::mutate(total_variance = var_RandomEffects + var_residual) 
+
+}
+  
+if(length(FixedEffectName) > 0 & length(RandomEffectName) == 0){
+
+  PS = PS %>% 
+  dplyr::mutate(total_variance = var_FixedEffects + var_residual) 
+
+}
+
+if(length(FixedEffectName) == 0 & length(RandomEffectName) == 0){
+
+  PS = PS %>% 
+  dplyr::mutate(total_variance = var_residual) 
+
+}
+  
+
+
+
+# calculate R2 
+  
+var_names =  PS %>%
+  dplyr::select(tidyselect::starts_with("var_")) %>%
+  names()
+  
+for( i in var_names){
+  
+  name = stringr::str_remove(i, "^var_")
+  
+  PS = PS %>% 
+  dplyr::mutate(!!paste0("R2_", name) := get(paste0(i))/total_variance)
+}
+
+
+exclude_columns = c(
+  paste0(RandomEffectName), paste0(RandomSlopeName), "total_variance", "observationID")
 
 output = PS %>% 
-  dplyr::select(-tidyselect::all_of(RandomEffect)) %>% 
-  dplyr::select(-dplyr::starts_with("var_")) %>% 
-  dplyr::select(-total_pv) %>% 
-  dplyr::select(-residual) %>% 
-  dplyr::select(-tidyselect::any_of("sigma"))
-
-if(Family == "binomial" | Family == "poisson"){
-  output = output %>% 
-  select(-observationID)
-
-}
-
+  dplyr::select(-tidyselect::any_of(exclude_columns)) %>%  
+  dplyr::select(-tidyselect::starts_with("var_"))   
 
 return(output)   
 
@@ -1187,56 +1447,153 @@ return(output)
 
 ```{r examples-var_decomp, eval=FALSE}
 
-#' \dontrun{
+# Simulate data
+md = tibble::tibble(
+  group = factor(sample(1:10, 1000, replace = TRUE)),
+  f_var = factor(sample(1:3, 1000, replace = TRUE)),
+  n_var = rnorm(1000, mean = 0, sd = 1),
+  resp = rnorm(1000, mean = 10, sd = 3))
 
-md = dplyr::starwars
-
-# Centering variables
-md = md %>% 
-  dplyr::select(mass, sex, species) %>% 
-  dplyr::mutate(mass = log(mass),
-         sex = dplyr::recode(sex, "male" = 1, 
-                      "female" = -1, 
-                      "hermaphroditic" = 0,
-                      "none" = as.numeric(NA)))
-  
-  
-mod = brms_model(Chainset = 2,
-                 Response = "mass", 
-                 FixedEffect = "sex", 
-                 RandomEffect = "species",
+# Run model
+mod = brms_model(Response = "resp", 
+                 FixedEffect = c("f_var","n_var"), 
+                 RandomEffect = "group", 
                  Family = "gaussian", 
                  Data = md)
 
-var_decomp(mod)
 
-#' }
+# Variance decomposition
+var_decomp(mod)
 
 ```
 
 
-```{r test-var_decomp}
-data("mod", package = "VarDecomp")
-var_decomp(mod)
+```{r test-var_decomp, eval = TRUE}
 
-data("mod_re", package = "VarDecomp")
-var_decomp(mod_re)
+#brms_model
 
-data("mod_rs", package = "VarDecomp")
-var_decomp(mod_rs)
+# Gaussian models
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/gau_mod.RData")
+var_decomp(gau_mod)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/gau_mod_re.RData")
+var_decomp(gau_mod_re)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/gau_mod_2re.RData")
+var_decomp(gau_mod_2re)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/gau_mod_rs.RData")
+var_decomp(gau_mod_rs)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/gau_mod_rsre.RData")
+var_decomp(gau_mod_rsre)
+
+# Poisson models
 
 
-data("mod_cov", package = "VarDecomp")
-var_decomp(mod_cov)
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/poi_mod.RData")
+var_decomp(poi_mod)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/poi_mod_re.RData")
+var_decomp(poi_mod_re)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/poi_mod_2re.RData")
+var_decomp(poi_mod_2re)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/poi_mod_rs.RData")
+var_decomp(poi_mod_rs)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/poi_mod_rsre.RData")
+var_decomp(poi_mod_rsre)
+
+
+# Binomial models
+
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/bin_mod.RData")
+var_decomp(bin_mod)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/bin_mod_re.RData")
+var_decomp(bin_mod_re)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/bin_mod_2re.RData")
+var_decomp(bin_mod_2re)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/bin_mod_rs.RData")
+var_decomp(bin_mod_rs)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/bin_mod_rsre.RData")
+var_decomp(bin_mod_rsre)
+
+
+
+#brms_cov_model
+
+# Gaussian models
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/gau_mod_cov.RData")
+var_decomp(gau_mod_cov)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/gau_mod_cov_re.RData")
+var_decomp(gau_mod_cov_re)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/gau_mod_cov_2re.RData")
+var_decomp(gau_mod_cov_2re)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/gau_mod_cov_rs.RData")
+var_decomp(gau_mod_cov_rs)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/gau_mod_cov_rsre.RData")
+var_decomp(gau_mod_cov_rsre)
+
+# Poisson models
+
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/poi_mod_cov.RData")
+var_decomp(poi_mod_cov)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/poi_mod_cov_re.RData")
+var_decomp(poi_mod_cov_re)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/poi_mod_cov_2re.RData")
+var_decomp(poi_mod_cov_2re)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/poi_mod_cov_rs.RData")
+var_decomp(poi_mod_cov_rs)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/poi_mod_cov_rsre.RData")
+var_decomp(poi_mod_cov_rsre)
+
+
+# Binomial models
+
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/bin_mod_cov.RData")
+var_decomp(bin_mod_cov)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/bin_mod_cov_re.RData")
+var_decomp(bin_mod_cov_re)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/bin_mod_cov_2re.RData")
+var_decomp(bin_mod_cov_2re)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/bin_mod_cov_rs.RData")
+var_decomp(bin_mod_cov_rs)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/bin_mod_cov_rsre.RData")
+var_decomp(bin_mod_cov_rsre)
+
+
 
 ```
 
-________
 
+_______
 # model_summary
 ```{r function-model_summary}
-#' Variance decomposition for brms models
-#'
+#' Model summaries with variance decomposition for brms models 
+#' 
 #' @param brmsfit The output of a brms model. You can use VarDecomp::brms_model() to produce a brmsfit. 
 #'
 #' @return Returns a data frame with the summaries of posterior estimates.
@@ -1249,7 +1606,7 @@ model_summary = function(brmsfit){
               inherits(brmsfit, "brmsfit"))
   
 
-output = VarDecomp::var_decomp(brmsfit)
+output = var_decomp(brmsfit)
 
 EstSummary = posterior::summarise_draws(output) %>% 
   dplyr::select(variable, mean, median, sd) 
@@ -1258,10 +1615,20 @@ EstSummary = posterior::summarise_draws(output) %>%
 HPDInt = as.data.frame(coda::HPDinterval(mcmcr::as.mcmc(output, combine_chains = TRUE))) %>% 
   tibble::rownames_to_column(var = "variable")
 
-  EstSummary = dplyr::left_join(EstSummary, HPDInt, by = "variable") %>% 
-  dplyr::mutate(dplyr::across(where(is.numeric), \(x) round(x, 3))) %>% 
+EstSummary = dplyr::left_join(EstSummary, HPDInt, by = "variable") %>%  
   dplyr::rename(lower_HPD = lower, upper_HPD = upper) %>% 
         dplyr::filter(!grepl("sigma", variable))
+
+for(i in colnames(EstSummary)){
+
+if(is.numeric(EstSummary[[i]])){
+  
+  EstSummary = EstSummary %>% 
+  dplyr::mutate(!!paste0(i) := round(get(i), 4))
+  
+  }
+
+}
   
 return(EstSummary)   
 
@@ -1271,47 +1638,141 @@ return(EstSummary)
 
 
 ```{r examples-model_summary, eval=FALSE} 
-#' \dontrun{
 
-md = dplyr::starwars
+# Simulate data
+md = tibble::tibble(
+  group = factor(sample(1:10, 1000, replace = TRUE)),
+  f_var = factor(sample(1:3, 1000, replace = TRUE)),
+  n_var = rnorm(1000, mean = 0, sd = 1),
+  resp = rnorm(1000, mean = 10, sd = 3))
 
-# Centering variables
-md = md %>% 
-  dplyr::select(mass, sex, species) %>% 
-  dplyr::mutate(mass = log(mass),
-         sex = dplyr::recode(sex, "male" = 1, 
-                      "female" = -1, 
-                      "hermaphroditic" = 0,
-                      "none" = as.numeric(NA)))
-  
-  
-mod = brms_model(Chainset = 2,
-                 Response = "mass", 
-                 FixedEffect = "sex", 
-                 RandomEffect = "species",
+# Run model
+mod = brms_model(Response = "resp", 
+                 FixedEffect = c("f_var","n_var"), 
+                 RandomEffect = "group", 
                  Family = "gaussian", 
                  Data = md)
 
+# Model summary
+
 model_summary(mod)
 
-#' }
 ```
 
 
-```{r test-model_summary}
+```{r test-model_summary, eval = TRUE}
 
-data("mod", package = "VarDecomp")
-model_summary(mod)
+#brms_model
 
-data("mod_re", package = "VarDecomp")
-model_summary(mod_re)
+# Gaussian models
 
-data("mod_rs", package = "VarDecomp")
-model_summary(mod_rs)
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/gau_mod.RData")
+model_summary(gau_mod)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/gau_mod_re.RData")
+model_summary(gau_mod_re)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/gau_mod_2re.RData")
+model_summary(gau_mod_2re)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/gau_mod_rs.RData")
+model_summary(gau_mod_rs)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/gau_mod_rsre.RData")
+model_summary(gau_mod_rsre)
+
+# Poisson models
 
 
-data("mod_cov", package = "VarDecomp")
-model_summary(mod_cov)
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/poi_mod.RData")
+model_summary(poi_mod)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/poi_mod_re.RData")
+model_summary(poi_mod_re)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/poi_mod_2re.RData")
+model_summary(poi_mod_2re)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/poi_mod_rs.RData")
+model_summary(poi_mod_rs)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/poi_mod_rsre.RData")
+model_summary(poi_mod_rsre)
+
+
+# Binomial models
+
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/bin_mod.RData")
+model_summary(bin_mod)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/bin_mod_re.RData")
+model_summary(bin_mod_re)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/bin_mod_2re.RData")
+model_summary(bin_mod_2re)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/bin_mod_rs.RData")
+model_summary(bin_mod_rs)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/bin_mod_rsre.RData")
+model_summary(bin_mod_rsre)
+
+# brms_cov_model
+
+# Gaussian models
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/gau_mod_cov.RData")
+model_summary(gau_mod_cov)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/gau_mod_cov_re.RData")
+model_summary(gau_mod_cov_re)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/gau_mod_cov_2re.RData")
+model_summary(gau_mod_cov_2re)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/gau_mod_cov_rs.RData")
+model_summary(gau_mod_cov_rs)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/gau_mod_cov_rsre.RData")
+model_summary(gau_mod_cov_rsre)
+
+# Poisson models
+
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/poi_mod_cov.RData")
+model_summary(poi_mod_cov)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/poi_mod_cov_re.RData")
+model_summary(poi_mod_cov_re)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/poi_mod_cov_2re.RData")
+model_summary(poi_mod_cov_2re)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/poi_mod_cov_rs.RData")
+model_summary(poi_mod_cov_rs)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/poi_mod_cov_rsre.RData")
+model_summary(poi_mod_cov_rsre)
+
+
+# Binomial models
+
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/bin_mod_cov.RData")
+model_summary(bin_mod_cov)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/bin_mod_cov_re.RData")
+model_summary(bin_mod_cov_re)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/bin_mod_cov_2re.RData")
+model_summary(bin_mod_cov_2re)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/bin_mod_cov_rs.RData")
+model_summary(bin_mod_cov_rs)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/bin_mod_cov_rsre.RData")
+model_summary(bin_mod_cov_rsre)
 
 ```
 
@@ -1362,44 +1823,40 @@ return(lnR)
 
 
 ```{r examples-compare_slopes, eval=FALSE}
-#' \dontrun{
 
-md = dplyr::starwars
+# Simulate data
+md = tibble::tibble(
+  group = factor(sample(1:10, 1000, replace = TRUE)),
+  f_var = factor(sample(1:3, 1000, replace = TRUE)),
+  n_var = rnorm(1000, mean = 0, sd = 1),
+  resp = rnorm(1000, mean = 10, sd = 3))
 
-# Centering variables
-md = md %>% 
-  dplyr::select(mass, sex, height, species) %>% 
-  dplyr::mutate(mass = log(mass),
-         sex = dplyr::recode(sex, "male" = 1, 
-                      "female" = -1, 
-                      "hermaphroditic" = 0,
-                      "none" = as.numeric(NA)))
-  
-  
-mod1 = brms_model(Chainset = 2,
-                   Response = "mass", 
-                   FixedEffect = "sex", 
-                   Family = "gaussian", 
-                   Data = md)
+# Run model without random slope
+mod = brms_model(Response = "resp", 
+                 FixedEffect = c("f_var","n_var"), 
+                 RandomEffect = "group", 
+                 Family = "gaussian", 
+                 Data = md)
 
-mod2 = brms_model(Chainset = 2,
-                   Response = "mass", 
-                   FixedEffect = "sex",
-                   RandomSlope = c("sex","species"),
-                   Family = "gaussian", 
-                   Data = md)
+# Run model with random slope
+mod_RS = brms_model(Response = "resp", 
+                 FixedEffect = c("f_var","n_var"), 
+                 RandomSlope = c("n_var", "group"),
+                 Family = "gaussian", 
+                 Data = md)
 
-compare_slopes(mod1, mod2, Slope = "sex")
+compare_slopes(mod, mod_RS, Slope = "n_var")
 
-#' }
 ```
 
 
-```{r test-compare_slopes}
-data("mod_re", package = "VarDecomp")
-data("mod_rs", package = "VarDecomp")
+```{r test-compare_slopes, eval = TRUE}
 
-compare_slopes(mod_re, mod_rs, Slope = "height")
+# Gaussian models
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/gau_mod_re.RData")
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/gau_mod_rs.RData")
+
+compare_slopes(gau_mod_re, gau_mod_rs, Slope = "n_var1")
 ```
 
 ________
@@ -1410,130 +1867,254 @@ ________
 #' Perform model fit checks for brms models
 #'
 #' @param brmsfit The output of a brms model. You can use VarDecomp::brms_model() to produce a brmsfit. 
-#' @param Group A string containing the name of a grouping variable for the visualization of a posterior predictive check plot (e.g. "sex"). To add multiple grouping variables, use c() (e.g. c("sex", "species")). 
 #' @param Prior A logical argument defining whether the `brmsfit` contains prior samples. If set to `TRUE` it will produce plots comparing the log distributions of priors and posterior samples for each covariate. 
 #'
 #' @return Returns a list containing (a) the maximum R-hat value, (b) the minimum effective sample size, (c) traceplots, (d) posterior predictive check plots, and (e) prior and posterior sample plots (if priors are available).
 #' @importFrom posterior ess_bulk
 #' @export 
 #' 
-model_fit = function(brmsfit, Group = NULL, Prior = FALSE){
+model_fit = function(brmsfit, Prior = FALSE){
 
+  
+stopifnot("Input must be a brmsfit" = inherits(brmsfit, "brmsfit"))
+
+if(!is.null(Prior)){
+  stopifnot("Prior input must be logical" = inherits(Prior, "logical"))
+}
+  
+  
+  
+# try({
+# suppressMessages({
+# 
+# suppressWarnings({
+
+# Extract original data
+Data = brmsfit$data
+
+Data = Data %>% 
+  dplyr::filter(dplyr::if_all(1:ncol(Data),~ !is.na(.)))
+  
+  
+#Extract family
+Family = brmsfit$family[[1]][1]
+
+
+
+#Extract formula
+Formula = as.character(stats::formula(brmsfit)[1])
+
+if(Family != "binomial"){
+
+# Extract "Response" (everything before the tilde)
+ResponseName = stringr::str_extract(Formula, "^[^~]+")
+}
+
+
+if(Family == "binomial"){
+
+# Extract "Trials" (value inside parenthesis after 'trials')
+
+SuccessesName = stringr::str_extract(Formula, "^[^|]+") %>% 
+  stringr::str_trim()
+
+# Extract "Trials" (value inside parenthesis after 'trials')
+TrialsName = stringr::str_extract(Formula, "(?<=trials\\().+?(?=\\))")
+  
+}
+
+
+# Extract "Fixed effects" (everything after the tilde not within parenthesis)
+FixedEffectName = stringr::str_extract(Formula, "(?<=~ ).*") %>%
+  stringr::str_remove_all("\\(.*?\\)") %>% 
+  stringr::str_split("\\s*\\+\\s*") %>% 
+  unlist() %>% 
+  stringr::str_trim() %>% 
+  purrr::discard(~ . == "") %>% 
+  purrr::discard(~ . == ")")
+
+
+if(length(FixedEffectName) > 0){
+## For covariates with of character class
+
+PSFixedEffectName = as.data.frame(brmsfit) %>%
+  dplyr::select(tidyselect::starts_with("b_")) %>%
+  dplyr::rename_with(~ stringr::str_remove_all(., "^b_")) %>%
+  dplyr::select(-tidyselect::starts_with("Intercept")) %>%
+  names()
+
+# Identify character fixed effects in FixedEffectData
+CharacterFE = setdiff(FixedEffectName, PSFixedEffectName)
+
+}
+
+# Extract "Random effects" (everything inside parenthesis after the tilde)
+RandomEffectName = stringr::str_extract_all(Formula, "(?<=\\().+?(?=\\))") %>% 
+  unlist() %>% 
+  stringr::str_split("\\s*\\+\\s*|\\s*\\|\\s*") %>% 
+  unlist() %>% 
+  stringr::str_trim() %>% 
+  purrr::discard(~ . == 1) %>% 
+  stringr::str_remove_all(",\\s*cov\\s*=.*") %>% 
+  stringr::str_remove_all("gr\\(") %>% 
+  setdiff(FixedEffectName)
+
+
+if(Family == "binomial"){
+  RandomEffectName = RandomEffectName %>% 
+    setdiff(TrialsName)
+}
+
+if(Family == "binomial" | Family == "poisson"){
+  RandomEffectName = RandomEffectName %>% 
+    purrr::discard(~ . == "observationID")
+}
+
+
+
+# Extract "Random slopes" (everything inside parenthesis after the tilde)
+RandomSlopeName = stringr::str_extract_all(Formula, "(?<=\\().+?(?=\\))") %>% 
+  unlist() %>% 
+  purrr::keep(~ stringr::str_detect(.x, "\\|")) %>%  
+  stringr::str_replace_all("\\+|\\|", "") %>% 
+  stringr::str_replace_all("\\b1\\b", "") %>% 
+  stringr::str_trim() %>% 
+  stringr::str_replace_all("  ", "__") %>%  
+  stringr::str_split("__") %>% 
+  purrr::map(~ rev(.x) %>% paste(collapse = "__")) %>%
+  unlist() %>% 
+  purrr::keep(~ stringr::str_detect(.x, "__")) 
+  
+  
+if(Family == "binomial" | Family == "poisson"){
+  RandomSlopeName = RandomSlopeName %>% 
+    purrr::discard(~ . == "observationID")
+}
+
+
+  
+  
+  
+  
+  
 
 # R-hat and effective sample size
 
-convergence = tibble::tribble(~Rhat, ~EffectiveSampleSize,
-               max(posterior::summarise_draws(brmsfit)$rhat), 
-               min(posterior::summarise_draws(brmsfit)$ess_bulk))
+convergence = as.data.frame(tibble::tribble(~Rhat, ~EffectiveSampleSize,
+ max(posterior::summarise_draws(brmsfit)$rhat), 
+ min(posterior::summarise_draws(brmsfit)$ess_bulk)))
 
 # Trace plots
+
 traceplot = bayesplot::mcmc_trace(posterior::as_draws_df(brmsfit), 
-           pars = dplyr::vars(tidyselect::starts_with("b"), 
-                       tidyselect::starts_with("sd"), 
-                       -tidyselect::contains("prior")),
-           np = bayesplot::nuts_params(brmsfit),
-           facet_args = list(ncol = 2), 
-           size = 0.15) 
+ pars = dplyr::vars(tidyselect::starts_with("b"), 
+ tidyselect::starts_with("sd"), 
+ -tidyselect::contains("prior")),
+ np = bayesplot::nuts_params(brmsfit),
+ facet_args = list(ncol = 2), 
+ size = 0.15) 
 
 nd = nrow(as.data.frame(brmsfit))
 
 # Posterior predictive checks
+suppressMessages({
 ppDens = rstanarm::pp_check(brmsfit, type = "dens_overlay", ndraws = (nd*0.2)) 
 
 ppLoo = rstanarm::pp_check(brmsfit, type = "loo_pit_qq") 
 
-if(!is.null(Group)){
+})
 
-for (i in Group){
-plot = rstanarm::pp_check(brmsfit, type = "violin_grouped",group= i) +
-  ggtitle(i)
-assign(paste0("GroupPlot_", i), plot) 
-}
 
-ppGroup = list()   
 
-GroupNames = ls(pattern = "^GroupPlot")
-for (i in GroupNames) {
-    ppGroup[[i]] = get(i)
-}
+#Extract fixed effects observed data from brmsfit
+
+
+if(length(FixedEffectName)>0){
+
+  if(length(CharacterFE)>0){
+  
+    for (i in CharacterFE){
+      plot = rstanarm::pp_check(brmsfit, type = "violin_grouped",group= i) +
+        ggplot2::ggtitle(i)
+        assign(paste0("GroupPlot_", i), plot) 
+    }
+    
+    ppGroup = list()   
+    
+    GroupNames = ls(pattern = "^GroupPlot")
+    for (i in GroupNames) {
+      ppGroup[[i]] = get(i)
+    }
+  }
 }
 
 # Prior samples
 if(Prior == TRUE){
-priordraws = brms::prior_draws(brmsfit) %>% 
-  dplyr::select(tidyselect::starts_with("sd_"))  
   
-if(length(priordraws)==0){
-  priorsample = "No prior samples to plot"
-}else{
- priordraws = priordraws %>% 
- tidyr::pivot_longer(cols = 1, names_to = "variable", values_to = "value")%>%
-  tibble::add_column(name = "prior")
-
-posteriordraws = as.data.frame(brmsfit) %>% 
+  priordraws = brms::prior_draws(brmsfit) %>% 
+  dplyr::select(tidyselect::starts_with("sd_"))  
+    
+  if(length(priordraws)==0){
+    priorsample = "No prior samples to plot"
+  
+  }else{
+    priordraws = priordraws %>% 
+    tidyr::pivot_longer(cols = 1:length(colnames(priordraws)), 
+    names_to = "variable", values_to = "value")%>%
+    tibble::add_column(name = "prior")
+    
+    posteriordraws = as.data.frame(brmsfit) %>% 
     dplyr::select(tidyselect::starts_with("sd")) %>%
     dplyr::select(tidyselect::contains("Intercept")) %>%
     dplyr::rename_with(~ stringr::str_remove_all(., "__Intercept")) %>% 
-  tidyr::gather(key = "variable", value = "value") %>%
-  tibble::add_column(name = "posterior")
-
-priorposterior= dplyr::bind_rows(priordraws,posteriordraws) %>% 
-  dplyr::mutate(value=log(value)) %>% 
-  dplyr::rename_with(~ stringr::str_remove_all(., "sd_"))
-
-
-
-priorsample = 
-  ggplot2::ggplot(priorposterior, ggplot2::aes(value, fill = name, color = name)) +
-  ggplot2::geom_density(alpha=0.6, linewidth=0.8) +
-  ggplot2::scale_fill_manual(values=c("#B3CDE0","#8ECAE6")) +
-  ggplot2::scale_color_manual(values=c("#B3CDE0","#8ECAE6")) +
-  ggplot2::theme_test()+
-  ggplot2::facet_wrap(~variable)
- 
-}
-
-}
-
-
-if(is.null(Group)){
-  if(isFALSE(Prior)){
-  output = list(convergence,
-            traceplot,
-            ppDens, 
-            ppLoo)
-  names(output) = c("R-hat and Effective sample size", "Traceplots plot", "Posterior predictive check - Density overlay plot", "Posterior predictive check - LOO-PIT-QQ plot")
-  }else{
-    output = list(convergence,
-            traceplot,
-            ppDens, 
-            ppLoo, 
-            priorsample)
-      names(output) = c("R-hat and Effective sample size", "Traceplots plot", "Posterior predictive check - Density overlay plot", "Posterior predictive check - LOO-PIT-QQ plot","Prior samples plot") 
-    }
-}else{
-  if(isFALSE(Prior)){
-
-    output = list(convergence,
-            traceplot,
-            ppDens, 
-            ppLoo, 
-            ppGroup)
-      names(output) = c("R-hat and Effective sample size", "Traceplots plot", "Posterior predictive check - Density overlay plot", "Posterior predictive check - LOO-PIT-QQ plot", "Posterior predictive check - Group density overlay plot")
-  }else{
-      output = list(convergence,
-            traceplot,
-            ppDens, 
-            ppLoo, 
-            ppGroup, 
-            priorsample)
-      
-       names(output) = c("R-hat and Effective sample size", "Traceplots plot", "Posterior predictive check - Density overlay plot", "Posterior predictive check - LOO-PIT-QQ plot", "Posterior predictive check - Group density overlay plot", "Prior samples plot")
+    tidyr::gather(key = "variable", value = "value") %>%
+    tibble::add_column(name = "posterior")
+    
+    priorposterior= dplyr::bind_rows(priordraws,posteriordraws) %>% 
+    dplyr::mutate(value=log(value)) %>% 
+    dplyr::rename_with(~ stringr::str_remove_all(., "sd_"))
+    
+    priorsample = 
+    ggplot2::ggplot(priorposterior, ggplot2::aes(value, fill = name, color = name)) +
+    ggplot2::geom_density(alpha=0.6, linewidth=0.8) +
+    ggplot2::scale_fill_manual(values=c("#B3CDE0","#8ECAE6")) +
+    ggplot2::scale_color_manual(values=c("#B3CDE0","#8ECAE6")) +
+    ggplot2::theme_test()+
+    ggplot2::facet_wrap(~variable)
+   
   }
 }
 
-return(output)
+
+if(isFALSE(Prior)){
   
+  if(length(FixedEffectName) & length(CharacterFE) > 0){
+    output = list(convergence, traceplot, ppDens, ppLoo, ppGroup)
+    
+  } else { 
+    output = list(convergence, traceplot, ppDens, ppLoo)
+  }
+} else {
+ 
+  if(length(FixedEffectName) & length(CharacterFE) > 0){
+    output = list(convergence, traceplot, ppDens, ppLoo, ppGroup, priorsample)
+    
+  } else { 
+    output = list(convergence, traceplot, ppDens, ppLoo, priorsample)
+  }  
+  
+}
+
+
+  return(purrr::walk(output, ~ print(.x)))
+
+
+#  })
+#  })
+# }, silent = TRUE)
+
+
+
 }
 ```
 
@@ -1541,48 +2122,141 @@ return(output)
 
 
 ```{r examples-model_fit, eval=FALSE}
-#' \dontrun{
 
-md = dplyr::starwars
+# Simulate data
+md = tibble::tibble(
+  group = factor(sample(1:10, 1000, replace = TRUE)),
+  f_var = factor(sample(1:3, 1000, replace = TRUE)),
+  n_var = rnorm(1000, mean = 0, sd = 1),
+  resp = rnorm(1000, mean = 10, sd = 3))
 
-# Centering variables
-md = md %>% 
-  dplyr::select(mass, sex, height, species) %>% 
-  dplyr::mutate(mass = log(mass),
-         sex = dplyr::recode(sex, "male" = 1, 
-                      "female" = -1, 
-                      "hermaphroditic" = 0,
-                      "none" = as.numeric(NA)))
-
-
-# Without random effects
-
-mod = brms_model(Chainset = 2,
-                 Response = "mass", 
-                 FixedEffect = c("sex","height"), 
+# Run model
+mod = brms_model(Response = "resp", 
+                 FixedEffect = c("f_var","n_var"), 
+                 RandomEffect = "group", 
                  Family = "gaussian", 
-                 Data = md,
-                 PriorSamples = TRUE)
+                 Data = md)
 
-model_fit(mod, Group = "sex", Prior = TRUE)
 
-#' }
+# Check model fit 
+model_fit(mod, Prior = TRUE)
+
 ```
 
 
-```{r test-model_fit}
+```{r test-model_fit, eval = TRUE}
+#brms_model
 
-data("mod", package = "VarDecomp")
-model_fit(mod)
+# Gaussian models
 
-data("mod_re", package = "VarDecomp")
-model_fit(mod_re)
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/gau_mod.RData")
+model_fit(gau_mod)
 
-data("mod_rs", package = "VarDecomp")
-model_fit(mod_rs)
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/gau_mod_re.RData")
+model_fit(gau_mod_re)
 
-data("mod_cov", package = "VarDecomp")
-model_fit(mod_cov)
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/gau_mod_2re.RData")
+model_fit(gau_mod_2re)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/gau_mod_rs.RData")
+model_fit(gau_mod_rs)
+
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/gau_mod_rsre.RData")
+model_fit(gau_mod_rsre)
+
+# Poisson models
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/poi_mod.RData")
+model_fit(poi_mod)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/poi_mod_re.RData")
+model_fit(poi_mod_re)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/poi_mod_2re.RData")
+model_fit(poi_mod_2re)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/poi_mod_rs.RData")
+model_fit(poi_mod_rs)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/poi_mod_rsre.RData")
+model_fit(poi_mod_rsre)
+
+
+# Binomial models
+
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/bin_mod.RData")
+model_fit(bin_mod)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/bin_mod_re.RData")
+model_fit(bin_mod_re)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/bin_mod_2re.RData")
+model_fit(bin_mod_2re)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/bin_mod_rs.RData")
+model_fit(bin_mod_rs)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/bin_mod_rsre.RData")
+model_fit(bin_mod_rsre)
+
+#brms_cov_model
+
+# Gaussian models
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/gau_mod_cov.RData")
+model_fit(gau_mod_cov)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/gau_mod_cov_re.RData")
+model_fit(gau_mod_cov_re)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/gau_mod_cov_2re.RData")
+model_fit(gau_mod_cov_2re)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/gau_mod_cov_rs.RData")
+model_fit(gau_mod_cov_rs)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/gau_mod_cov_rsre.RData")
+model_fit(gau_mod_cov_rsre)
+
+# Poisson models
+
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/poi_mod_cov.RData")
+model_fit(poi_mod_cov)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/poi_mod_cov_re.RData")
+model_fit(poi_mod_cov_re)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/poi_mod_cov_2re.RData")
+model_fit(poi_mod_cov_2re)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/poi_mod_cov_rs.RData")
+model_fit(poi_mod_cov_rs)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/poi_mod_cov_rsre.RData")
+model_fit(poi_mod_cov_rsre)
+
+
+# Binomial models
+
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/bin_mod_cov.RData")
+model_fit(bin_mod_cov)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/bin_mod_cov_re.RData")
+model_fit(bin_mod_cov_re)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/bin_mod_cov_2re.RData")
+model_fit(bin_mod_cov_2re)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/bin_mod_cov_rs.RData")
+model_fit(bin_mod_cov_rs)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/bin_mod_cov_rsre.RData")
+model_fit(bin_mod_cov_rsre)
+
 
 ```
 
@@ -1676,46 +2350,142 @@ ggplot2::ggplot(PS,ggplot2::aes(y = FixedEffect, x = Slope)) +
 ```
 
 ```{r examples-plot_intervals, eval=FALSE} 
-#' \dontrun{
-md = dplyr::starwars
 
-# Centering variables
-md = md %>% 
-  dplyr::select(mass, sex, species) %>% 
-  dplyr::mutate(mass = log(mass),
-         sex = dplyr::recode(sex, "male" = 1, 
-                      "female" = -1, 
-                      "hermaphroditic" = 0,
-                      "none" = as.numeric(NA)))
-  
-  
-mod = brms_model(Chainset = 2,
-                 Response = "mass", 
-                 FixedEffect = "sex", 
-                 RandomEffect = "species",
+# Simulate data
+md = tibble::tibble(
+  group = factor(sample(1:10, 1000, replace = TRUE)),
+  f_var = factor(sample(1:3, 1000, replace = TRUE)),
+  n_var = rnorm(1000, mean = 0, sd = 1),
+  resp = rnorm(1000, mean = 10, sd = 3))
+
+# Run model
+mod = brms_model(Response = "resp", 
+                 FixedEffect = c("f_var","n_var"), 
+                 RandomEffect = "group", 
                  Family = "gaussian", 
                  Data = md)
 
+# Plot fixed effects
 plot_intervals(mod)
 
-#' }
 
 ```
 
 
-```{r test-plot_intervals}
-data("mod", package = "VarDecomp")
-plot_intervals(mod)
+```{r test-plot_intervals, eval = TRUE}
+#brms_model
 
-data("mod_re", package = "VarDecomp")
-plot_intervals(mod_re)
+# Gaussian models
 
-data("mod_rs", package = "VarDecomp")
-plot_intervals(mod_rs)
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/gau_mod.RData")
+plot_intervals(gau_mod)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/gau_mod_re.RData")
+plot_intervals(gau_mod_re)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/gau_mod_2re.RData")
+plot_intervals(gau_mod_2re)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/gau_mod_rs.RData")
+plot_intervals(gau_mod_rs)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/gau_mod_rsre.RData")
+plot_intervals(gau_mod_rsre)
+
+# Poisson models
 
 
-data("mod_cov", package = "VarDecomp")
-plot_intervals(mod_cov)
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/poi_mod.RData")
+plot_intervals(poi_mod)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/poi_mod_re.RData")
+plot_intervals(poi_mod_re)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/poi_mod_2re.RData")
+plot_intervals(poi_mod_2re)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/poi_mod_rs.RData")
+plot_intervals(poi_mod_rs)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/poi_mod_rsre.RData")
+plot_intervals(poi_mod_rsre)
+
+
+# Binomial models
+
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/bin_mod.RData")
+plot_intervals(bin_mod)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/bin_mod_re.RData")
+plot_intervals(bin_mod_re)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/bin_mod_2re.RData")
+plot_intervals(bin_mod_2re)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/bin_mod_rs.RData")
+plot_intervals(bin_mod_rs)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/bin_mod_rsre.RData")
+plot_intervals(bin_mod_rsre)
+
+
+#brms_cov_model
+
+# Gaussian models
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/gau_mod_cov.RData")
+plot_intervals(gau_mod_cov)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/gau_mod_cov_re.RData")
+plot_intervals(gau_mod_cov_re)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/gau_mod_cov_2re.RData")
+plot_intervals(gau_mod_cov_2re)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/gau_mod_cov_rs.RData")
+plot_intervals(gau_mod_cov_rs)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/gau_mod_cov_rsre.RData")
+plot_intervals(gau_mod_cov_rsre)
+
+# Poisson models
+
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/poi_mod_cov.RData")
+plot_intervals(poi_mod_cov)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/poi_mod_cov_re.RData")
+plot_intervals(poi_mod_cov_re)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/poi_mod_cov_2re.RData")
+plot_intervals(poi_mod_cov_2re)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/poi_mod_cov_rs.RData")
+plot_intervals(poi_mod_cov_rs)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/poi_mod_cov_rsre.RData")
+plot_intervals(poi_mod_cov_rsre)
+
+
+# Binomial models
+
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/bin_mod_cov.RData")
+plot_intervals(bin_mod_cov)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/bin_mod_cov_re.RData")
+plot_intervals(bin_mod_cov_re)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/bin_mod_cov_2re.RData")
+plot_intervals(bin_mod_cov_2re)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/bin_mod_cov_rs.RData")
+plot_intervals(bin_mod_cov_rs)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/bin_mod_cov_rsre.RData")
+plot_intervals(bin_mod_cov_rsre)
+
 
 ```
 
@@ -1726,117 +2496,323 @@ _____
 ```{r function-plot_R2}
 #' Plot R2 values of brms models
 #'
-#' @param PosteriorSamples The estimates of a brms model after variance decomposition. You can use VarDecomp::brms_model() to produce a brmsfit and then VarDecomp::var_decomp() to produce the posterior samples. 
+#' @param brmsfit The output of a brms model. You can use VarDecomp::brms_model() to produce a brmsfit. 
 #' @param Colors A vector with string of the colors to be attributed to each variable ordered by R2, with residual at the end (e.g. c("blue", "green", "gray")).
+#' @param PlotType Choose if the plot should be a 'bar' or 'pizza' plot.
+#' @param Label Choose how values should be displayed ("box" or "text"). Default is set to not display values.
+#' @param Break Add a break in the bar plot axis in cases where a variable explains a large portion of the variance. 
 #' @return Returns a bar plot with the proportion of variance explained by each variable.
 #' @export 
 #' 
 
-plot_R2 = function(PosteriorSamples, Colors = NULL){
 
-stopifnot("Input must be a data frame containing estimates after variance decomposition. You can use VarDecomp::var_decomp() to produce the input data." = inherits(PosteriorSamples, "data.frame"))
+plot_R2 = function(brmsfit, Colors = NULL, PlotType = "pizza", Label = NULL, Break = NULL){
 
-stopifnot("Input must be a data frame containing estimates after variance decomposition. You can use VarDecomp::var_decomp() to produce the input data." = any(stringr::str_detect(names(PosteriorSamples), "R2")) == TRUE) 
+stopifnot("Input must be a brmsfit" = inherits(brmsfit, "brmsfit"))
 
 if(!is.null(Colors)){
 stopifnot("Colors input must be a vector containing strings with the colors to be attributed to each category in the stacked bar plot (e.g. c(`blue`, `green`, `gray`))." = inherits(Colors, "character"))
 }  
+
   
-PS = PosteriorSamples %>% 
+if (!(PlotType %in% c("pizza", "bar"))) {
+stop("`PlotType` must be a string with the value `pizza` or `bar`")
+}
+
+if(!is.null(Label)){
+  if (!(Label %in% c("box", "text"))) {
+  stop("`Label` must be a string with the value `box` or `text`")
+  }
+}
+  
+if(!is.null(Break)){
+  stopifnot("`Break` input should be logical)." = inherits(Break, "logical"))
+}
+  
+if(!is.null(Break)){
+stopifnot("Box labels cannot be used in bar plots with a break in the axis." = !(Break == TRUE & Label == "box"))
+}
+  
+#Extract family
+Family = brmsfit$family[[1]][1]
+
+
+
+#Extract formula
+Formula = as.character(stats::formula(brmsfit)[1])
+
+# Extract "Response"
+
+if(Family != "binomial"){
+
+ResponseName = stringr::str_extract(Formula, "^[^~]+")
+}
+
+if(Family == "binomial"){
+ResponseName = stringr::str_extract(Formula, "^[^|]+") %>% 
+  stringr::str_trim()
+}
+
+
+PS = var_decomp(brmsfit) %>% 
   dplyr::select(dplyr::starts_with("R2_")) %>% 
   dplyr::rename_with(~ stringr::str_remove(., "^R2_")) %>% 
-  dplyr::select(!sum_fixed_effects) %>% 
   dplyr::summarise(dplyr::across(tidyselect::everything(), mean, na.rm = TRUE))
 
-for (i in colnames(PS)) {
-  RS = unlist(strsplit(i, "_"))
-  
-  # Check if both parts exist as separate columns
-  if (length(RS) == 2 && all(RS %in% colnames(PS))) {
-    # Remove the concatenated column
+
+RS = stringr::str_extract_all(Formula, "(?<=\\().+?(?=\\))") %>% 
+  unlist() %>% 
+  purrr::keep(~ stringr::str_detect(.x, "\\|")) %>%  
+  stringr::str_replace_all("\\+|\\|", "") %>% 
+  stringr::str_replace_all("\\b1\\b", "") %>% 
+  stringr::str_trim() %>% 
+  stringr::str_replace_all("  ", "__") %>%  
+  stringr::str_split("__") %>% 
+  purrr::map(~ rev(.x) %>% paste(collapse = "__")) %>%
+  unlist() %>% 
+  purrr::keep(~ stringr::str_detect(.x, "__")) 
+
+
+if(!is.null(RS)){
+ 
+  for(i in RS){
     PS = PS %>% 
-    dplyr::select(-all_of(i))
+    dplyr::select(-tidyselect::all_of(i)) 
+      
   }
-  }  
+}
 
 PS = PS %>%
-  tidyr::pivot_longer(cols = everything(), 
+  dplyr::select(-tidyselect::any_of("RandomEffects")) %>% 
+  dplyr::select(-tidyselect::any_of("FixedEffects")) %>% 
+  tidyr::pivot_longer(cols = tidyselect::everything(), 
   names_to = "Variable",
-  values_to = "R2")
+  values_to = "R2") 
+
+
+
+  
+
 
 PS = PS %>%
   dplyr::arrange(R2) %>% 
-  dplyr::mutate(ID = "")
-
-PS = PS %>%
+  dplyr::mutate(ID = paste0(ResponseName)) %>% 
   dplyr::mutate(Variable = factor(Variable, 
   levels = c(setdiff(PS$Variable, "residual"), "residual")))
 
  if(is.null(Colors)){
-  variable_colors = setNames(rep("lightgrey", length(levels(PS$Variable))), levels(PS$Variable))
+  variable_colors = stats::setNames(rep("lightgrey", length(levels(PS$Variable))), levels(PS$Variable))
   variable_colors[names(variable_colors) != "residual"] = scales::hue_pal()(length(levels(PS$Variable)) - 1)
  }  else {
   variable_colors = Colors
 }
 
-ggplot2::ggplot(PS, ggplot2::aes(x = ID, y = R2, fill=Variable)) +
-ggplot2::geom_bar(stat="identity") +
 
-ggplot2::geom_text(ggplot2::aes(label = round(R2*100, 2)), 
-              position = ggplot2::position_fill(vjust = 0.5), 
-              color = "white", size = 3) +
-ggplot2::scale_fill_manual(values = variable_colors) +
-ggplot2::labs(x = NULL, y = "Proportion of total variance explained")+
-ggplot2::theme_test()
+if(PlotType == "bar"){
+  plot = ggplot2::ggplot(PS, ggplot2::aes(x = ID, y = R2*100, fill=Variable)) +
+  ggplot2::geom_bar(stat="identity")  +
+  ggplot2::scale_fill_manual(values = variable_colors) +
+  ggplot2::labs(x = NULL, y = "Proportion of total variance explained")+
+  ggplot2::theme_test()
+
+
+  if(!is.null(Break)){
+    if(Break==TRUE){
+      
+      value_to_cut = max(PS$R2[PS$R2 > 0.7]*100)
+      cut_lower = round(0.17 * value_to_cut,1)
+      cut_upper = round(0.98 * value_to_cut,1)
+      
+      plot = plot + ggbreak::scale_y_break(c(cut_lower, cut_upper)) +
+      ggplot2::scale_y_continuous(breaks = seq(0, 100, by = 5))+
+      ggplot2::theme(axis.ticks.y.right = ggplot2::element_blank(), axis.text.y.right = ggplot2::element_blank())
+    }
+  }
+  
+}
+ 
+
+
+if(PlotType == "pizza") {
+  
+plot = ggplot2::ggplot(PS, ggplot2::aes(x = "", y = R2, fill = Variable)) +
+  ggplot2::geom_bar(width = 1, stat = "identity") +
+  ggplot2::coord_polar(theta = "y") +
+  ggplot2::scale_fill_manual(values = variable_colors) +
+  ggplot2::labs(x = NULL, y = "Proportion of total variance explained")+
+  ggplot2::theme_void()
 }
 
+
+if(is.null(Label)){
+  labeled_plot = plot
+} else{
+  
+  if(Label == "box"){
+  labeled_plot = plot + 
+    ggrepel::geom_label_repel(ggplot2::aes(label = round(R2, 3)), 
+    position = ggplot2::position_stack(vjust = 0.5), max.overlaps=1000, show.legend = FALSE)
+  }
+  
+  if(Label == "text"){
+  labeled_plot = plot + 
+    ggplot2::geom_text(ggplot2::aes(label = round(R2 * 100, 2)),
+    position = ggplot2::position_stack(vjust = 0.5),
+    color = "white", size = 3)
+  }
+}
+return(labeled_plot)
+}
 ```
 
 ```{r examples-plot_R2, eval=FALSE} 
-#' \dontrun{
-md = dplyr::starwars
 
-# Centering variables
-md = md %>% 
-  dplyr::select(mass, sex, species) %>% 
-  dplyr::mutate(mass = log(mass),
-         sex = dplyr::recode(sex, "male" = 1, 
-                      "female" = -1, 
-                      "hermaphroditic" = 0,
-                      "none" = as.numeric(NA)))
-  
-  
-mod = brms_model(Chainset = 2,
-                 Response = "mass", 
-                 FixedEffect = "sex", 
-                 RandomEffect = "species",
+# Simulate data
+md = tibble::tibble(
+  group = factor(sample(1:10, 1000, replace = TRUE)),
+  f_var = factor(sample(1:3, 1000, replace = TRUE)),
+  n_var = rnorm(1000, mean = 0, sd = 1),
+  resp = rnorm(1000, mean = 10, sd = 3))
+
+# Run model
+mod = brms_model(Response = "resp", 
+                 FixedEffect = c("f_var","n_var"), 
+                 RandomEffect = "group", 
                  Family = "gaussian", 
                  Data = md)
 
-PosteriorSamples = var_decomp(mod)
-plot_R2(PosteriorSamples)
+# Plot R2
+plot_R2(mod, PlotType = "pizza", Label = "box")
 
-#' }
+
+```
+
+
+```{r test-plot_R2, eval = TRUE}
+
+test_plot_R2 = function(brmsfit){
+a = plot_R2(brmsfit)
+b = plot_R2(brmsfit, Label = "box")
+c = plot_R2(brmsfit, PlotType = "bar", Label = "text")
+d = plot_R2(brmsfit, PlotType = "bar", Label = "box")
+e = plot_R2(brmsfit, PlotType = "bar", Break = TRUE)
+
+return(list(a,b,c,e,d))
+
+}
+
+#brms_model
+
+# Gaussian models
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/gau_mod.RData")
+test_plot_R2(gau_mod)
+
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/gau_mod_re.RData")
+test_plot_R2(gau_mod_re)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/gau_mod_2re.RData")
+test_plot_R2(gau_mod_2re)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/gau_mod_rs.RData")
+test_plot_R2(gau_mod_rs)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/gau_mod_rsre.RData")
+test_plot_R2(gau_mod_rsre)
+
+# Poisson models
+
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/poi_mod.RData")
+test_plot_R2(poi_mod)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/poi_mod_re.RData")
+test_plot_R2(poi_mod_re)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/poi_mod_2re.RData")
+test_plot_R2(poi_mod_2re)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/poi_mod_rs.RData")
+test_plot_R2(poi_mod_rs)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/poi_mod_rsre.RData")
+test_plot_R2(poi_mod_rsre)
+
+# Binomial models
+
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/bin_mod.RData")
+test_plot_R2(bin_mod)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/bin_mod_re.RData")
+test_plot_R2(bin_mod_re)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/bin_mod_2re.RData")
+test_plot_R2(bin_mod_2re)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/bin_mod_rs.RData")
+test_plot_R2(bin_mod_rs)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/bin_mod_rsre.RData")
+test_plot_R2(bin_mod_rsre)
+
+#brms_cov_model
+
+# Gaussian models
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/gau_mod_cov.RData")
+test_plot_R2(gau_mod_cov)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/gau_mod_cov_re.RData")
+test_plot_R2(gau_mod_cov_re)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/gau_mod_cov_2re.RData")
+test_plot_R2(gau_mod_cov_2re)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/gau_mod_cov_rs.RData")
+test_plot_R2(gau_mod_cov_rs)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/gau_mod_cov_rsre.RData")
+test_plot_R2(gau_mod_cov_rsre)
+
+# Poisson models
+
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/poi_mod_cov.RData")
+test_plot_R2(poi_mod_cov)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/poi_mod_cov_re.RData")
+test_plot_R2(poi_mod_cov_re)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/poi_mod_cov_2re.RData")
+test_plot_R2(poi_mod_cov_2re)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/poi_mod_cov_rs.RData")
+test_plot_R2(poi_mod_cov_rs)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/poi_mod_cov_rsre.RData")
+test_plot_R2(poi_mod_cov_rsre)
+
+
+# Binomial models
+
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/bin_mod_cov.RData")
+test_plot_R2(bin_mod_cov)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/bin_mod_cov_re.RData")
+test_plot_R2(bin_mod_cov_re)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/bin_mod_cov_2re.RData")
+test_plot_R2(bin_mod_cov_2re)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/bin_mod_cov_rs.RData")
+test_plot_R2(bin_mod_cov_rs)
+
+load(file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/bin_mod_cov_rsre.RData")
+test_plot_R2(bin_mod_cov_rsre)
 
 ```
 
 
-```{r test-plot_R2}
-data("mod", package = "VarDecomp")
-PS_mod = var_decomp(mod)
-plot_R2(PS_mod)
-
-data("mod_re", package = "VarDecomp")
-PS_mod_re = var_decomp(mod_re)
-plot_R2(PS_mod_re)
-
-data("mod_rs", package = "VarDecomp")
-PS_mod_rs = var_decomp(mod_rs)
-plot_R2(PS_mod_rs)
-
-data("mod_cov", package = "VarDecomp")
-PS_mod_cov = var_decomp(mod_cov)
-plot_R2(PS_mod_cov)
-
-
-```

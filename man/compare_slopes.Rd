@@ -18,34 +18,28 @@ Returns a table of values with the log(slope model 1/slope model 2)
 Compare slope values of different brms models
 }
 \examples{
-\dontrun{
 
-md = dplyr::starwars
+# Simulate data
+md = tibble::tibble(
+  group = factor(sample(1:10, 1000, replace = TRUE)),
+  f_var = factor(sample(1:3, 1000, replace = TRUE)),
+  n_var = rnorm(1000, mean = 0, sd = 1),
+  resp = rnorm(1000, mean = 10, sd = 3))
 
-# Centering variables
-md = md \%>\% 
-  dplyr::select(mass, sex, height, species) \%>\% 
-  dplyr::mutate(mass = log(mass),
-         sex = dplyr::recode(sex, "male" = 1, 
-                      "female" = -1, 
-                      "hermaphroditic" = 0,
-                      "none" = as.numeric(NA)))
-  
-  
-mod1 = brms_model(Chainset = 2,
-                   Response = "mass", 
-                   FixedEffect = "sex", 
-                   Family = "gaussian", 
-                   Data = md)
+# Run model without random slope
+mod = brms_model(Response = "resp", 
+                 FixedEffect = c("f_var","n_var"), 
+                 RandomEffect = "group", 
+                 Family = "gaussian", 
+                 Data = md)
 
-mod2 = brms_model(Chainset = 2,
-                   Response = "mass", 
-                   FixedEffect = "sex",
-                   RandomSlope = c("sex","species"),
-                   Family = "gaussian", 
-                   Data = md)
+# Run model with random slope
+mod_RS = brms_model(Response = "resp", 
+                 FixedEffect = c("f_var","n_var"), 
+                 RandomSlope = c("n_var", "group"),
+                 Family = "gaussian", 
+                 Data = md)
 
-compare_slopes(mod1, mod2, Slope = "sex")
+compare_slopes(mod, mod_RS, Slope = "n_var")
 
-}
 }

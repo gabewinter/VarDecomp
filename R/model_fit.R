@@ -3,7 +3,6 @@
 #' Perform model fit checks for brms models
 #'
 #' @param brmsfit The output of a brms model. You can use VarDecomp::brms_model() to produce a brmsfit. 
-#' @param Group A string containing the name of a grouping variable for the visualization of a posterior predictive check plot (e.g. "sex"). To add multiple grouping variables, use c() (e.g. c("sex", "species")). 
 #' @param Prior A logical argument defining whether the `brmsfit` contains prior samples. If set to `TRUE` it will produce plots comparing the log distributions of priors and posterior samples for each covariate. 
 #'
 #' @return Returns a list containing (a) the maximum R-hat value, (b) the minimum effective sample size, (c) traceplots, (d) posterior predictive check plots, and (e) prior and posterior sample plots (if priors are available).
@@ -11,147 +10,265 @@
 #' @export 
 #' 
 #' @examples
-#' \dontrun{
 #'
-#' md = dplyr::starwars
+#' # Simulate data
+#' md = tibble::tibble(
+#'   group = factor(sample(1:10, 1000, replace = TRUE)),
+#'   f_var = factor(sample(1:3, 1000, replace = TRUE)),
+#'   n_var = rnorm(1000, mean = 0, sd = 1),
+#'   resp = rnorm(1000, mean = 10, sd = 3))
 #'
-#' # Centering variables
-#' md = md %>% 
-#'   dplyr::select(mass, sex, height, species) %>% 
-#'   dplyr::mutate(mass = log(mass),
-#'          sex = dplyr::recode(sex, "male" = 1, 
-#'                       "female" = -1, 
-#'                       "hermaphroditic" = 0,
-#'                       "none" = as.numeric(NA)))
-#'
-#'
-#' # Without random effects
-#'
-#' mod = brms_model(Chainset = 2,
-#'                  Response = "mass", 
-#'                  FixedEffect = c("sex","height"), 
+#' # Run model
+#' mod = brms_model(Response = "resp", 
+#'                  FixedEffect = c("f_var","n_var"), 
+#'                  RandomEffect = "group", 
 #'                  Family = "gaussian", 
-#'                  Data = md,
-#'                  PriorSamples = TRUE)
+#'                  Data = md)
 #'
-#' model_fit(mod, Group = "sex", Prior = TRUE)
 #'
-#' }
-model_fit = function(brmsfit, Group = NULL, Prior = FALSE){
+#' # Check model fit 
+#' model_fit(mod, Prior = TRUE)
+#'
+model_fit = function(brmsfit, Prior = FALSE){
 
+  
+stopifnot("Input must be a brmsfit" = inherits(brmsfit, "brmsfit"))
+
+if(!is.null(Prior)){
+  stopifnot("Prior input must be logical" = inherits(Prior, "logical"))
+}
+  
+  
+  
+# try({
+# suppressMessages({
+# 
+# suppressWarnings({
+
+# Extract original data
+Data = brmsfit$data
+
+Data = Data %>% 
+  dplyr::filter(dplyr::if_all(1:ncol(Data),~ !is.na(.)))
+  
+  
+#Extract family
+Family = brmsfit$family[[1]][1]
+
+
+
+#Extract formula
+Formula = as.character(stats::formula(brmsfit)[1])
+
+if(Family != "binomial"){
+
+# Extract "Response" (everything before the tilde)
+ResponseName = stringr::str_extract(Formula, "^[^~]+")
+}
+
+
+if(Family == "binomial"){
+
+# Extract "Trials" (value inside parenthesis after 'trials')
+
+SuccessesName = stringr::str_extract(Formula, "^[^|]+") %>% 
+  stringr::str_trim()
+
+# Extract "Trials" (value inside parenthesis after 'trials')
+TrialsName = stringr::str_extract(Formula, "(?<=trials\\().+?(?=\\))")
+  
+}
+
+
+# Extract "Fixed effects" (everything after the tilde not within parenthesis)
+FixedEffectName = stringr::str_extract(Formula, "(?<=~ ).*") %>%
+  stringr::str_remove_all("\\(.*?\\)") %>% 
+  stringr::str_split("\\s*\\+\\s*") %>% 
+  unlist() %>% 
+  stringr::str_trim() %>% 
+  purrr::discard(~ . == "") %>% 
+  purrr::discard(~ . == ")")
+
+
+if(length(FixedEffectName) > 0){
+## For covariates with of character class
+
+PSFixedEffectName = as.data.frame(brmsfit) %>%
+  dplyr::select(tidyselect::starts_with("b_")) %>%
+  dplyr::rename_with(~ stringr::str_remove_all(., "^b_")) %>%
+  dplyr::select(-tidyselect::starts_with("Intercept")) %>%
+  names()
+
+# Identify character fixed effects in FixedEffectData
+CharacterFE = setdiff(FixedEffectName, PSFixedEffectName)
+
+}
+
+# Extract "Random effects" (everything inside parenthesis after the tilde)
+RandomEffectName = stringr::str_extract_all(Formula, "(?<=\\().+?(?=\\))") %>% 
+  unlist() %>% 
+  stringr::str_split("\\s*\\+\\s*|\\s*\\|\\s*") %>% 
+  unlist() %>% 
+  stringr::str_trim() %>% 
+  purrr::discard(~ . == 1) %>% 
+  stringr::str_remove_all(",\\s*cov\\s*=.*") %>% 
+  stringr::str_remove_all("gr\\(") %>% 
+  setdiff(FixedEffectName)
+
+
+if(Family == "binomial"){
+  RandomEffectName = RandomEffectName %>% 
+    setdiff(TrialsName)
+}
+
+if(Family == "binomial" | Family == "poisson"){
+  RandomEffectName = RandomEffectName %>% 
+    purrr::discard(~ . == "observationID")
+}
+
+
+
+# Extract "Random slopes" (everything inside parenthesis after the tilde)
+RandomSlopeName = stringr::str_extract_all(Formula, "(?<=\\().+?(?=\\))") %>% 
+  unlist() %>% 
+  purrr::keep(~ stringr::str_detect(.x, "\\|")) %>%  
+  stringr::str_replace_all("\\+|\\|", "") %>% 
+  stringr::str_replace_all("\\b1\\b", "") %>% 
+  stringr::str_trim() %>% 
+  stringr::str_replace_all("  ", "__") %>%  
+  stringr::str_split("__") %>% 
+  purrr::map(~ rev(.x) %>% paste(collapse = "__")) %>%
+  unlist() %>% 
+  purrr::keep(~ stringr::str_detect(.x, "__")) 
+  
+  
+if(Family == "binomial" | Family == "poisson"){
+  RandomSlopeName = RandomSlopeName %>% 
+    purrr::discard(~ . == "observationID")
+}
+
+
+  
+  
+  
+  
+  
 
 # R-hat and effective sample size
 
-convergence = tibble::tribble(~Rhat, ~EffectiveSampleSize,
-               max(posterior::summarise_draws(brmsfit)$rhat), 
-               min(posterior::summarise_draws(brmsfit)$ess_bulk))
+convergence = as.data.frame(tibble::tribble(~Rhat, ~EffectiveSampleSize,
+ max(posterior::summarise_draws(brmsfit)$rhat), 
+ min(posterior::summarise_draws(brmsfit)$ess_bulk)))
 
 # Trace plots
+
 traceplot = bayesplot::mcmc_trace(posterior::as_draws_df(brmsfit), 
-           pars = dplyr::vars(tidyselect::starts_with("b"), 
-                       tidyselect::starts_with("sd"), 
-                       -tidyselect::contains("prior")),
-           np = bayesplot::nuts_params(brmsfit),
-           facet_args = list(ncol = 2), 
-           size = 0.15) 
+ pars = dplyr::vars(tidyselect::starts_with("b"), 
+ tidyselect::starts_with("sd"), 
+ -tidyselect::contains("prior")),
+ np = bayesplot::nuts_params(brmsfit),
+ facet_args = list(ncol = 2), 
+ size = 0.15) 
 
 nd = nrow(as.data.frame(brmsfit))
 
 # Posterior predictive checks
+suppressMessages({
 ppDens = rstanarm::pp_check(brmsfit, type = "dens_overlay", ndraws = (nd*0.2)) 
 
 ppLoo = rstanarm::pp_check(brmsfit, type = "loo_pit_qq") 
 
-if(!is.null(Group)){
+})
 
-for (i in Group){
-plot = rstanarm::pp_check(brmsfit, type = "violin_grouped",group= i) +
-  ggtitle(i)
-assign(paste0("GroupPlot_", i), plot) 
-}
 
-ppGroup = list()   
 
-GroupNames = ls(pattern = "^GroupPlot")
-for (i in GroupNames) {
-    ppGroup[[i]] = get(i)
-}
+#Extract fixed effects observed data from brmsfit
+
+
+if(length(FixedEffectName)>0){
+
+  if(length(CharacterFE)>0){
+  
+    for (i in CharacterFE){
+      plot = rstanarm::pp_check(brmsfit, type = "violin_grouped",group= i) +
+        ggplot2::ggtitle(i)
+        assign(paste0("GroupPlot_", i), plot) 
+    }
+    
+    ppGroup = list()   
+    
+    GroupNames = ls(pattern = "^GroupPlot")
+    for (i in GroupNames) {
+      ppGroup[[i]] = get(i)
+    }
+  }
 }
 
 # Prior samples
 if(Prior == TRUE){
-priordraws = brms::prior_draws(brmsfit) %>% 
-  dplyr::select(tidyselect::starts_with("sd_"))  
   
-if(length(priordraws)==0){
-  priorsample = "No prior samples to plot"
-}else{
- priordraws = priordraws %>% 
- tidyr::pivot_longer(cols = 1, names_to = "variable", values_to = "value")%>%
-  tibble::add_column(name = "prior")
-
-posteriordraws = as.data.frame(brmsfit) %>% 
+  priordraws = brms::prior_draws(brmsfit) %>% 
+  dplyr::select(tidyselect::starts_with("sd_"))  
+    
+  if(length(priordraws)==0){
+    priorsample = "No prior samples to plot"
+  
+  }else{
+    priordraws = priordraws %>% 
+    tidyr::pivot_longer(cols = 1:length(colnames(priordraws)), 
+    names_to = "variable", values_to = "value")%>%
+    tibble::add_column(name = "prior")
+    
+    posteriordraws = as.data.frame(brmsfit) %>% 
     dplyr::select(tidyselect::starts_with("sd")) %>%
     dplyr::select(tidyselect::contains("Intercept")) %>%
     dplyr::rename_with(~ stringr::str_remove_all(., "__Intercept")) %>% 
-  tidyr::gather(key = "variable", value = "value") %>%
-  tibble::add_column(name = "posterior")
-
-priorposterior= dplyr::bind_rows(priordraws,posteriordraws) %>% 
-  dplyr::mutate(value=log(value)) %>% 
-  dplyr::rename_with(~ stringr::str_remove_all(., "sd_"))
-
-
-
-priorsample = 
-  ggplot2::ggplot(priorposterior, ggplot2::aes(value, fill = name, color = name)) +
-  ggplot2::geom_density(alpha=0.6, linewidth=0.8) +
-  ggplot2::scale_fill_manual(values=c("#B3CDE0","#8ECAE6")) +
-  ggplot2::scale_color_manual(values=c("#B3CDE0","#8ECAE6")) +
-  ggplot2::theme_test()+
-  ggplot2::facet_wrap(~variable)
- 
-}
-
-}
-
-
-if(is.null(Group)){
-  if(isFALSE(Prior)){
-  output = list(convergence,
-            traceplot,
-            ppDens, 
-            ppLoo)
-  names(output) = c("R-hat and Effective sample size", "Traceplots plot", "Posterior predictive check - Density overlay plot", "Posterior predictive check - LOO-PIT-QQ plot")
-  }else{
-    output = list(convergence,
-            traceplot,
-            ppDens, 
-            ppLoo, 
-            priorsample)
-      names(output) = c("R-hat and Effective sample size", "Traceplots plot", "Posterior predictive check - Density overlay plot", "Posterior predictive check - LOO-PIT-QQ plot","Prior samples plot") 
-    }
-}else{
-  if(isFALSE(Prior)){
-
-    output = list(convergence,
-            traceplot,
-            ppDens, 
-            ppLoo, 
-            ppGroup)
-      names(output) = c("R-hat and Effective sample size", "Traceplots plot", "Posterior predictive check - Density overlay plot", "Posterior predictive check - LOO-PIT-QQ plot", "Posterior predictive check - Group density overlay plot")
-  }else{
-      output = list(convergence,
-            traceplot,
-            ppDens, 
-            ppLoo, 
-            ppGroup, 
-            priorsample)
-      
-       names(output) = c("R-hat and Effective sample size", "Traceplots plot", "Posterior predictive check - Density overlay plot", "Posterior predictive check - LOO-PIT-QQ plot", "Posterior predictive check - Group density overlay plot", "Prior samples plot")
+    tidyr::gather(key = "variable", value = "value") %>%
+    tibble::add_column(name = "posterior")
+    
+    priorposterior= dplyr::bind_rows(priordraws,posteriordraws) %>% 
+    dplyr::mutate(value=log(value)) %>% 
+    dplyr::rename_with(~ stringr::str_remove_all(., "sd_"))
+    
+    priorsample = 
+    ggplot2::ggplot(priorposterior, ggplot2::aes(value, fill = name, color = name)) +
+    ggplot2::geom_density(alpha=0.6, linewidth=0.8) +
+    ggplot2::scale_fill_manual(values=c("#B3CDE0","#8ECAE6")) +
+    ggplot2::scale_color_manual(values=c("#B3CDE0","#8ECAE6")) +
+    ggplot2::theme_test()+
+    ggplot2::facet_wrap(~variable)
+   
   }
 }
 
-return(output)
+
+if(isFALSE(Prior)){
   
+  if(length(FixedEffectName) & length(CharacterFE) > 0){
+    output = list(convergence, traceplot, ppDens, ppLoo, ppGroup)
+    
+  } else { 
+    output = list(convergence, traceplot, ppDens, ppLoo)
+  }
+} else {
+ 
+  if(length(FixedEffectName) & length(CharacterFE) > 0){
+    output = list(convergence, traceplot, ppDens, ppLoo, ppGroup, priorsample)
+    
+  } else { 
+    output = list(convergence, traceplot, ppDens, ppLoo, priorsample)
+  }  
+  
+}
+
+
+  return(purrr::walk(output, ~ print(.x)))
+
+
+#  })
+#  })
+# }, silent = TRUE)
+
+
+
 }

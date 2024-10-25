@@ -16,12 +16,15 @@ Imports:
     brms,
     coda,
     dplyr,
+    ggbreak,
     ggdist,
     ggplot2,
+    ggrepel,
     magrittr,
     mcmcr,
     parallel,
     posterior,
+    purrr,
     RcppEigen,
     rstanarm,
     scales,
@@ -37,7 +40,7 @@ Suggests:
     testthat
 VignetteBuilder: 
     knitr
-Config/fusen/version: 0.5.2
+Config/fusen/version: 0.6.0
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.1
+RoxygenNote: 7.3.2
