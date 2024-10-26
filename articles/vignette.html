@@ -94,309 +94,199 @@
 <h2 id="brms_model">brms_model<a class="anchor" aria-label="anchor" href="#brms_model"></a>
 </h2>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co">#' \dontrun{</span></span>
+<code class="sourceCode R"><span><span class="co"># Simulate data</span></span>
+<span><span class="va">md</span> <span class="op">=</span> <span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span></span>
+<span>  group <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">10</span>, <span class="fl">1000</span>, replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  f_var <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span>, <span class="fl">1000</span>, replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  n_var <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">1000</span>, mean <span class="op">=</span> <span class="fl">0</span>, sd <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>,</span>
+<span>  resp <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">1000</span>, mean <span class="op">=</span> <span class="fl">10</span>, sd <span class="op">=</span> <span class="fl">3</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">md</span> <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="va"><a href="https://dplyr.tidyverse.org/reference/starwars.html" class="external-link">starwars</a></span></span>
-<span></span>
-<span><span class="co"># Centering variables</span></span>
-<span><span class="va">md</span> <span class="op">=</span> <span class="va">md</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
-<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">mass</span>, <span class="va">sex</span>, <span class="va">height</span>, <span class="va">species</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
-<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>mass <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">mass</span><span class="op">)</span>,</span>
-<span>         sex <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/recode.html" class="external-link">recode</a></span><span class="op">(</span><span class="va">sex</span>, <span class="st">"male"</span> <span class="op">=</span> <span class="fl">1</span>, </span>
-<span>                      <span class="st">"female"</span> <span class="op">=</span> <span class="op">-</span><span class="fl">1</span>, </span>
-<span>                      <span class="st">"hermaphroditic"</span> <span class="op">=</span> <span class="fl">0</span>,</span>
-<span>                      <span class="st">"none"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="cn">NA</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
-<span>  </span>
-<span>  </span>
-<span><span class="va">mod</span> <span class="op">=</span> <span class="fu"><a href="../reference/brms_model.html">brms_model</a></span><span class="op">(</span>Chainset <span class="op">=</span> <span class="fl">2</span>, </span>
-<span>           Response <span class="op">=</span> <span class="st">"mass"</span>, </span>
-<span>           FixedEffect <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"sex"</span>,<span class="st">"height"</span><span class="op">)</span>,</span>
-<span>           RandomSlope <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"height"</span>, <span class="st">"species"</span><span class="op">)</span>,</span>
-<span>           Family <span class="op">=</span> <span class="st">"gaussian"</span>, </span>
-<span>           Data <span class="op">=</span> <span class="va">md</span>, </span>
-<span>           Seed <span class="op">=</span> <span class="fl">0405</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co">#' }</span></span></code></pre></div>
+<span><span class="co"># Run model</span></span>
+<span><span class="va">mod</span> <span class="op">=</span> <span class="fu"><a href="../reference/brms_model.html">brms_model</a></span><span class="op">(</span>Response <span class="op">=</span> <span class="st">"resp"</span>, </span>
+<span>                 FixedEffect <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"f_var"</span>,<span class="st">"n_var"</span><span class="op">)</span>, </span>
+<span>                 RandomEffect <span class="op">=</span> <span class="st">"group"</span>, </span>
+<span>                 Family <span class="op">=</span> <span class="st">"gaussian"</span>, </span>
+<span>                 Data <span class="op">=</span> <span class="va">md</span><span class="op">)</span></span></code></pre></div>
 <hr>
 </div>
 <div class="section level2">
 <h2 id="brms_cov_model">brms_cov_model<a class="anchor" aria-label="anchor" href="#brms_cov_model"></a>
 </h2>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co">#' \dontrun{</span></span>
-<span></span>
-<span> <span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://tidyverse.tidyverse.org" class="external-link">tidyverse</a></span><span class="op">)</span></span>
-<span> </span>
-<span><span class="co"># Create a group (ID) variable</span></span>
+<code class="sourceCode R"><span> </span>
+<span><span class="co"># Simulate the data directly into a tibble</span></span>
 <span><span class="va">md</span> <span class="op">=</span> <span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span></span>
-<span>  ID <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">as.factor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">10</span>, each <span class="op">=</span> <span class="fl">100</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
+<span>  ID <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">10</span>, <span class="fl">1000</span>, replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  var1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">1000</span>, mean <span class="op">=</span> <span class="fl">0</span>, sd <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>,</span>
+<span>  var2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">1000</span>, mean <span class="op">=</span> <span class="fl">5</span>, sd <span class="op">=</span> <span class="fl">2</span><span class="op">)</span>,</span>
+<span>  resp <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">1000</span>, mean <span class="op">=</span> <span class="fl">10</span>, sd <span class="op">=</span> <span class="fl">3</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Create a variables </span></span>
-<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>height <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">1000</span>, mean <span class="op">=</span> <span class="fl">170</span>, sd <span class="op">=</span> <span class="fl">10</span><span class="op">)</span>,</span>
-<span>         mass <span class="op">=</span> <span class="fl">5</span> <span class="op">+</span> <span class="fl">0.5</span> <span class="op">*</span> <span class="va">height</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">1000</span>, mean <span class="op">=</span> <span class="fl">0</span>, sd <span class="op">=</span> <span class="fl">5</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
-<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>height <span class="op">=</span> <span class="va">height</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">height</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Create a covariance matrix (e.g., relatedness matrix)</span></span>
+<span></span>
+<span><span class="co">## Create a covariance matrix (e.g., relatedness matrix)</span></span>
 <span><span class="va">cov_matrix</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">10</span> <span class="op">*</span> <span class="fl">10</span><span class="op">)</span>, <span class="fl">10</span>, <span class="fl">10</span><span class="op">)</span></span>
 <span><span class="va">cov_matrix</span> <span class="op">=</span> <span class="va">cov_matrix</span> <span class="op"><a href="https://rdrr.io/r/base/matmult.html" class="external-link">%*%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="va">cov_matrix</span><span class="op">)</span>  <span class="co"># Make it positive semi-definite</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">cov_matrix</span><span class="op">)</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">cov_matrix</span><span class="op">)</span> <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">10</span></span>
 <span></span>
-<span><span class="co"># Ensure the covariance matrix is symmetric</span></span>
+<span><span class="co">## Ensure the covariance matrix is symmetric</span></span>
 <span><span class="va">cov_matrix</span> <span class="op">=</span> <span class="op">(</span><span class="va">cov_matrix</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="va">cov_matrix</span><span class="op">)</span><span class="op">)</span> <span class="op">/</span> <span class="fl">2</span></span>
 <span></span>
 <span></span>
-<span>  </span>
 <span><span class="va">mod</span> <span class="op">=</span> <span class="fu"><a href="../reference/brms_cov_model.html">brms_cov_model</a></span><span class="op">(</span>Chainset <span class="op">=</span> <span class="fl">3</span>, </span>
-<span>           Response <span class="op">=</span> <span class="st">"mass"</span>, </span>
-<span>           FixedEffect <span class="op">=</span> <span class="st">"height"</span>, </span>
+<span>           Response <span class="op">=</span> <span class="st">"resp"</span>, </span>
+<span>           FixedEffect <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"var1"</span>, <span class="st">"var2"</span><span class="op">)</span>, </span>
 <span>           ID <span class="op">=</span> <span class="st">"ID"</span>, </span>
 <span>           Matrix <span class="op">=</span> <span class="va">cov_matrix</span>,</span>
 <span>           Family <span class="op">=</span> <span class="st">"gaussian"</span>, </span>
 <span>           Data <span class="op">=</span> <span class="va">md</span>, </span>
-<span>           Seed <span class="op">=</span> <span class="fl">0405</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co">#' }</span></span></code></pre></div>
-</div>
-<div class="section level2">
-<h2 id="model_examples">model_examples<a class="anchor" aria-label="anchor" href="#model_examples"></a>
-</h2>
-<div class="section level3">
-<h3 id="mod">mod<a class="anchor" aria-label="anchor" href="#mod"></a>
-</h3>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span></span>
-<span><span class="co">#' \dontrun{</span></span>
-<span></span>
-<span><span class="co"># A model with fixed effects only</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"mod"</span>, package <span class="op">=</span> <span class="st">"VarDecomp"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co">#' }</span></span></code></pre></div>
-</div>
-<div class="section level3">
-<h3 id="mod_re">mod_re<a class="anchor" aria-label="anchor" href="#mod_re"></a>
-</h3>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span></span>
-<span><span class="co">#' \dontrun{</span></span>
-<span></span>
-<span><span class="co"># A model with fixed and random effects</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"mod_re"</span>, package <span class="op">=</span> <span class="st">"VarDecomp"</span><span class="op">)</span></span>
-<span></span>
-<span></span>
-<span><span class="co">#' }</span></span></code></pre></div>
-</div>
-<div class="section level3">
-<h3 id="mod_rs">mod_rs<a class="anchor" aria-label="anchor" href="#mod_rs"></a>
-</h3>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span></span>
-<span><span class="co">#' \dontrun{</span></span>
-<span></span>
-<span><span class="co"># A model with random slopes</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"mod_rs"</span>, package <span class="op">=</span> <span class="st">"VarDecomp"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co">#' }</span></span></code></pre></div>
-</div>
-<div class="section level3">
-<h3 id="mod_cov">mod_cov<a class="anchor" aria-label="anchor" href="#mod_cov"></a>
-</h3>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span></span>
-<span><span class="co">#' \dontrun{</span></span>
-<span></span>
-<span><span class="co"># A model with a covariance matrix</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"mod_cov"</span>, package <span class="op">=</span> <span class="st">"VarDecomp"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co">#' }</span></span></code></pre></div>
+<span>           Seed <span class="op">=</span> <span class="fl">0405</span><span class="op">)</span></span></code></pre></div>
 <hr>
-</div>
 </div>
 <div class="section level2">
 <h2 id="var_decomp">var_decomp<a class="anchor" aria-label="anchor" href="#var_decomp"></a>
 </h2>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
-<span><span class="co">#' \dontrun{</span></span>
+<span><span class="co"># Simulate data</span></span>
+<span><span class="va">md</span> <span class="op">=</span> <span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span></span>
+<span>  group <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">10</span>, <span class="fl">1000</span>, replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  f_var <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span>, <span class="fl">1000</span>, replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  n_var <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">1000</span>, mean <span class="op">=</span> <span class="fl">0</span>, sd <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>,</span>
+<span>  resp <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">1000</span>, mean <span class="op">=</span> <span class="fl">10</span>, sd <span class="op">=</span> <span class="fl">3</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">md</span> <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="va"><a href="https://dplyr.tidyverse.org/reference/starwars.html" class="external-link">starwars</a></span></span>
-<span></span>
-<span><span class="co"># Centering variables</span></span>
-<span><span class="va">md</span> <span class="op">=</span> <span class="va">md</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
-<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">mass</span>, <span class="va">sex</span>, <span class="va">species</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
-<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>mass <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">mass</span><span class="op">)</span>,</span>
-<span>         sex <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/recode.html" class="external-link">recode</a></span><span class="op">(</span><span class="va">sex</span>, <span class="st">"male"</span> <span class="op">=</span> <span class="fl">1</span>, </span>
-<span>                      <span class="st">"female"</span> <span class="op">=</span> <span class="op">-</span><span class="fl">1</span>, </span>
-<span>                      <span class="st">"hermaphroditic"</span> <span class="op">=</span> <span class="fl">0</span>,</span>
-<span>                      <span class="st">"none"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="cn">NA</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
-<span>  </span>
-<span>  </span>
-<span><span class="va">mod</span> <span class="op">=</span> <span class="fu"><a href="../reference/brms_model.html">brms_model</a></span><span class="op">(</span>Chainset <span class="op">=</span> <span class="fl">2</span>,</span>
-<span>                 Response <span class="op">=</span> <span class="st">"mass"</span>, </span>
-<span>                 FixedEffect <span class="op">=</span> <span class="st">"sex"</span>, </span>
-<span>                 RandomEffect <span class="op">=</span> <span class="st">"species"</span>,</span>
+<span><span class="co"># Run model</span></span>
+<span><span class="va">mod</span> <span class="op">=</span> <span class="fu"><a href="../reference/brms_model.html">brms_model</a></span><span class="op">(</span>Response <span class="op">=</span> <span class="st">"resp"</span>, </span>
+<span>                 FixedEffect <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"f_var"</span>,<span class="st">"n_var"</span><span class="op">)</span>, </span>
+<span>                 RandomEffect <span class="op">=</span> <span class="st">"group"</span>, </span>
 <span>                 Family <span class="op">=</span> <span class="st">"gaussian"</span>, </span>
 <span>                 Data <span class="op">=</span> <span class="va">md</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="../reference/var_decomp.html">var_decomp</a></span><span class="op">(</span><span class="va">mod</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co">#' }</span></span></code></pre></div>
+<span><span class="co"># Variance decomposition</span></span>
+<span><span class="fu"><a href="../reference/var_decomp.html">var_decomp</a></span><span class="op">(</span><span class="va">mod</span><span class="op">)</span></span></code></pre></div>
 <hr>
 </div>
 <div class="section level2">
 <h2 id="model_summary">model_summary<a class="anchor" aria-label="anchor" href="#model_summary"></a>
 </h2>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co">#' \dontrun{</span></span>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
+<span><span class="co"># Simulate data</span></span>
+<span><span class="va">md</span> <span class="op">=</span> <span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span></span>
+<span>  group <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">10</span>, <span class="fl">1000</span>, replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  f_var <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span>, <span class="fl">1000</span>, replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  n_var <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">1000</span>, mean <span class="op">=</span> <span class="fl">0</span>, sd <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>,</span>
+<span>  resp <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">1000</span>, mean <span class="op">=</span> <span class="fl">10</span>, sd <span class="op">=</span> <span class="fl">3</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">md</span> <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="va"><a href="https://dplyr.tidyverse.org/reference/starwars.html" class="external-link">starwars</a></span></span>
-<span></span>
-<span><span class="co"># Centering variables</span></span>
-<span><span class="va">md</span> <span class="op">=</span> <span class="va">md</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
-<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">mass</span>, <span class="va">sex</span>, <span class="va">species</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
-<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>mass <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">mass</span><span class="op">)</span>,</span>
-<span>         sex <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/recode.html" class="external-link">recode</a></span><span class="op">(</span><span class="va">sex</span>, <span class="st">"male"</span> <span class="op">=</span> <span class="fl">1</span>, </span>
-<span>                      <span class="st">"female"</span> <span class="op">=</span> <span class="op">-</span><span class="fl">1</span>, </span>
-<span>                      <span class="st">"hermaphroditic"</span> <span class="op">=</span> <span class="fl">0</span>,</span>
-<span>                      <span class="st">"none"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="cn">NA</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
-<span>  </span>
-<span>  </span>
-<span><span class="va">mod</span> <span class="op">=</span> <span class="fu"><a href="../reference/brms_model.html">brms_model</a></span><span class="op">(</span>Chainset <span class="op">=</span> <span class="fl">2</span>,</span>
-<span>                 Response <span class="op">=</span> <span class="st">"mass"</span>, </span>
-<span>                 FixedEffect <span class="op">=</span> <span class="st">"sex"</span>, </span>
-<span>                 RandomEffect <span class="op">=</span> <span class="st">"species"</span>,</span>
+<span><span class="co"># Run model</span></span>
+<span><span class="va">mod</span> <span class="op">=</span> <span class="fu"><a href="../reference/brms_model.html">brms_model</a></span><span class="op">(</span>Response <span class="op">=</span> <span class="st">"resp"</span>, </span>
+<span>                 FixedEffect <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"f_var"</span>,<span class="st">"n_var"</span><span class="op">)</span>, </span>
+<span>                 RandomEffect <span class="op">=</span> <span class="st">"group"</span>, </span>
 <span>                 Family <span class="op">=</span> <span class="st">"gaussian"</span>, </span>
 <span>                 Data <span class="op">=</span> <span class="va">md</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="../reference/model_summary.html">model_summary</a></span><span class="op">(</span><span class="va">mod</span><span class="op">)</span></span>
+<span><span class="co"># Model summary</span></span>
 <span></span>
-<span><span class="co">#' }</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/model_summary.html">model_summary</a></span><span class="op">(</span><span class="va">mod</span><span class="op">)</span></span></code></pre></div>
 <hr>
 </div>
 <div class="section level2">
 <h2 id="compare_slopes">compare_slopes<a class="anchor" aria-label="anchor" href="#compare_slopes"></a>
 </h2>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co">#' \dontrun{</span></span>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
+<span><span class="co"># Simulate data</span></span>
+<span><span class="va">md</span> <span class="op">=</span> <span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span></span>
+<span>  group <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">10</span>, <span class="fl">1000</span>, replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  f_var <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span>, <span class="fl">1000</span>, replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  n_var <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">1000</span>, mean <span class="op">=</span> <span class="fl">0</span>, sd <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>,</span>
+<span>  resp <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">1000</span>, mean <span class="op">=</span> <span class="fl">10</span>, sd <span class="op">=</span> <span class="fl">3</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">md</span> <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="va"><a href="https://dplyr.tidyverse.org/reference/starwars.html" class="external-link">starwars</a></span></span>
+<span><span class="co"># Run model without random slope</span></span>
+<span><span class="va">mod</span> <span class="op">=</span> <span class="fu"><a href="../reference/brms_model.html">brms_model</a></span><span class="op">(</span>Response <span class="op">=</span> <span class="st">"resp"</span>, </span>
+<span>                 FixedEffect <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"f_var"</span>,<span class="st">"n_var"</span><span class="op">)</span>, </span>
+<span>                 RandomEffect <span class="op">=</span> <span class="st">"group"</span>, </span>
+<span>                 Family <span class="op">=</span> <span class="st">"gaussian"</span>, </span>
+<span>                 Data <span class="op">=</span> <span class="va">md</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Centering variables</span></span>
-<span><span class="va">md</span> <span class="op">=</span> <span class="va">md</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
-<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">mass</span>, <span class="va">sex</span>, <span class="va">height</span>, <span class="va">species</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
-<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>mass <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">mass</span><span class="op">)</span>,</span>
-<span>         sex <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/recode.html" class="external-link">recode</a></span><span class="op">(</span><span class="va">sex</span>, <span class="st">"male"</span> <span class="op">=</span> <span class="fl">1</span>, </span>
-<span>                      <span class="st">"female"</span> <span class="op">=</span> <span class="op">-</span><span class="fl">1</span>, </span>
-<span>                      <span class="st">"hermaphroditic"</span> <span class="op">=</span> <span class="fl">0</span>,</span>
-<span>                      <span class="st">"none"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="cn">NA</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
-<span>  </span>
-<span>  </span>
-<span><span class="va">mod1</span> <span class="op">=</span> <span class="fu"><a href="../reference/brms_model.html">brms_model</a></span><span class="op">(</span>Chainset <span class="op">=</span> <span class="fl">2</span>,</span>
-<span>                   Response <span class="op">=</span> <span class="st">"mass"</span>, </span>
-<span>                   FixedEffect <span class="op">=</span> <span class="st">"sex"</span>, </span>
-<span>                   Family <span class="op">=</span> <span class="st">"gaussian"</span>, </span>
-<span>                   Data <span class="op">=</span> <span class="va">md</span><span class="op">)</span></span>
+<span><span class="co"># Run model with random slope</span></span>
+<span><span class="va">mod_RS</span> <span class="op">=</span> <span class="fu"><a href="../reference/brms_model.html">brms_model</a></span><span class="op">(</span>Response <span class="op">=</span> <span class="st">"resp"</span>, </span>
+<span>                 FixedEffect <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"f_var"</span>,<span class="st">"n_var"</span><span class="op">)</span>, </span>
+<span>                 RandomSlope <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"n_var"</span>, <span class="st">"group"</span><span class="op">)</span>,</span>
+<span>                 Family <span class="op">=</span> <span class="st">"gaussian"</span>, </span>
+<span>                 Data <span class="op">=</span> <span class="va">md</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">mod2</span> <span class="op">=</span> <span class="fu"><a href="../reference/brms_model.html">brms_model</a></span><span class="op">(</span>Chainset <span class="op">=</span> <span class="fl">2</span>,</span>
-<span>                   Response <span class="op">=</span> <span class="st">"mass"</span>, </span>
-<span>                   FixedEffect <span class="op">=</span> <span class="st">"sex"</span>,</span>
-<span>                   RandomSlope <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"sex"</span>,<span class="st">"species"</span><span class="op">)</span>,</span>
-<span>                   Family <span class="op">=</span> <span class="st">"gaussian"</span>, </span>
-<span>                   Data <span class="op">=</span> <span class="va">md</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="../reference/compare_slopes.html">compare_slopes</a></span><span class="op">(</span><span class="va">mod1</span>, <span class="va">mod2</span>, Slope <span class="op">=</span> <span class="st">"sex"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co">#' }</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/compare_slopes.html">compare_slopes</a></span><span class="op">(</span><span class="va">mod</span>, <span class="va">mod_RS</span>, Slope <span class="op">=</span> <span class="st">"n_var"</span><span class="op">)</span></span></code></pre></div>
 <hr>
 </div>
 <div class="section level2">
 <h2 id="model_fit">model_fit<a class="anchor" aria-label="anchor" href="#model_fit"></a>
 </h2>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co">#' \dontrun{</span></span>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
+<span><span class="co"># Simulate data</span></span>
+<span><span class="va">md</span> <span class="op">=</span> <span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span></span>
+<span>  group <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">10</span>, <span class="fl">1000</span>, replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  f_var <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span>, <span class="fl">1000</span>, replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  n_var <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">1000</span>, mean <span class="op">=</span> <span class="fl">0</span>, sd <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>,</span>
+<span>  resp <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">1000</span>, mean <span class="op">=</span> <span class="fl">10</span>, sd <span class="op">=</span> <span class="fl">3</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">md</span> <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="va"><a href="https://dplyr.tidyverse.org/reference/starwars.html" class="external-link">starwars</a></span></span>
-<span></span>
-<span><span class="co"># Centering variables</span></span>
-<span><span class="va">md</span> <span class="op">=</span> <span class="va">md</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
-<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">mass</span>, <span class="va">sex</span>, <span class="va">height</span>, <span class="va">species</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
-<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>mass <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">mass</span><span class="op">)</span>,</span>
-<span>         sex <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/recode.html" class="external-link">recode</a></span><span class="op">(</span><span class="va">sex</span>, <span class="st">"male"</span> <span class="op">=</span> <span class="fl">1</span>, </span>
-<span>                      <span class="st">"female"</span> <span class="op">=</span> <span class="op">-</span><span class="fl">1</span>, </span>
-<span>                      <span class="st">"hermaphroditic"</span> <span class="op">=</span> <span class="fl">0</span>,</span>
-<span>                      <span class="st">"none"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="cn">NA</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
-<span></span>
-<span><span class="co"># Without random effects</span></span>
-<span></span>
-<span><span class="va">mod</span> <span class="op">=</span> <span class="fu"><a href="../reference/brms_model.html">brms_model</a></span><span class="op">(</span>Chainset <span class="op">=</span> <span class="fl">2</span>,</span>
-<span>                 Response <span class="op">=</span> <span class="st">"mass"</span>, </span>
-<span>                 FixedEffect <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"sex"</span>,<span class="st">"height"</span><span class="op">)</span>, </span>
+<span><span class="co"># Run model</span></span>
+<span><span class="va">mod</span> <span class="op">=</span> <span class="fu"><a href="../reference/brms_model.html">brms_model</a></span><span class="op">(</span>Response <span class="op">=</span> <span class="st">"resp"</span>, </span>
+<span>                 FixedEffect <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"f_var"</span>,<span class="st">"n_var"</span><span class="op">)</span>, </span>
+<span>                 RandomEffect <span class="op">=</span> <span class="st">"group"</span>, </span>
 <span>                 Family <span class="op">=</span> <span class="st">"gaussian"</span>, </span>
-<span>                 Data <span class="op">=</span> <span class="va">md</span>,</span>
-<span>                 PriorSamples <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span>                 Data <span class="op">=</span> <span class="va">md</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="../reference/model_fit.html">model_fit</a></span><span class="op">(</span><span class="va">mod</span>, Group <span class="op">=</span> <span class="st">"sex"</span>, Prior <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co">#' }</span></span></code></pre></div>
+<span><span class="co"># Check model fit </span></span>
+<span><span class="fu"><a href="../reference/model_fit.html">model_fit</a></span><span class="op">(</span><span class="va">mod</span>, Prior <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <hr>
 </div>
 <div class="section level2">
 <h2 id="plot_intervals">plot_intervals<a class="anchor" aria-label="anchor" href="#plot_intervals"></a>
 </h2>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co">#' \dontrun{</span></span>
-<span><span class="va">md</span> <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="va"><a href="https://dplyr.tidyverse.org/reference/starwars.html" class="external-link">starwars</a></span></span>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
+<span><span class="co"># Simulate data</span></span>
+<span><span class="va">md</span> <span class="op">=</span> <span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span></span>
+<span>  group <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">10</span>, <span class="fl">1000</span>, replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  f_var <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span>, <span class="fl">1000</span>, replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  n_var <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">1000</span>, mean <span class="op">=</span> <span class="fl">0</span>, sd <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>,</span>
+<span>  resp <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">1000</span>, mean <span class="op">=</span> <span class="fl">10</span>, sd <span class="op">=</span> <span class="fl">3</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Centering variables</span></span>
-<span><span class="va">md</span> <span class="op">=</span> <span class="va">md</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
-<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">mass</span>, <span class="va">sex</span>, <span class="va">species</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
-<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>mass <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">mass</span><span class="op">)</span>,</span>
-<span>         sex <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/recode.html" class="external-link">recode</a></span><span class="op">(</span><span class="va">sex</span>, <span class="st">"male"</span> <span class="op">=</span> <span class="fl">1</span>, </span>
-<span>                      <span class="st">"female"</span> <span class="op">=</span> <span class="op">-</span><span class="fl">1</span>, </span>
-<span>                      <span class="st">"hermaphroditic"</span> <span class="op">=</span> <span class="fl">0</span>,</span>
-<span>                      <span class="st">"none"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="cn">NA</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
-<span>  </span>
-<span>  </span>
-<span><span class="va">mod</span> <span class="op">=</span> <span class="fu"><a href="../reference/brms_model.html">brms_model</a></span><span class="op">(</span>Chainset <span class="op">=</span> <span class="fl">2</span>,</span>
-<span>                 Response <span class="op">=</span> <span class="st">"mass"</span>, </span>
-<span>                 FixedEffect <span class="op">=</span> <span class="st">"sex"</span>, </span>
-<span>                 RandomEffect <span class="op">=</span> <span class="st">"species"</span>,</span>
+<span><span class="co"># Run model</span></span>
+<span><span class="va">mod</span> <span class="op">=</span> <span class="fu"><a href="../reference/brms_model.html">brms_model</a></span><span class="op">(</span>Response <span class="op">=</span> <span class="st">"resp"</span>, </span>
+<span>                 FixedEffect <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"f_var"</span>,<span class="st">"n_var"</span><span class="op">)</span>, </span>
+<span>                 RandomEffect <span class="op">=</span> <span class="st">"group"</span>, </span>
 <span>                 Family <span class="op">=</span> <span class="st">"gaussian"</span>, </span>
 <span>                 Data <span class="op">=</span> <span class="va">md</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="../reference/plot_intervals.html">plot_intervals</a></span><span class="op">(</span><span class="va">mod</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co">#' }</span></span></code></pre></div>
+<span><span class="co"># Plot fixed effects</span></span>
+<span><span class="fu"><a href="../reference/plot_intervals.html">plot_intervals</a></span><span class="op">(</span><span class="va">mod</span><span class="op">)</span></span></code></pre></div>
 <hr>
 </div>
 <div class="section level2">
 <h2 id="plot_r2">plot_R2<a class="anchor" aria-label="anchor" href="#plot_r2"></a>
 </h2>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co">#' \dontrun{</span></span>
-<span><span class="va">md</span> <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="va"><a href="https://dplyr.tidyverse.org/reference/starwars.html" class="external-link">starwars</a></span></span>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
+<span><span class="co"># Simulate data</span></span>
+<span><span class="va">md</span> <span class="op">=</span> <span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span></span>
+<span>  group <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">10</span>, <span class="fl">1000</span>, replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  f_var <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span>, <span class="fl">1000</span>, replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  n_var <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">1000</span>, mean <span class="op">=</span> <span class="fl">0</span>, sd <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>,</span>
+<span>  resp <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">1000</span>, mean <span class="op">=</span> <span class="fl">10</span>, sd <span class="op">=</span> <span class="fl">3</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Centering variables</span></span>
-<span><span class="va">md</span> <span class="op">=</span> <span class="va">md</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
-<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">mass</span>, <span class="va">sex</span>, <span class="va">species</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
-<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>mass <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">mass</span><span class="op">)</span>,</span>
-<span>         sex <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/recode.html" class="external-link">recode</a></span><span class="op">(</span><span class="va">sex</span>, <span class="st">"male"</span> <span class="op">=</span> <span class="fl">1</span>, </span>
-<span>                      <span class="st">"female"</span> <span class="op">=</span> <span class="op">-</span><span class="fl">1</span>, </span>
-<span>                      <span class="st">"hermaphroditic"</span> <span class="op">=</span> <span class="fl">0</span>,</span>
-<span>                      <span class="st">"none"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="cn">NA</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
-<span>  </span>
-<span>  </span>
-<span><span class="va">mod</span> <span class="op">=</span> <span class="fu"><a href="../reference/brms_model.html">brms_model</a></span><span class="op">(</span>Chainset <span class="op">=</span> <span class="fl">2</span>,</span>
-<span>                 Response <span class="op">=</span> <span class="st">"mass"</span>, </span>
-<span>                 FixedEffect <span class="op">=</span> <span class="st">"sex"</span>, </span>
-<span>                 RandomEffect <span class="op">=</span> <span class="st">"species"</span>,</span>
+<span><span class="co"># Run model</span></span>
+<span><span class="va">mod</span> <span class="op">=</span> <span class="fu"><a href="../reference/brms_model.html">brms_model</a></span><span class="op">(</span>Response <span class="op">=</span> <span class="st">"resp"</span>, </span>
+<span>                 FixedEffect <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"f_var"</span>,<span class="st">"n_var"</span><span class="op">)</span>, </span>
+<span>                 RandomEffect <span class="op">=</span> <span class="st">"group"</span>, </span>
 <span>                 Family <span class="op">=</span> <span class="st">"gaussian"</span>, </span>
 <span>                 Data <span class="op">=</span> <span class="va">md</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">PosteriorSamples</span> <span class="op">=</span> <span class="fu"><a href="../reference/var_decomp.html">var_decomp</a></span><span class="op">(</span><span class="va">mod</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/plot_R2.html">plot_R2</a></span><span class="op">(</span><span class="va">PosteriorSamples</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co">#' }</span></span></code></pre></div>
+<span><span class="co"># Plot R2</span></span>
+<span><span class="fu"><a href="../reference/plot_R2.html">plot_R2</a></span><span class="op">(</span><span class="va">mod</span>, PlotType <span class="op">=</span> <span class="st">"pizza"</span>, Label <span class="op">=</span> <span class="st">"box"</span><span class="op">)</span></span></code></pre></div>
 </div>
   </div>
 
@@ -415,7 +305,7 @@
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.0.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
 </div>
 
       </footer>

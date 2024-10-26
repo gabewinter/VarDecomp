@@ -69,11 +69,12 @@
 <span>  <span class="va">FixedEffect</span>,</span>
 <span>  <span class="va">ID</span>,</span>
 <span>  RandomEffect <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  RandomSlope <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  <span class="va">Matrix</span>,</span>
 <span>  Chainset <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  Family <span class="op">=</span> <span class="st">"gaussian"</span>,</span>
 <span>  Seed <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  Trials <span class="op">=</span> <span class="cn">NA</span>,</span>
+<span>  Trials <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  PriorSamples <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -102,12 +103,16 @@
 <dd><p>String with the name of the column in Data containing the random effect variable (e.g. "species"). To add multiple random effects, use c() (e.g. c("species", "date")).</p></dd>
 
 
+<dt id="arg-randomslope">RandomSlope<a class="anchor" aria-label="anchor" href="#arg-randomslope"></a></dt>
+<dd><p>Vector containing two values: first a string with the name of the column in Data containing the covariate to be added as a random slope, second the random effect to which the  random slope will be applied (e.g. RandomSlope = c("height", "species")). The current package version allows the use of a single random slope.</p></dd>
+
+
 <dt id="arg-matrix">Matrix<a class="anchor" aria-label="anchor" href="#arg-matrix"></a></dt>
 <dd><p>A matrix containing the IDs as row/column names and covariance values (ex. A pedigree relatedness matrix).</p></dd>
 
 
 <dt id="arg-chainset">Chainset<a class="anchor" aria-label="anchor" href="#arg-chainset"></a></dt>
-<dd><p>Defines the number of iterations. Start with Chainset = 1 and increase as needed until convergence. The value of Chainsetis multiplied by 15000 in warmup, 30000 in iterations and 15 in thin intervale. For quick tests use Chainset = 0 (warmup=10; iter=110; thin=10; chains=2)</p></dd>
+<dd><p>Defines the number of iterations. Start with Chainset = 1 and increase as needed until convergence. The value of Chainsetis multiplied by 15000 in warmup, 30000 in iterations and 15 in thin intervale. For quick tests use Chainset = 1 (warmup=10; iter=110; thin=10; chains=2)</p></dd>
 
 
 <dt id="arg-family">Family<a class="anchor" aria-label="anchor" href="#arg-family"></a></dt>
@@ -133,39 +138,36 @@
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span> <span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://tidyverse.tidyverse.org" class="external-link">tidyverse</a></span><span class="op">)</span></span></span>
-<span class="r-in"><span> </span></span>
-<span class="r-in"><span><span class="co"># Create a group (ID) variable</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span> </span></span>
+<span class="r-in"><span><span class="co"># Simulate the data directly into a tibble</span></span></span>
 <span class="r-in"><span><span class="va">md</span> <span class="op">=</span> <span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span>  ID <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">as.factor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">10</span>, each <span class="op">=</span> <span class="fl">100</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span></span>
+<span class="r-in"><span>  ID <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">10</span>, <span class="fl">1000</span>, replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  var1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">1000</span>, mean <span class="op">=</span> <span class="fl">0</span>, sd <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  var2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">1000</span>, mean <span class="op">=</span> <span class="fl">5</span>, sd <span class="op">=</span> <span class="fl">2</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  resp <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">1000</span>, mean <span class="op">=</span> <span class="fl">10</span>, sd <span class="op">=</span> <span class="fl">3</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Create a variables </span></span></span>
-<span class="r-in"><span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>height <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">1000</span>, mean <span class="op">=</span> <span class="fl">170</span>, sd <span class="op">=</span> <span class="fl">10</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>         mass <span class="op">=</span> <span class="fl">5</span> <span class="op">+</span> <span class="fl">0.5</span> <span class="op">*</span> <span class="va">height</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">1000</span>, mean <span class="op">=</span> <span class="fl">0</span>, sd <span class="op">=</span> <span class="fl">5</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span></span>
-<span class="r-in"><span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>height <span class="op">=</span> <span class="va">height</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">height</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Create a covariance matrix (e.g., relatedness matrix)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co">## Create a covariance matrix (e.g., relatedness matrix)</span></span></span>
 <span class="r-in"><span><span class="va">cov_matrix</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">10</span> <span class="op">*</span> <span class="fl">10</span><span class="op">)</span>, <span class="fl">10</span>, <span class="fl">10</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">cov_matrix</span> <span class="op">=</span> <span class="va">cov_matrix</span> <span class="op"><a href="https://rdrr.io/r/base/matmult.html" class="external-link">%*%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="va">cov_matrix</span><span class="op">)</span>  <span class="co"># Make it positive semi-definite</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">cov_matrix</span><span class="op">)</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">cov_matrix</span><span class="op">)</span> <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">10</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Ensure the covariance matrix is symmetric</span></span></span>
+<span class="r-in"><span><span class="co">## Ensure the covariance matrix is symmetric</span></span></span>
 <span class="r-in"><span><span class="va">cov_matrix</span> <span class="op">=</span> <span class="op">(</span><span class="va">cov_matrix</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="va">cov_matrix</span><span class="op">)</span><span class="op">)</span> <span class="op">/</span> <span class="fl">2</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span>  </span></span>
 <span class="r-in"><span><span class="va">mod</span> <span class="op">=</span> <span class="fu">brms_cov_model</span><span class="op">(</span>Chainset <span class="op">=</span> <span class="fl">3</span>, </span></span>
-<span class="r-in"><span>           Response <span class="op">=</span> <span class="st">"mass"</span>, </span></span>
-<span class="r-in"><span>           FixedEffect <span class="op">=</span> <span class="st">"height"</span>, </span></span>
+<span class="r-in"><span>           Response <span class="op">=</span> <span class="st">"resp"</span>, </span></span>
+<span class="r-in"><span>           FixedEffect <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"var1"</span>, <span class="st">"var2"</span><span class="op">)</span>, </span></span>
 <span class="r-in"><span>           ID <span class="op">=</span> <span class="st">"ID"</span>, </span></span>
 <span class="r-in"><span>           Matrix <span class="op">=</span> <span class="va">cov_matrix</span>,</span></span>
 <span class="r-in"><span>           Family <span class="op">=</span> <span class="st">"gaussian"</span>, </span></span>
 <span class="r-in"><span>           Data <span class="op">=</span> <span class="va">md</span>, </span></span>
 <span class="r-in"><span>           Seed <span class="op">=</span> <span class="fl">0405</span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "No problems so far 🖖"</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Compiling Stan program...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Start sampling</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
@@ -181,7 +183,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.0.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
 </div>
 
       </footer></div>

@@ -63,7 +63,7 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">model_fit</span><span class="op">(</span><span class="va">brmsfit</span>, Group <span class="op">=</span> <span class="cn">NULL</span>, Prior <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">model_fit</span><span class="op">(</span><span class="va">brmsfit</span>, Prior <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -72,10 +72,6 @@
 
 <dl><dt id="arg-brmsfit">brmsfit<a class="anchor" aria-label="anchor" href="#arg-brmsfit"></a></dt>
 <dd><p>The output of a brms model. You can use VarDecomp::brms_model() to produce a brmsfit.</p></dd>
-
-
-<dt id="arg-group">Group<a class="anchor" aria-label="anchor" href="#arg-group"></a></dt>
-<dd><p>A string containing the name of a grouping variable for the visualization of a posterior predictive check plot (e.g. "sex"). To add multiple grouping variables, use c() (e.g. c("sex", "species")).</p></dd>
 
 
 <dt id="arg-prior">Prior<a class="anchor" aria-label="anchor" href="#arg-prior"></a></dt>
@@ -89,32 +85,75 @@
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Simulate data</span></span></span>
+<span class="r-in"><span><span class="va">md</span> <span class="op">=</span> <span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  group <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">10</span>, <span class="fl">1000</span>, replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  f_var <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span>, <span class="fl">1000</span>, replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  n_var <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">1000</span>, mean <span class="op">=</span> <span class="fl">0</span>, sd <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  resp <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">1000</span>, mean <span class="op">=</span> <span class="fl">10</span>, sd <span class="op">=</span> <span class="fl">3</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">md</span> <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="va"><a href="https://dplyr.tidyverse.org/reference/starwars.html" class="external-link">starwars</a></span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Centering variables</span></span></span>
-<span class="r-in"><span><span class="va">md</span> <span class="op">=</span> <span class="va">md</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span></span>
-<span class="r-in"><span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">mass</span>, <span class="va">sex</span>, <span class="va">height</span>, <span class="va">species</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span></span>
-<span class="r-in"><span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>mass <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">mass</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>         sex <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/recode.html" class="external-link">recode</a></span><span class="op">(</span><span class="va">sex</span>, <span class="st">"male"</span> <span class="op">=</span> <span class="fl">1</span>, </span></span>
-<span class="r-in"><span>                      <span class="st">"female"</span> <span class="op">=</span> <span class="op">-</span><span class="fl">1</span>, </span></span>
-<span class="r-in"><span>                      <span class="st">"hermaphroditic"</span> <span class="op">=</span> <span class="fl">0</span>,</span></span>
-<span class="r-in"><span>                      <span class="st">"none"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="cn">NA</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Without random effects</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">mod</span> <span class="op">=</span> <span class="fu"><a href="brms_model.html">brms_model</a></span><span class="op">(</span>Chainset <span class="op">=</span> <span class="fl">2</span>,</span></span>
-<span class="r-in"><span>                 Response <span class="op">=</span> <span class="st">"mass"</span>, </span></span>
-<span class="r-in"><span>                 FixedEffect <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"sex"</span>,<span class="st">"height"</span><span class="op">)</span>, </span></span>
+<span class="r-in"><span><span class="co"># Run model</span></span></span>
+<span class="r-in"><span><span class="va">mod</span> <span class="op">=</span> <span class="fu"><a href="brms_model.html">brms_model</a></span><span class="op">(</span>Response <span class="op">=</span> <span class="st">"resp"</span>, </span></span>
+<span class="r-in"><span>                 FixedEffect <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"f_var"</span>,<span class="st">"n_var"</span><span class="op">)</span>, </span></span>
+<span class="r-in"><span>                 RandomEffect <span class="op">=</span> <span class="st">"group"</span>, </span></span>
 <span class="r-in"><span>                 Family <span class="op">=</span> <span class="st">"gaussian"</span>, </span></span>
-<span class="r-in"><span>                 Data <span class="op">=</span> <span class="va">md</span>,</span></span>
-<span class="r-in"><span>                 PriorSamples <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span>                 Data <span class="op">=</span> <span class="va">md</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "No problems so far 🙌"</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Compiling Stan program...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Start sampling</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="fu">model_fit</span><span class="op">(</span><span class="va">mod</span>, Group <span class="op">=</span> <span class="st">"sex"</span>, Prior <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
+<span class="r-in"><span><span class="co"># Check model fit </span></span></span>
+<span class="r-in"><span><span class="fu">model_fit</span><span class="op">(</span><span class="va">mod</span>, Prior <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> No divergences to plot.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Using all posterior draws for ppc type 'violin_grouped' by default.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       Rhat EffectiveSampleSize</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 1.001913            1657.166</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> n 2: Gradient evaluation took 0.00022 seconds</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 2: 1000 transitions using 10 leapfrog steps per transition would take 2.2 seconds.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 2: Adjust your expectations accordingly!</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 2: </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 2: </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 2: Iteration:     1 / 30000 [  0%]  (Warmup)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 1: Iteration:  3000 / 30000 [ 10%]  (Warmup)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 2: Iteration:  3000 / 30000 [ 10%]  (Warmup)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 1: Iteration:  6000 / 30000 [ 20%]  (Warmup)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 2: Iteration:  6000 / 30000 [ 20%]  (Warmup)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 1: Iteration:  9000 / 30000 [ 30%]  (Warmup)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 2: Iteration:  9000 / 30000 [ 30%]  (Warmup)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 1: Iteration: 12000 / 30000 [ 40%]  (Warmup)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 2: Iteration: 12000 / 30000 [ 40%]  (Warmup)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 2: Iteration: 15000 / 30000 [ 50%]  (Warmup)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 2: Iteration: 15001 / 30000 [ 50%]  (Sampling)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 1: Iteration: 15000 / 30000 [ 50%]  (Warmup)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 1: Iteration: 15001 / 30000 [ 50%]  (Sampling)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 2: Iteration: 18000 / 30000 [ 60%]  (Sampling)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 1: Iteration: 18000 / 30000 [ 60%]  (Sampling)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 2: Iteration: 21000 / 30000 [ 70%]  (Sampling)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 1: Iteration: 21000 / 30000 [ 70%]  (Sampling)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 2: Iteration: 24000 / 30000 [ 80%]  (Sampling)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 1: Iteration: 24000 / 30000 [ 80%]  (Sampling)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 2: Iteration: 27000 / 30000 [ 90%]  (Sampling)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 1: Iteration: 27000 / 30000 [ 90%]  (Sampling)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 2: Iteration: 30000 / 30000 [100%]  (Sampling)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 2: </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 2:  Elapsed Time: 58.36 seconds (Warm-up)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 2:                59.832 seconds (Sampling)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 2:                118.192 seconds (Total)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 2: </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 1: Iteration: 30000 / 30000 [100%]  (Sampling)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 1: </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 1:  Elapsed Time: 58.94 seconds (Warm-up)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 1:                65.736 seconds (Sampling)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 1:                124.676 seconds (Total)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 1: </span>
+<span class="r-plt img"><img src="model_fit-1.png" alt="" width="700" height="433"></span>
+<span class="r-plt img"><img src="model_fit-2.png" alt="" width="700" height="433"></span>
+<span class="r-plt img"><img src="model_fit-3.png" alt="" width="700" height="433"></span>
+<span class="r-plt img"><img src="model_fit-4.png" alt="" width="700" height="433"></span>
+<span class="r-plt img"><img src="model_fit-5.png" alt="" width="700" height="433"></span>
+<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </div>
@@ -129,7 +168,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.0.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
 </div>
 
       </footer></div>

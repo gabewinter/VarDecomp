@@ -76,36 +76,48 @@
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>Returns a data frame with the summaries of posterior estimates.</p>
+    <p>Returns a data frame with posterior estimates.</p>
     </div>
 
     <div id="ref-examples">
     <h2>Examples</h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
+<span class="r-in"><span><span class="co"># Simulate data</span></span></span>
+<span class="r-in"><span><span class="va">md</span> <span class="op">=</span> <span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  group <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">10</span>, <span class="fl">1000</span>, replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  f_var <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span>, <span class="fl">1000</span>, replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  n_var <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">1000</span>, mean <span class="op">=</span> <span class="fl">0</span>, sd <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  resp <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">1000</span>, mean <span class="op">=</span> <span class="fl">10</span>, sd <span class="op">=</span> <span class="fl">3</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">md</span> <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="va"><a href="https://dplyr.tidyverse.org/reference/starwars.html" class="external-link">starwars</a></span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Centering variables</span></span></span>
-<span class="r-in"><span><span class="va">md</span> <span class="op">=</span> <span class="va">md</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span></span>
-<span class="r-in"><span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">mass</span>, <span class="va">sex</span>, <span class="va">species</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span></span>
-<span class="r-in"><span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>mass <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">mass</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>         sex <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/recode.html" class="external-link">recode</a></span><span class="op">(</span><span class="va">sex</span>, <span class="st">"male"</span> <span class="op">=</span> <span class="fl">1</span>, </span></span>
-<span class="r-in"><span>                      <span class="st">"female"</span> <span class="op">=</span> <span class="op">-</span><span class="fl">1</span>, </span></span>
-<span class="r-in"><span>                      <span class="st">"hermaphroditic"</span> <span class="op">=</span> <span class="fl">0</span>,</span></span>
-<span class="r-in"><span>                      <span class="st">"none"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="cn">NA</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-in"><span>  </span></span>
-<span class="r-in"><span>  </span></span>
-<span class="r-in"><span><span class="va">mod</span> <span class="op">=</span> <span class="fu"><a href="brms_model.html">brms_model</a></span><span class="op">(</span>Chainset <span class="op">=</span> <span class="fl">2</span>,</span></span>
-<span class="r-in"><span>                 Response <span class="op">=</span> <span class="st">"mass"</span>, </span></span>
-<span class="r-in"><span>                 FixedEffect <span class="op">=</span> <span class="st">"sex"</span>, </span></span>
-<span class="r-in"><span>                 RandomEffect <span class="op">=</span> <span class="st">"species"</span>,</span></span>
+<span class="r-in"><span><span class="co"># Run model</span></span></span>
+<span class="r-in"><span><span class="va">mod</span> <span class="op">=</span> <span class="fu"><a href="brms_model.html">brms_model</a></span><span class="op">(</span>Response <span class="op">=</span> <span class="st">"resp"</span>, </span></span>
+<span class="r-in"><span>                 FixedEffect <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"f_var"</span>,<span class="st">"n_var"</span><span class="op">)</span>, </span></span>
+<span class="r-in"><span>                 RandomEffect <span class="op">=</span> <span class="st">"group"</span>, </span></span>
 <span class="r-in"><span>                 Family <span class="op">=</span> <span class="st">"gaussian"</span>, </span></span>
 <span class="r-in"><span>                 Data <span class="op">=</span> <span class="va">md</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "No problems so far 🙃"</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Compiling Stan program...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Start sampling</span>
 <span class="r-in"><span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Variance decomposition</span></span></span>
 <span class="r-in"><span><span class="fu">var_decomp</span><span class="op">(</span><span class="va">mod</span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 2,000 × 12</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    Intercept  f_var2  f_var3    n_var sigma   R2_n_var R2_f_var3 R2_f_var2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 1</span>      10.0 -<span style="color: #BB0000;">0.197</span>  -<span style="color: #BB0000;">0.146</span>  -<span style="color: #BB0000;">0.150</span>    3.01 0.002<span style="text-decoration: underline;">39</span>    0.000<span style="text-decoration: underline;">517</span>  0.000<span style="text-decoration: underline;">903</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 2</span>      10.3 -<span style="color: #BB0000;">0.053</span><span style="color: #BB0000; text-decoration: underline;">5</span> -<span style="color: #BB0000;">0.418</span>   0.009<span style="text-decoration: underline;">27</span>  3.20 0.000<span style="text-decoration: underline;">008</span>02 0.003<span style="text-decoration: underline;">73</span>   0.000<span style="text-decoration: underline;">058</span>5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 3</span>      10.1 -<span style="color: #BB0000;">0.261</span>  -<span style="color: #BB0000;">0.056</span><span style="color: #BB0000; text-decoration: underline;">6</span>  0.022<span style="text-decoration: underline;">3</span>   2.98 0.000<span style="text-decoration: underline;">053</span>9  0.000<span style="text-decoration: underline;">079</span>9 0.001<span style="text-decoration: underline;">62</span>  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 4</span>      10.5 -<span style="color: #BB0000;">0.141</span>  -<span style="color: #BB0000;">0.749</span>  -<span style="color: #BB0000;">0.116</span>    2.98 0.001<span style="text-decoration: underline;">44</span>    0.013<span style="text-decoration: underline;">8</span>    0.000<span style="text-decoration: underline;">470</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 5</span>      10.1 -<span style="color: #BB0000;">0.060</span><span style="color: #BB0000; text-decoration: underline;">9</span>  0.275  -<span style="color: #BB0000;">0.063</span><span style="color: #BB0000; text-decoration: underline;">9</span>   3.08 0.000<span style="text-decoration: underline;">415</span>   0.001<span style="text-decoration: underline;">76</span>   0.000<span style="text-decoration: underline;">082</span>5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 6</span>      10.1  0.193  -<span style="color: #BB0000;">0.398</span>  -<span style="color: #BB0000;">0.203</span>    2.95 0.004<span style="text-decoration: underline;">53</span>    0.004<span style="text-decoration: underline;">00</span>   0.000<span style="text-decoration: underline;">903</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 7</span>      10.3 -<span style="color: #BB0000;">0.069</span><span style="color: #BB0000; text-decoration: underline;">5</span> -<span style="color: #BB0000;">0.744</span>  -<span style="color: #BB0000;">0.089</span><span style="color: #BB0000; text-decoration: underline;">7</span>   3.03 0.000<span style="text-decoration: underline;">838</span>   0.013<span style="text-decoration: underline;">2</span>    0.000<span style="text-decoration: underline;">110</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span>      10.1 -<span style="color: #BB0000;">0.180</span>  -<span style="color: #BB0000;">0.134</span>  -<span style="color: #BB0000;">0.188</span>    2.95 0.003<span style="text-decoration: underline;">90</span>    0.000<span style="text-decoration: underline;">455</span>  0.000<span style="text-decoration: underline;">788</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span>      10.2 -<span style="color: #BB0000;">0.414</span>  -<span style="color: #BB0000;">0.341</span>  -<span style="color: #BB0000;">0.050</span><span style="color: #BB0000; text-decoration: underline;">6</span>   3.00 0.000<span style="text-decoration: underline;">273</span>   0.002<span style="text-decoration: underline;">85</span>   0.004<span style="text-decoration: underline;">01</span>  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span>      10.0 -<span style="color: #BB0000;">0.182</span>  -<span style="color: #BB0000;">0.317</span>  -<span style="color: #BB0000;">0.145</span>    2.96 0.002<span style="text-decoration: underline;">28</span>    0.002<span style="text-decoration: underline;">52</span>   0.000<span style="text-decoration: underline;">790</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 1,990 more rows</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 4 more variables: R2_FixedEffects &lt;dbl&gt;, R2_group &lt;dbl&gt;,</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   R2_RandomEffects &lt;dbl&gt;, R2_residual &lt;dbl&gt;</span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
@@ -121,7 +133,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.0.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
 </div>
 
       </footer></div>
