@@ -22,7 +22,7 @@ md = tibble::tibble(
 
 ## Fixed effects only
 
-gau_mod = brms_model(Chainset = 1,
+gau_mod = brms_model(Chainset = 0,
                  Response = "resp_gaussian", 
                  FixedEffect = c("f_var","n_var1"), 
                  Family = "gaussian", 
@@ -32,7 +32,7 @@ gau_mod = brms_model(Chainset = 1,
 
 
 ## With random effect
-gau_mod_re = brms_model(Chainset = 1,
+gau_mod_re = brms_model(Chainset = 0,
                      Response = "resp_gaussian", 
                      FixedEffect = c("f_var","n_var1"), 
                      RandomEffect = "group1", 
@@ -43,7 +43,7 @@ gau_mod_re = brms_model(Chainset = 1,
 #save(gau_mod_re, file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/gau_mod_re.RData", compress = "xz")
 
 ## With two random effects
-gau_mod_2re = brms_model(Chainset = 1,
+gau_mod_2re = brms_model(Chainset = 0,
                      Response = "resp_gaussian", 
                      FixedEffect = c("f_var","n_var1"), 
                      RandomEffect = c("group1","group2"), 
@@ -55,7 +55,7 @@ gau_mod_2re = brms_model(Chainset = 1,
 
 
 ## With random slope
-gau_mod_rs = brms_model(Chainset = 1,
+gau_mod_rs = brms_model(Chainset = 0,
                      Response = "resp_gaussian", 
                      FixedEffect = c("f_var","n_var1"),
                      RandomSlope = c("n_var1", "group1"),
@@ -66,7 +66,7 @@ gau_mod_rs = brms_model(Chainset = 1,
 
 
 ## With random slope and an additional random effect
-gau_mod_rsre = brms_model(Chainset = 1,
+gau_mod_rsre = brms_model(Chainset = 0,
                      Response = "resp_gaussian", 
                      FixedEffect = c("f_var","n_var1"),
                      RandomSlope = c("n_var1", "group1"),
@@ -84,7 +84,7 @@ gau_mod_rsre = brms_model(Chainset = 1,
 
 ## Fixed effects only
 
-poi_mod = brms_model(Chainset = 1,
+poi_mod = brms_model(Chainset = 0,
                  Response = "resp_poisson", 
                  FixedEffect = c("f_var","n_var1"), 
                  Family = "poisson", 
@@ -94,7 +94,7 @@ poi_mod = brms_model(Chainset = 1,
 
 
 ## With random effect
-poi_mod_re = brms_model(Chainset = 1,
+poi_mod_re = brms_model(Chainset = 0,
                      Response = "resp_poisson", 
                      FixedEffect = c("f_var","n_var1"), 
                      RandomEffect = "group1", 
@@ -105,7 +105,7 @@ poi_mod_re = brms_model(Chainset = 1,
 # save(poi_mod_re, file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/poi_mod_re.RData", compress = "xz")
 
 ## With two random effects
-poi_mod_2re = brms_model(Chainset = 1,
+poi_mod_2re = brms_model(Chainset = 0,
                      Response = "resp_poisson", 
                      FixedEffect = c("f_var","n_var1"), 
                      RandomEffect = c("group1","group2"), 
@@ -117,7 +117,7 @@ poi_mod_2re = brms_model(Chainset = 1,
 
 
 ## With random slope
-poi_mod_rs = brms_model(Chainset = 1,
+poi_mod_rs = brms_model(Chainset = 0,
                      Response = "resp_poisson", 
                      FixedEffect = c("f_var","n_var1"),
                      RandomSlope = c("n_var1", "group1"),
@@ -128,7 +128,7 @@ poi_mod_rs = brms_model(Chainset = 1,
 
 
 ## With random slope and an additional random effect
-poi_mod_rsre = brms_model(Chainset = 1,
+poi_mod_rsre = brms_model(Chainset = 0,
                      Response = "resp_poisson", 
                      FixedEffect = c("f_var","n_var1"),
                      RandomSlope = c("n_var1", "group1"),
@@ -147,7 +147,7 @@ poi_mod_rsre = brms_model(Chainset = 1,
 
 ## Fixed effects only
 
-bin_mod = brms_model(Chainset = 1,
+bin_mod = brms_model(Chainset = 0,
                  Response = "successes",
                  Trials = "trials",
                  FixedEffect = c("f_var","n_var1"), 
@@ -158,7 +158,7 @@ bin_mod = brms_model(Chainset = 1,
 
 
 ## With random effect
-bin_mod_re = brms_model(Chainset = 1,
+bin_mod_re = brms_model(Chainset = 0,
                      Response = "successes",
                      Trials = "trials",
                      FixedEffect = c("f_var","n_var1"), 
@@ -170,7 +170,7 @@ bin_mod_re = brms_model(Chainset = 1,
 # save(bin_mod_re, file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/bin_mod_re.RData", compress = "xz")
 
 ## With two random effects
-bin_mod_2re = brms_model(Chainset = 1,
+bin_mod_2re = brms_model(Chainset = 0,
                      Response = "successes",
                      Trials = "trials",
                      FixedEffect = c("f_var","n_var1"), 
@@ -183,7 +183,7 @@ bin_mod_2re = brms_model(Chainset = 1,
 
 
 ## With random slope
-bin_mod_rs = brms_model(Chainset = 1,
+bin_mod_rs = brms_model(Chainset = 0,
                      Response = "successes",
                      Trials = "trials",
                      FixedEffect = c("f_var","n_var1"),
@@ -195,7 +195,7 @@ bin_mod_rs = brms_model(Chainset = 1,
 
 
 ## With random slope and an additional random effect
-bin_mod_rsre = brms_model(Chainset = 1,
+bin_mod_rsre = brms_model(Chainset = 0,
                      Response = "successes",
                      Trials = "trials",
                      FixedEffect = c("f_var","n_var1"),
