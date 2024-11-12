@@ -949,7 +949,7 @@ gau_mod_cov_rsre = brms_cov_model(Chainset = 0,
 
 ## Fixed effects only
 
-poi_mod_cov = brms_cov_model(Chainset = 0,
+poi_mod_cov = brms_cov_model(Chainset = 1,
                  Response = "resp_poisson", 
                  ID = "group2", 
                  Matrix = cov_matrix,

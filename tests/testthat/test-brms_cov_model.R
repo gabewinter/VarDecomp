@@ -119,7 +119,7 @@ gau_mod_cov_rsre = brms_cov_model(Chainset = 0,
 
 ## Fixed effects only
 
-poi_mod_cov = brms_cov_model(Chainset = 0,
+poi_mod_cov = brms_cov_model(Chainset = 1,
                  Response = "resp_poisson", 
                  ID = "group2", 
                  Matrix = cov_matrix,
@@ -131,7 +131,7 @@ poi_mod_cov = brms_cov_model(Chainset = 0,
 
 
 ## With random effect
-poi_mod_cov_re = brms_cov_model(Chainset = 0,
+poi_mod_cov_re = brms_cov_model(Chainset = 1,
                      Response = "resp_poisson", 
                      ID = "group2", 
                      Matrix = cov_matrix,
@@ -144,7 +144,7 @@ poi_mod_cov_re = brms_cov_model(Chainset = 0,
 # save(poi_mod_cov_re, file = "C:/Users/Gabe/Desktop/VarDecomp/dev/models/poi_mod_cov_re.RData", compress = "xz")
 
 ## With two random effects
-poi_mod_cov_2re = brms_cov_model(Chainset = 0,
+poi_mod_cov_2re = brms_cov_model(Chainset = 1,
                      Response = "resp_poisson", 
                      ID = "group2", 
                      Matrix = cov_matrix,
@@ -158,7 +158,7 @@ poi_mod_cov_2re = brms_cov_model(Chainset = 0,
 
 
 ## With random slope
-poi_mod_cov_rs = brms_cov_model(Chainset = 0,
+poi_mod_cov_rs = brms_cov_model(Chainset = 1,
                      Response = "resp_poisson", 
                      ID = "group2", 
                      Matrix = cov_matrix,
@@ -171,7 +171,7 @@ poi_mod_cov_rs = brms_cov_model(Chainset = 0,
 
 
 ## With random slope and an additional random effect
-poi_mod_cov_rsre = brms_cov_model(Chainset = 0,
+poi_mod_cov_rsre = brms_cov_model(Chainset = 1,
                      Response = "resp_poisson", 
                      ID = "group2", 
                      Matrix = cov_matrix,
